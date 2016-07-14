@@ -1,0 +1,46 @@
+@{layout('')}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SuperAdmin v@{config.version}</title>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=10" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="robots" content="all,follow" />
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700&subset=latin,latin-ext" />
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.6.0/codemirror.min.css" />
+	@{import('head', 'default.css', 'favicon.ico')}
+	<script>
+		var su=JSON.parse('@{json(user)}');
+	</script>
+</head>
+<body>
+
+	<div id="success"><span class="fa fa-check-circle"></span></div>
+	<div data-component="message" data-button="@(Close)"></div>
+	<div data-component="confirm"></div>
+	<div data-component="loading" class="ui-loading"></div>
+
+	<header>
+		<div class="mainmenu">
+			<div><b>@{config.name}</b> v@{config.version}</div>
+			<a href="javascript:mainmenu()" class="mainmenu-button"><span class="fa fa-navicon"></span></a>
+		</div>
+		<nav>
+			<a class="jrouting hidden" href="/" title="@(Applications)" data-role="applications"><span class="fa fa-dashboard"></span></a>
+			<a class="jrouting hidden" href="/nginx/" title="@(Nginx settings)" data-role="nginx"><span class="fa fa-server"></span></a>
+		</nav>
+	</header>
+
+	<div id="body">
+		<div data-component="page" data-component-path="common.page" data-if="applications" data-template="/templates/applications.html"></div>
+	</div>
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+	@{import('default.js')}
+
+</body>
+</html>

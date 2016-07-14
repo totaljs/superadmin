@@ -1,0 +1,7 @@
+{"id":"6071410150001wye1","url":"https://www.totaljs.com","redirect":[],"allow":[],"disallow":[],"ssl_key":"","ssl_cer":"","nginx":"","port":8000,"cluster":1,"ddos":20,"debug":true}
+{"id":"6071410150002wye0","url":"https://www.idsbk.sk","redirect":[],"allow":[],"disallow":[],"ssl_key":"","ssl_cer":"","nginx":"","port":8001,"cluster":1,"ddos":20,"debug":true}
+{"id":"16071410310001xyg1","url":"https://www.idsbk.sk","redirect":[],"allow":[],"disallow":[],"ssl_key":"","ssl_cer":"","nginx":"","port":8002,"cluster":1,"ddos":20,"debug":true}
+{"id":"16071410340001lxw1","url":"https://www.idsbk.sk","redirect":[],"allow":[],"disallow":[],"ssl_key":"","ssl_cer":"","nginx":"","port":8003,"cluster":1,"ddos":20,"debug":true}
+{"id":"6071410350001lxw1","url":"https://www.idsbk.sk","redirect":[],"allow":[],"disallow":[],"ssl_key":"","ssl_cer":"","nginx":"","port":8004,"cluster":1,"ddos":20,"debug":true}
+{"id":"16071410370001hwk1","url":"https://www.idsbk.sk","redirect":[],"allow":[],"disallow":[],"ssl_key":"","ssl_cer":"","nginx":"","port":8005,"cluster":1,"ddos":20,"debug":true}
+{"id":"16071410370001xlu1","url":"https://www.idsbk.sk","redirect":[],"allow":[],"disallow":[],"ssl_key":"","ssl_cer":"","nginx":"","port":8006,"cluster":1,"ddos":20,"debug":true}

@@ -1,0 +1,205 @@
+<div class="filter">
+	<div class="container">
+		<div class="caption"><span class="fa fa-dropbox mr5"></span>@(Applications)</div>
+		<div class="row">
+			<div class="col-md-3 col-sm-6 m">
+				<div data-component="textbox" data-component-path="applications.filter.search" data-placeholder="@(Search applications ...)" data-control-icon="fa-search"></div>
+				<div class="help" data-component="template" data-component-path="applications.grid"><script type="text/html">{{ count | pluralize(@('# items','# item','# items','# items')) }} / {{ pages | pluralize(@('# pages','# page','# pages','# pages')) }}</script></div>
+			</div>
+			<div class="col-md-6 m">
+				<div class="row">
+					<div class="col-xs-4"><a href="javascript:void(0)" data-component="click" class="linkbutton" data-component-path="applications_new"><span class="fa fa-plus-circle"></span>@(Add application)</a></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container">
+</div>
+
+<div data-component="form" data-title="@(Edit application)" data-component-path="common.form" data-if="value === 'applications'" data-width="900px" data-component-id="applications.form" data-autocenter="true">
+	<div data-component="visible" data-component-path="applications.form.id">
+		<div data-component="template" data-component-path="applications.form" class="padding npb">
+			<script type="text/html">
+			<table class="table table-bordered" border="0">
+				<tbody>
+					<tr>
+						<td class="col-xs-5 active">@(# id)</td>
+						<td>{{ id }}</td>
+					</tr>
+					<tr>
+						<td class="col-xs-5 active">@(Created)</td>
+						<td>{{ datecreated | format('@(yyyy-MM-dd)') }}</td>
+					</tr>
+				</tbody>
+			</table>
+			</script>
+		</div>
+	</div>
+
+	<div class="padding npb">
+		<div class="row">
+			<div class="col-md-10">
+				<div data-component="textbox" data-component-path="applications.form.url" data-required="true" data-placeholder="https://www.totaljs.com" data-component-value="''" data-component-type="url">@(URL address)</div>
+				<div class="help"><i class="fa fa-info-circle"></i>The URL address must contain the protocol <code>http</code> or <code>https</code>.</div>
+				<br />
+				<div data-component="checkbox" data-component-path="applications.form.debug">Enables debug mode</div>
+			</div>
+			<div class="col-md-2">
+				<div data-component="textbox" data-component-path="applications.form.port" data-required="true" data-component-value="''" data-align="center" data-maxlength="4">@(Port)</div>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="padding npb">
+		<div class="row">
+			<div class="col-md-10 m">
+				<div data-component="range" data-component-path="applications.form.cluster" data-component-type="number" data-min="1" data-max="50" data-component-value="1">Thread count</div>
+				<div class="help"><i class="fa fa-warning"></i>The application must be optimized for the cluster. The cluster mode is enabled when the thread count is great than <b>one thread</b>.</div>
+			</div>
+			<div class="col-md-2 center m">
+				<div data-component="" data-component-path="applications.form.cluster" style="font-size:40px"></div>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="padding">
+		<div class="row">
+			<div class="col-md-10 m">
+				<div data-component="range" data-component-path="applications.form.ddos" data-component-type="number" data-min="10" data-max="100" data-component-value="15">DDOS maximum count of request per second from one IP</div>
+				<div class="help"><i class="fa fa-warning"></i>Nginx destroys other requests.</div>
+			</div>
+			<div class="col-md-2 center m">
+				<div data-component="" data-component-path="applications.form.ddos" style="font-size:40px"></div>
+			</div>
+		</div>
+	</div>
+	<!--
+	<br />
+	<div class="padding bg-smoke">
+		<h2>Redirects</h2>
+		asdasj
+	</div>
+-->
+	<div data-component="error" data-component-path="applications.form.response"></div>
+	<div class="ui-form-buttons">
+		<div data-component="validation" data-component-path="applications.form">
+			<button name="submit">@(SUBMIT)</button>
+		</div>
+		<button name="cancel">@(Cancel)</button>
+	</div>
+</div>
+
+<script>
+
+	var applications = {};
+
+	applications.filter = {};
+	applications.filter.page = 1;
+
+	applications.grid = {};
+	applications.form = {};
+
+	ON('#applications.grid', function(component) {
+
+		// Max items per page
+		applications.filter.max = component.max;
+		applications_refresh(true);
+
+		component.click = function(index, row, button) {
+			var loading = FIND('loading');
+			switch ($(button).attr('name')) {
+				case 'edit':
+					applications_edit(row.id, index);
+					break;
+				case 'remove':
+					FIND('confirm').confirm('@(Do you want to remove) <b>{0}</b>?'.format(row.name), ['@(OK)', '@(Cancel)'], function(index) {
+						if (index)
+							return;
+						loading.show();
+						AJAX('DELETE /api/applications/', { id: row.id }, function() {
+							if (isError(arguments))
+								return;
+							loading.hide(500);
+							applications_refresh();
+						});
+					});
+					break;
+			}
+		};
+	});
+
+	// Watch for changes in product filter
+	WATCH('applications.filter.*', function(path, value) {
+		if (NOTMODIFIED('applications.filter', applications.filter))
+			return;
+		applications_refresh(path !== 'applications.filter.page');
+	});
+
+	ON('#applications.form', function(component) {
+		component.submit = function(hide) {
+			var loading = FIND('loading');
+			loading.show();
+			AJAX('POST /api/applications/', applications.form, function(response) {
+
+				if (isError(arguments))
+					return;
+
+				loading.hide(500);
+
+				// Error handling
+				SET('applications.form.response', response);
+				if (response instanceof Array)
+					return;
+
+				hide();
+				applications_refresh();
+				success();
+			});
+		};
+	});
+
+	function applications_edit(id, index) {
+		var loading = FIND('loading');
+		loading.show();
+		AJAX('GET /api/applications/{0}/'.format(id), function(response) {
+
+			if (isError(arguments))
+				return;
+
+			loading.hide(500);
+
+			// Error prevention
+			if (response instanceof Array) {
+				FIND('message').warning(response[0].error);
+				return;
+			}
+
+			SET('applications.form', $.extend({ $index: index }, response), true);
+			SET('common.form', 'applications');
+		});
+	}
+
+	function applications_new() {
+		SET('applications.form', { cluster: 1, port: 'auto', ddos: 20, debug: true }, true);
+		SET('common.form', 'applications');
+	}
+
+	// Method refreshes grid
+	function applications_refresh(reset) {
+		if (reset)
+			applications.filter.page = 1;
+		AJAX('GET /api/applications/', applications.filter, 'applications.grid');
+	}
+
+	function applications_reload() {
+		var hash = location.hash;
+		if (hash && hash.length > 1) {
+			setTimeout(function() {
+				applications_edit(hash.substring(1));
+			}, 500);
+		}
+	}
+
+</script>
