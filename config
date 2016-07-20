@@ -1,9 +1,8 @@
-name                      : SuperAdmin
+name                      : MyServer
 version                   : 1.0.0
 author                    : Peter Širka
 
-url                       : http://127.0.0.1:8000/
-superuser                 : admin:admin
+superadmin                : admin:admin
 
 // Custom SMTP settings
 mail.smtp                 : YOUR.SMTPSERVER.COM
@@ -17,10 +16,10 @@ mail.smtp                 : YOUR.SMTPSERVER.COM
 // mail.smtp                : smtp.office365.com
 // mail.smtp.options        : {"port":587,"secure":false,"user":"ENTER_YOUR_EMAIL","password":"ENTER_YOUR_PASSWORD","tls":{"ciphers":"SSLv3"}}
 
-// Image convertor for resizing of pictures
-// Default image converter: im = ImageMagick, gm = GraphicsMagick
-default-image-converter   : gm
-
-directory-nginx           : /Volumes/Development/superadmin/nginx/
-directory-ssl             : /Volumes/Development/superadmin/ssl/
-directory-www             : /Volumes/Development/superadmin/www/
+// Server configuration
+directory-nginx           : /www/nginx/
+directory-ssl             : /www/ssl/
+directory-acme            : /www/acme/
+directory-www             : /www/www/
+directory-console         : /www/logs/
+directory-dump            : /www/

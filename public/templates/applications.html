@@ -1,62 +1,241 @@
-<div class="filter">
-	<div class="container">
-		<div class="caption"><span class="fa fa-dropbox mr5"></span>@(Applications)</div>
+<div class="container">
+
+	<div class="filter">
 		<div class="row">
-			<div class="col-md-3 col-sm-6 m">
-				<div data-component="textbox" data-component-path="applications.filter.search" data-placeholder="@(Search applications ...)" data-control-icon="fa-search"></div>
-				<div class="help" data-component="template" data-component-path="applications.grid"><script type="text/html">{{ count | pluralize(@('# items','# item','# items','# items')) }} / {{ pages | pluralize(@('# pages','# page','# pages','# pages')) }}</script></div>
+			<div class="col-md-4 m">
+				<div data-component="textbox" data-component-path="applications.filter.search" data-control-icon="fa-search" data-placeholder="@(Search ...)">@(Search applications)</div>
 			</div>
-			<div class="col-md-6 m">
-				<div class="row">
-					<div class="col-xs-4"><a href="javascript:void(0)" data-component="click" class="linkbutton" data-component-path="applications_new"><span class="fa fa-plus-circle"></span>@(Add application)</a></div>
+			<div class="col-md-3 col-md-offset-5 m">
+				<br />
+				<div class="operations">
+					<button class="operation-button" name="add" title="@(Add application)"><i class="fa fa-plus-circle"></i></button>
+					<button class="operation-button" name="summary" title="@(Summary)"><i class="fa fa-bar-chart"></i></button>
+					<button class="operation-button" name="restart" title="@(Restart all)"><i class="fa fa-refresh"></i></button>
+					<button class="operation-button" name="stop" title="@(Stop all)"><i class="fa fa-pause-circle"></i></button>
+					<button class="operation-button" name="reconfigure" title="@(Reconfigure all)"><i class="fa fa-retweet"></i></button>
+					<button class="operation-button" name="backup" title="@(Backup the server)"><i class="fa fa-cloud-download"></i></button>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-<div class="container">
-</div>
+	<div class="row">
+		<div class="col-lg-10 col-md-9">
+			<div data-component="applications" data-component-path="applications.grid">
+				<script type="text/html">
+					<tr data-search="{{ url }}" class="tr" data-id="{{ id }}">
+						<td class="first" style="width:250px"><a href="{{ url }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}</a></td>
+						<td class="right" style="width:70px">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
+						<td class="hidden-xs"><div data-component="application-appinfo" data-port="{{ port }}" data-component-path="applications.info"></div></td>
+						<td style="width:50px" class="right"><span class="badge badge-silver">{{ port }}</span></td>
+						<td style="width:145px" class="right" data-id="{{ id }}">
+							<button class="application-button" name="logs" title="@(Show logs)"><i class="fa fa-search"></i></button>
+							<button class="application-button" name="restart" title="@(Restart)"><i class="fa fa-refresh"></i></button>
+							<button class="application-button" name="stop" title="@(Stop)"><i class="fa fa-pause-circle"></i></button>
+							<button class="application-button" name="upload" title="@(Upload as package)"><i class="fa fa-cloud-upload"></i></button>
+							<button class="application-button" name="settings" title="@(Settings)"><i class="fa fa-cog"></i></button>
+							<button class="application-button" name="download" title="@(Backup as package)"><i class="fa fa-cloud-download"></i></button>
+							<button class="application-button" name="remove" title="@(Remove)"><i class="fa fa-times-circle"></i></button>
+						</td>
+					</tr>
+				</script>
+			</div>
+		</div>
+		<div class="col-lg-2 col-md-3">
+			<div style="height:32px" class="visible-lg visible-md"></div>
+			<div data-component="tagger" data-component-path="applications.stats">
+				<div class="caption"><i class="fa fa-server"></i>@(Memory)</div>
+				<div class="stats">
+					<div>@(Total)</div>
+					<div data-name="memtotal" data-format="n => n.format(0)" data-after=" MB">...</div>
+				</div>
+				<div class="stats">
+					<div>@(Free)</div>
+					<div data-name="memfree" data-format="n => n.format(0)" data-after=" MB">...</div>
+				</div>
+				<div class="stats">
+					<div>@(Used)</div>
+					<div data-name="memused" data-format="n => n.format(0)" data-after=" MB">...</div>
+				</div>
+				<hr style="margin:5px 0 10px" />
+				<div class="stats">
+					<div>@(Applications)</div>
+					<div data-name="memory" data-format="n => n.format(0)" data-after=" MB">...</div>
+				</div>
+				<div class="stats">
+					<div>@(Count)</div>
+					<div data-name="count">...</div>
+				</div>
+				<br />
+				<div class="caption"><i class="fa fa-hdd-o"></i>@(HDD)</div>
+				<div class="stats mt10">
+					<div>@(Total)</div>
+					<div data-name="hddtotal">...</div>
+				</div>
+				<div class="stats">
+					<div>@(Free)</div>
+					<div data-name="hddfree">...</div>
+				</div>
+				<div class="stats">
+					<div>@(Used)</div>
+					<div data-name="hddused">...</div>
+				</div>
 
-<div data-component="form" data-title="@(Edit application)" data-component-path="common.form" data-if="value === 'applications'" data-width="900px" data-component-id="applications.form" data-autocenter="true">
-	<div data-component="visible" data-component-path="applications.form.id">
-		<div data-component="template" data-component-path="applications.form" class="padding npb">
-			<script type="text/html">
-			<table class="table table-bordered" border="0">
-				<tbody>
-					<tr>
-						<td class="col-xs-5 active">@(# id)</td>
-						<td>{{ id }}</td>
-					</tr>
-					<tr>
-						<td class="col-xs-5 active">@(Created)</td>
-						<td>{{ datecreated | format('@(yyyy-MM-dd)') }}</td>
-					</tr>
-				</tbody>
-			</table>
-			</script>
+				<br />
+				<div class="caption"><i class="fa fa-sitemap"></i>@(Network)</div>
+				<div class="stats">
+					<div>@(Opened connections)</div>
+					<div data-name="connections" data-after="x">...</div>
+				</div>
+
+				<div data-name="mongodb" data-visible="n => n" class="hidden">
+					<br />
+					<div class="caption"><i class="fa fa-database green"></i>@(MongoDB)</div>
+					<div class="stats mt10">
+						<div>@(CPU)</div>
+						<div data-name="mongodb.cpu">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Memory)</div>
+						<div data-name="mongodb.memory">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Version)</div>
+						<div data-name="version_mongodb" data-before="v">...</div>
+					</div>
+				</div>
+
+				<div data-name="postgresql" data-visible="n => n" class="hidden">
+					<br />
+					<div class="caption"><i class="fa fa-database green"></i>@(PostgreSQL)</div>
+					<div class="stats mt10">
+						<div>@(CPU)</div>
+						<div data-name="postgresql.cpu">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Memory)</div>
+						<div data-name="postgresql.memory">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Version)</div>
+						<div data-name="version_postgresql" data-before="v">...</div>
+					</div>
+				</div>
+
+				<div data-name="mysql" data-visible="n => n" class="hidden">
+					<br />
+					<div class="caption"><i class="fa fa-database green"></i>@(MySQL)</div>
+					<div class="stats mt10">
+						<div>@(CPU)</div>
+						<div data-name="mysql.cpu">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Memory)</div>
+						<div data-name="mysql.memory">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Version)</div>
+						<div data-name="version_mysql" data-before="v">...</div>
+					</div>
+				</div>
+
+				<div data-name="redis" data-visible="n => n" class="hidden">
+					<br />
+					<div class="caption"><i class="fa fa-database green"></i>@(Redis)</div>
+					<div class="stats mt10">
+						<div>@(CPU)</div>
+						<div data-name="redis.cpu">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Memory)</div>
+						<div data-name="redis.memory">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Version)</div>
+						<div data-name="version_redis" data-before="v">...</div>
+					</div>
+				</div>
+
+				<hr style="margin:15px 0" />
+				<div data-name="cpu" style="font-size:32px;line-height:45px">...</div>
+				<div class="fs11">@(CPU occupancy (all cores))</div>
+				<hr />
+				<div class="fs11 b black" data-name="version_server">...</div>
+				<div class="stats mt5">
+					<div>@(Nginx)</div>
+					<div data-name="version_nginx" data-before="v">...</div>
+				</div>
+				<div class="stats">
+					<div>@(Node.js)</div>
+					<div data-name="version_node" data-before="v">...</div>
+				</div>
+				<div class="stats hidden" data-visible="n => n" data-name="version_gm">
+					<div>@(GraphicsMagick)</div>
+					<div data-name="version_gm" data-before="v">...</div>
+				</div>
+			</div>
+			<br />
 		</div>
 	</div>
+</div>
 
-	<div class="padding npb">
+<div data-component="form" data-title="@(Edit application)" data-component-path="common.form" data-if="value === 'applications'" data-width="900px" data-component-id="applications.form" data-autocenter="false">
+	<div class="padding">
+
+		<div data-component="visible" data-component-path="applications.form.id" data-if="!value" class="hidden">
+			<div class="silver">@(When you add the application then you have to upload it as <b>package</b> via <i class="fa fa-cloud-upload"></i> button in application's grid.)</div>
+			<br />
+		</div>
+
 		<div class="row">
 			<div class="col-md-10">
 				<div data-component="textbox" data-component-path="applications.form.url" data-required="true" data-placeholder="https://www.totaljs.com" data-component-value="''" data-component-type="url">@(URL address)</div>
-				<div class="help"><i class="fa fa-info-circle"></i>The URL address must contain the protocol <code>http</code> or <code>https</code>.</div>
+				<div class="help"><i class="fa fa-info-circle"></i>@(The URL address must contain the protocol <code>http</code> or <code>https</code>.)</div>
 				<br />
-				<div data-component="checkbox" data-component-path="applications.form.debug">Enables debug mode</div>
+				<div data-component="checkbox" data-component-path="applications.form.debug">@(Enables debug mode)</div>
 			</div>
 			<div class="col-md-2">
 				<div data-component="textbox" data-component-path="applications.form.port" data-required="true" data-component-value="''" data-align="center" data-maxlength="4">@(Port)</div>
 			</div>
 		</div>
 	</div>
-	<hr />
+	<div data-component="visible" data-component-path="applications.form.url" data-if="value && value.substring(0, 8) === 'https://'" class="hidden">
+		<div class="padding bg-smoke" style="border-bottom:1px solid #E0E0E0">
+			<div><span class="badge badge-green mr5">@(security)</span><b>@(SSL configuration)</b></div>
+			<div class="help nmt">@(Type a path if you want to prevent <b>auto configure</b>.)</div>
+			<br />
+			<div class="row">
+				<div class="col-md-6 m">
+					<div data-component="textbox" data-component-path="applications.form.ssl_key" data-placeholder="@(auto configure)" data-icon="fa-key">@(SSL key)</div>
+				</div>
+				<div class="col-md-6 m">
+					<div data-component="textbox" data-component-path="applications.form.ssl_cer" data-placeholder="@(auto configure)">@(SSL certificate)</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="padding bg-smoke npb" style="padding-top:30px">
+		<h2><i class="fa fa-folder"></i>@(Categorization)</h2>
+		<div class="row">
+			<div class="col-md-6 m">
+				<div data-component="dropdown" data-component-path="applications.form.category" data-source="applications.categories" data-empty="" data-source-value="name">@(Existing category)</div>
+			</div>
+			<div class="col-md-6 m">
+				<div data-component="textbox" data-component-path="applications.form.category" data-required="true" data-placeholder="@(e.g. E-commerce)">@(Category)</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 m">
+				<div data-component="textarea" data-component-path="applications.form.notes" data-placeholder="@(e.g. Hosting ends january 2029)" data-component-value="''" data-height="50px">@(Notes)</div>
+			</div>
+		</div>
+		<br />
+	</div>
 	<div class="padding npb">
 		<div class="row">
 			<div class="col-md-10 m">
-				<div data-component="range" data-component-path="applications.form.cluster" data-component-type="number" data-min="1" data-max="50" data-component-value="1">Thread count</div>
-				<div class="help"><i class="fa fa-warning"></i>The application must be optimized for the cluster. The cluster mode is enabled when the thread count is great than <b>one thread</b>.</div>
+				<div data-component="range" data-component-path="applications.form.cluster" data-component-type="number" data-min="1" data-max="50" data-component-value="1">@(Thread count)</div>
+				<div class="help"><i class="fa fa-warning"></i>@(The application must be optimized for the cluster. The cluster mode is enabled when the thread count is great than <b>one thread</b>.)</div>
 			</div>
 			<div class="col-md-2 center m">
 				<div data-component="" data-component-path="applications.form.cluster" style="font-size:40px"></div>
@@ -64,24 +243,52 @@
 		</div>
 	</div>
 	<hr />
-	<div class="padding">
+	<div class="padding npb">
 		<div class="row">
 			<div class="col-md-10 m">
-				<div data-component="range" data-component-path="applications.form.ddos" data-component-type="number" data-min="10" data-max="100" data-component-value="15">DDOS maximum count of request per second from one IP</div>
-				<div class="help"><i class="fa fa-warning"></i>Nginx destroys other requests.</div>
+				<div data-component="range" data-component-path="applications.form.ddos" data-component-type="number" data-min="10" data-max="100" data-component-value="15">@(Maximum count of request per second from the one IP)</div>
+				<div class="help"><i class="fa fa-warning"></i>@(This settings is a prevention for DDOS attacks. Nginx responds via 503 error for other requests.)</div>
 			</div>
 			<div class="col-md-2 center m">
 				<div data-component="" data-component-path="applications.form.ddos" style="font-size:40px"></div>
 			</div>
 		</div>
 	</div>
-	<!--
-	<br />
-	<div class="padding bg-smoke">
-		<h2>Redirects</h2>
-		asdasj
+	<hr />
+	<div class="padding npb">
+		<div class="row">
+			<div class="col-md-3 m">
+				<div data-component="textbox" data-component-path="applications.form.priority" data-component-type="number" data-maxlength="3" data-align="center" data-increment="true">@(Process priority)</div>
+				<div class="help">Process with highest priority is executed at first.</div>
+			</div>
+			<div class="col-md-3 m">
+				<div data-component="textbox" data-component-path="applications.form.delay" data-component-type="number" data-maxlength="5" data-align="center" data-increment="true">@(Delay (ms))</div>
+				<div class="help">Delay after is the process executed. Other requests will wait.</div>
+			</div>
+			<div class="col-md-3 m">
+				<div data-component="textbox" data-component-path="applications.form.size" data-component-type="number" data-maxlength="5" data-align="center" data-icon="fa-cloud-upload" data-placeholder="e.g. 5" data-increment="true">@(Maximum upload size (MB))</div>
+			</div>
+		</div>
+		<hr />
+		<br />
+		<div class="row">
+			<div class="col-md-6 m">
+				<div data-component="textbox" data-component-path="applications.form.monitor" data-maxlength="200" data-placeholder="/$monitor/" data-icon="fa-desktop">@(Relative URL address for monitoring)</div>
+				<div class="help">If you use Total.js <b>monitor</b> module then add its URL address.</div>
+			</div>
+		</div>
 	</div>
--->
+	<hr />
+	<div class="padding">
+		<div data-component="textboxlist" data-component-path="applications.form.redirect" class="m" data-maxlength="50" data-placeholder="@(e.g. www.totaljs.com)" data-icon="fa-arrow-left" data-component-value="[]">@(Redirects)</div>
+		<div data-component="textboxlist" data-component-path="applications.form.allow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33)" data-icon="fa-globe" data-component-value="[]">@(Allow IP addresses)</div>
+		<div data-component="textboxlist" data-component-path="applications.form.disallow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33)" data-icon="fa-ban" data-component-value="[]">@(Disallow IP addresses)</div>
+	</div>
+	<hr class="nmt" />
+	<div class="padding">
+		<div data-component="codemirror" data-component-path="applications.form.nginx" data-icon="fa-code" data-height="200px" data-type="nginx" class="ui-textarea-code">@(Custom NGINX configuration)</div>
+		<br />
+	</div>
 	<div data-component="error" data-component-path="applications.form.response"></div>
 	<div class="ui-form-buttons">
 		<div data-component="validation" data-component-path="applications.form">
@@ -90,6 +297,63 @@
 		<button name="cancel">@(Cancel)</button>
 	</div>
 </div>
+
+<div data-component="form" data-title="@(Upload a new application)" data-component-path="common.form" data-if="value === 'applications-upload'" data-width="600px" data-component-id="applications.upload" data-autocenter="true">
+	<div class="padding">
+		<div class="row">
+			<div class="col-md-12">
+				<h2 class="black"><i class="fa fa-globe mr5"></i><b data-component="" data-component-path="applications.upload.name"></b></h2>
+				<div data-component="fileupload" data-component-id="applications.package" data-component-path="applications.upload.filename" data-icon="fa fa-search" data-placeholder="myapplication.package" data-required="true" data-url="/api/apps/upload/" data-singlefile="true">@(Browse device)</div>
+				<div data-component="template" data-component-path="applications.upload">
+					<script type="text/html">
+						{{ if filename }}
+						<div class="fs11 mt10"><i class="fa fa-file mr5"></i><b>@(Filename:)</b> {{ filename }}</div>
+						<hr style="margin:10px 0 0" />
+						{{ fi }}
+					</script>
+				</div>
+				<br />
+				<div data-component="checkbox" data-component-path="applications.upload.remove">@(Removes all files)</div>
+			</div>
+		</div>
+	</div>
+
+	<div data-component="error" data-component-path="applications.upload.response"></div>
+	<div class="ui-form-buttons">
+		<div data-component="validation" data-component-path="applications.upload" data-if="applications.upload.filename ? true : false">
+			<button name="submit">@(SUBMIT)</button>
+		</div>
+		<button name="cancel">@(Cancel)</button>
+	</div>
+</div>
+
+<div data-component="form" data-title="@(Application's logs)" data-component-path="common.form" data-if="value === 'applications-logs'" data-width="900px" data-autocenter="true">
+	<div class="padding">
+		<div data-component="textarea" data-component-path="applications.logs" data-height="500px" class="ui-textarea-code" data-readonly="true">@(Logs)</div>
+	</div>
+	<div class="ui-form-buttons">
+		<button name="cancel">@(Cancel)</button>
+	</div>
+</div>
+
+<div data-component="form" data-title="@(Backuping...)" data-component-path="common.form" data-if="value === 'applications-backup'" data-width="380px" data-autocenter="true">
+	<div class="padding">
+		<i class="fa fa-clock-o mr5"></i>@(<b>Please wait</b> for file saving dialog and don't do nothing. The browser waits for the backup file.)
+	</div>
+	<div class="ui-form-buttons">
+		<button name="cancel">@(I understand)</button>
+	</div>
+</div>
+
+<div data-component="form" data-title="@(Summary)" data-component-path="common.form" data-if="value === 'applications-summary'" data-width="600px" data-autocenter="true">
+	<div class="padding">
+		OK
+	</div>
+	<div class="ui-form-buttons">
+		<button name="cancel">@(Close)</button>
+	</div>
+</div>
+
 
 <script>
 
@@ -100,48 +364,137 @@
 
 	applications.grid = {};
 	applications.form = {};
+	applications.upload = {};
+	applications.info = null;
+	applications.stats = {};
+	applications.logs = null;
 
-	ON('#applications.grid', function(component) {
+	$(document).on('click', '.application-button', function() {
+		var button = $(this);
+		var id = button.parent().attr('data-id');
 
-		// Max items per page
-		applications.filter.max = component.max;
-		applications_refresh(true);
-
-		component.click = function(index, row, button) {
-			var loading = FIND('loading');
-			switch ($(button).attr('name')) {
-				case 'edit':
-					applications_edit(row.id, index);
-					break;
-				case 'remove':
-					FIND('confirm').confirm('@(Do you want to remove) <b>{0}</b>?'.format(row.name), ['@(OK)', '@(Cancel)'], function(index) {
-						if (index)
-							return;
-						loading.show();
-						AJAX('DELETE /api/applications/', { id: row.id }, function() {
-							if (isError(arguments))
-								return;
-							loading.hide(500);
-							applications_refresh();
-						});
+		switch (this.name) {
+			case 'remove':
+				FIND('confirm').confirm('@(Are you sure you want to remove this application?)', ['@(Yes)', '@(Cancel)'], function(index) {
+					if (index)
+						return;
+					SETTER('loading', 'show');
+					AJAX('DELETE /api/apps/{0}/remove/'.format(id), function(response) {
+						applications_refresh();
+						success();
 					});
-					break;
-			}
-		};
+				});
+				return;
+			case 'restart':
+				SETTER('loading', 'show');
+				AJAX('GET /api/apps/{0}/restart/'.format(id), function(response) {
+					success();
+				});
+				return;
+			case 'stop':
+				SETTER('loading', 'show');
+				AJAX('GET /api/apps/{0}/stop/'.format(id), function(response) {
+					success();
+				});
+				return;
+			case 'upload':
+				FIND('#applications.package').custom(id);
+				SET('applications.upload', { id: id, filename: '', remove: false, name: applications.grid.findItem('id', id).url });
+				SET('common.form', 'applications-upload');
+				return;
+			case 'download':
+				location.href = '/api/apps/{0}/pack/'.format(id);
+				return;
+			case 'logs':
+				SETTER('loading', 'show');
+				AJAX('GET /api/apps/{0}/logs/'.format(id), function(response) {
+					SET('applications.logs', response);
+					SET('common.form', 'applications-logs');
+					success();
+				});
+				return;
+			case 'settings':
+				applications_edit(id, -1);
+				return;
+		}
+	});
+
+	$(document).on('click', '.operation-button', function() {
+		switch (this.name) {
+
+			case 'summary':
+				applications_summary();
+				break;
+
+			case 'backup':
+				FIND('confirm').confirm('@(Are you sure you want to create a backup of the whole server?)', ['@(Yes)', '@(Cancel)'], function(index) {
+					if (index)
+						return;
+					SETTER('loading', 'show');
+					SETTER('loading', 'hide', 1000);
+					SET('common.form', 'applications-backup');
+					location.href = '/api/apps/backup/';
+				});
+				return;
+
+			case 'add':
+				applications_new();
+				break;
+
+			case 'restart':
+				FIND('confirm').confirm('@(Are you sure you want to restart all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
+					if (index)
+						return;
+					SETTER('loading', 'show');
+					AJAX('GET /api/apps/restart/', function(response) {
+						success();
+					});
+				});
+				break;
+
+			case 'reconfigure':
+				FIND('confirm').confirm('@(Are you sure you want to reconfigure all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
+					if (index)
+						return;
+					SETTER('loading', 'show');
+					AJAX('GET /api/apps/reconfigure/', function(response) {
+						success();
+					});
+				});
+				break;
+
+			case 'stop':
+				FIND('confirm').confirm('@(Are you sure you want to stop all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
+					if (index)
+						return;
+					SETTER('loading', 'show');
+					AJAX('GET /api/apps/stop/', function(response) {
+						success();
+					});
+				});
+				break;
+		}
 	});
 
 	// Watch for changes in product filter
-	WATCH('applications.filter.*', function(path, value) {
+	WATCH('applications.filter.search', function(path, value) {
 		if (NOTMODIFIED('applications.filter', applications.filter))
 			return;
-		applications_refresh(path !== 'applications.filter.page');
+		if (!value)
+			value = '';
+		value = value.toLowerCase();
+		FIND('applications').element.find('tr.tr').each(function(index) {
+			var el = $(this);
+			var search = el.attr('data-search').toLowerCase();
+			el.toggleClass('hidden', value ? search.indexOf(value) === -1 : false);
+		});
 	});
 
 	ON('#applications.form', function(component) {
 		component.submit = function(hide) {
 			var loading = FIND('loading');
 			loading.show();
-			AJAX('POST /api/applications/', applications.form, function(response) {
+			AJAX('POST /api/apps/', applications.form, function(response) {
 
 				if (isError(arguments))
 					return;
@@ -160,10 +513,37 @@
 		};
 	});
 
+	ON('#applications.upload', function(component) {
+		component.submit = function(hide) {
+
+			FIND('confirm').confirm('@(Are you sure you want to unpack uploaded package?)', ['@(Yes)', '@(Cancel)'], function(index) {
+				if (index)
+					return;
+				var loading = FIND('loading');
+				loading.show();
+				AJAX('POST /api/apps/unpack/', applications.upload, function(response) {
+
+					if (isError(arguments))
+						return;
+
+					loading.hide(500);
+
+					// Error handling
+					SET('applications.upload.response', response);
+					if (response instanceof Array)
+						return;
+
+					hide();
+					success();
+				});
+			});
+		};
+	});
+
 	function applications_edit(id, index) {
 		var loading = FIND('loading');
 		loading.show();
-		AJAX('GET /api/applications/{0}/'.format(id), function(response) {
+		AJAX('GET /api/apps/{0}/'.format(id), function(response) {
 
 			if (isError(arguments))
 				return;
@@ -182,7 +562,7 @@
 	}
 
 	function applications_new() {
-		SET('applications.form', { cluster: 1, port: 'auto', ddos: 20, debug: true }, true);
+		SET('applications.form', { cluster: 1, port: 'auto', ddos: 20, debug: false, redirect: [], allow: [], disallow: [], size: 5 }, true);
 		SET('common.form', 'applications');
 	}
 
@@ -190,7 +570,22 @@
 	function applications_refresh(reset) {
 		if (reset)
 			applications.filter.page = 1;
-		AJAX('GET /api/applications/', applications.filter, 'applications.grid');
+
+		AJAX('GET /api/apps/', applications.filter, function(response) {
+			var categories = {};
+			SET('applications.grid', response);
+
+			response.forEach(function(item) {
+				if (item.category)
+					categories[item.category] = true;
+			});
+
+			SET('applications.categories', Object.keys(categories));
+			applications_info();
+			applications_monitor();
+		});
+
+		applications_stats();
 	}
 
 	function applications_reload() {
@@ -201,5 +596,189 @@
 			}, 500);
 		}
 	}
+
+	function applications_summary() {
+		SET('common.form', 'applications-summary');
+	}
+
+	function applications_init() {
+		applications_refresh(true);
+	}
+
+	function applications_info() {
+		clearTimeout(applications.timeout_info);
+
+		AJAX('GET /api/apps/info/', function(response) {
+			SET('applications.info', response);
+			applications.timeout_info = setTimeout(applications_info, 6000);
+
+			var sum = 0;
+
+			response.forEach(function(item) {
+				sum += item.memory.replace(/\sMB/g, '').parseFloat();
+			});
+
+			SET('applications.stats.memory', sum);
+			SET('applications.stats.count', response.length);
+		});
+	}
+
+	function applications_stats() {
+		clearTimeout(applications.timeout_stats);
+		AJAX('GET /api/stats/', function(response) {
+			EXTEND('applications.stats', response);
+			applications.timeout_stats = setTimeout(applications_stats, 10000);
+		});
+	}
+
+	function applications_monitor() {
+		clearTimeout(applications.timeout_monitor);
+		AJAX('GET /api/apps/monitor/', function(response) {
+			EXTEND('applications.monitor', response);
+			applications.timeout_stats = setTimeout(applications_monitor, 30000);
+		});
+	}
+
+	WATCH('applications.monitor', function(path, response) {
+		$('.tr[data-id]').each(function() {
+			var tr = $(this);
+			var id = tr.attr('data-id');
+			var item = response[id];
+			if (!item)
+				return;
+			var has = item.errors && item.errors.length > 0;
+			tr.toggleClass('error', has);
+		});
+	});
+
+	COMPONENT('applications', function() {
+
+		var self = this;
+		var recompile = false;
+		var template_table = '<div class="items"><table border="0">{0}</table></div>';
+		var template_category = '<div class="category"><span>{1}x</span><i class="fa fa-folder"></i>{0}</div>';
+
+		self.readonly();
+
+		self.make = function() {
+
+			var element = self.element.find('script');
+
+			if (!element.length) {
+				element = self.element;
+				self.element = self.element.parent();
+			}
+
+			var html = element.html();
+			element.remove();
+			self.template = Tangular.compile(html);
+			recompile = html.indexOf('data-component="') !== -1;
+			self.element.addClass('applications');
+		};
+
+		self.setter = function(value) {
+
+			if (!value || !value.length) {
+				self.empty();
+				return;
+			}
+
+			var categories = {};
+
+			self.toggle('hidden', true);
+			self.empty();
+
+			value.forEach(function(item) {
+				if (categories[item.category])
+					categories[item.category].push(item);
+				else
+					categories[item.category] = [item];
+			});
+
+
+			var keys = Object.keys(categories);
+
+			keys.sort(function(a, b) {
+				return a.substring(0, 15).toLowerCase().localeCompare(b.substring(0, 15).toLowerCase());
+			});
+
+			keys.forEach(function(name) {
+
+				var builder = [];
+				var items = categories[name];
+
+				items.sort(function(a, b) {
+					var an = a.url.replace(/^(http|https)\:\/\//g, '').substring(0, 15).toLowerCase();
+					var bn = b.url.replace(/^(http|https)\:\/\//g, '').substring(0, 15).toLowerCase();
+					return an.localeCompare(bn);
+				});
+
+				items.forEach(function(item, index) {
+					builder.push(self.template(item).replace(/\$index/g, index.toString()).replace(/\$/g, self.path + '[' + index + ']'));
+				});
+
+				self.element.append(template_category.format(name, builder.length) + template_table.format(builder.join('')));
+			});
+
+			if (recompile)
+			   jC.compile();
+
+			setTimeout(function() {
+				self.toggle('hidden', false);
+			}, 100);
+		};
+	});
+
+	COMPONENT('application-appinfo', function() {
+
+		var self = this;
+		var port = self.attr('data-port').parseInt();
+
+		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg silver" style="width:60px">{{ hdd }}<i class="fa fa-folder ml5"></i></td><td style="width:75px" class="right visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td style="width:85px" class="right">{{ memory | application-round }}{{ memory | application-progress(\'memory\', 500) }}</td><td style="width:45px" class="right visible-lg">{{ openedfiles }}<i class="fa fa-hdd-o ml5"></i></td><td style="width:45px" class="right visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
+
+		self.readonly();
+
+		self.setter = function(value) {
+			if (!value)
+				return;
+			var obj = value.findItem('port', port);
+			if (obj)
+				self.html(self.template(obj));
+			else
+				self.html('<div class="offline">OFFLINE</div>');
+		};
+	});
+
+	Tangular.register('application-name', function(value) {
+		var https = value.substring(0, 8) === 'https://';
+		return (https ? '<span>ssl</span>' : '') + value.replace(/(http|https)\:\/\//g, '');
+	});
+
+	Tangular.register('application-uptime', function(value) {
+		var arr = value.split('-');
+		if (arr.length === 1)
+			return arr[0];
+		return '<span class="time">{0}</span> {1}'.format(arr[0].parseInt().pluralize('# days', '# day', '# days', '# days'), arr[1]);
+	});
+
+	Tangular.register('application-round', function(value) {
+		var m = value.match(/[0-9\.]+/g);
+		if (!m)
+			return value;
+		return Math.round(m.toString().parseFloat()) + value.replace(m, '');
+	});
+
+	Tangular.register('application-progress', function(value, type, max) {
+
+		if (this.cluster > 1)
+			max *= this.cluster;
+
+		var current = Math.round(value.replace(/(\s|\%|MB)?/g, '').parseFloat());
+		var percentage = (current / max) * 100;
+		if (percentage > 100)
+			percentage = 100;
+
+		return '<div class="progress"><div style="background-color:{1};width:{0}%"></div></div>'.format(percentage, percentage < 20 ? 'green' : percentage < 60 ? 'orange' : 'red');
+	});
 
 </script>

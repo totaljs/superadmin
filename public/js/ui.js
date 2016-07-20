@@ -48,6 +48,102 @@ COMPONENT('visible', function() {
 	};
 });
 
+COMPONENT('textboxlist', function() {
+	var self = this;
+	var container;
+	var empty = {};
+	var skip = false;
+
+	self.template = Tangular.compile('<div class="ui-textboxlist-item"><div><i class="fa fa-times"></i></div><div><input type="text" maxlength="{{ max }}" placeholder="{{ placeholder }}" value="{{ value }}" /></div></div>');
+	self.make = function() {
+
+		empty.max = (self.attr('data-maxlength') || '100').parseInt();
+		empty.placeholder = self.attr('data-placeholder');
+		empty.value = '';
+
+		var html = self.html();
+		var icon = self.attr('data-icon');
+
+		if (icon)
+			icon = '<i class="fa {0}"></i>'.format(icon);
+
+		self.toggle('ui-textboxlist');
+		self.html((html ? '<div class="ui-textboxlist-label">{1}{0}:</div>'.format(html, icon) : '') + '<div class="ui-textboxlist-items"></div>' + self.template(empty).replace('-item"', '-item ui-textboxlist-base"'));
+		container = self.find('.ui-textboxlist-items');
+
+		self.element.on('click', '.fa-times', function() {
+			var el = $(this);
+			var parent = el.closest('.ui-textboxlist-item');
+			var value = parent.find('input').val();
+			var arr = self.get();
+
+			parent.remove();
+
+			var index = arr.indexOf(value);
+			if (index === -1)
+				return;
+			arr.splice(index, 1);
+			skip = true;
+			self.set(self.path, arr, 2);
+		});
+
+		self.element.on('change keypress', 'input', function(e) {
+
+			if (e.type !== 'change' && e.keyCode !== 13)
+				return;
+
+			var el = $(this);
+
+			var value = this.value.trim();
+			if (!value)
+				return;
+
+			var arr = [];
+			var base = el.closest('.ui-textboxlist-base').length > 0;
+
+			if (base && e.type === 'change')
+				return;
+
+			if (base) {
+				self.get().indexOf(value) === -1 && self.push(self.path, value, 2);
+				this.value = '';
+				return;
+			}
+
+			container.find('input').each(function() {
+				arr.push(this.value.trim());
+			});
+
+			skip = true;
+			self.set(self.path, arr, 2);
+		});
+	};
+
+	self.setter = function(value, path, type) {
+
+		if (skip) {
+			skip = false;
+			return;
+		}
+
+		// array
+		if (!value || !value.length) {
+			container.empty();
+			return;
+		}
+
+		var builder = [];
+
+		value.forEach(function(item) {
+			empty.value = item;
+			builder.push(self.template(empty));
+		});
+
+		container.empty().append(builder.join(''));
+	};
+
+});
+
 COMPONENT('message', function() {
 	var self = this;
 	var is = false;
@@ -334,6 +430,7 @@ COMPONENT('textbox', function() {
 		var content = self.html();
 		var icon = self.attr('data-icon');
 		var icon2 = self.attr('data-control-icon');
+		var text = self.attr('data-control-text');
 		var increment = self.attr('data-increment') === 'true';
 
 		if (!icon2 && self.type === 'date')
@@ -343,6 +440,8 @@ COMPONENT('textbox', function() {
 
 		if (icon2)
 			builder.push('<div><span class="fa {0}"></span></div>'.format(icon2));
+		else if (text)
+			builder.push('<div style="font-size:10px">{0}</div>'.format(text));
 		else if (increment)
 			builder.push('<div><span class="fa fa-caret-up"></span><span class="fa fa-caret-down"></span></div>');
 
@@ -435,6 +534,9 @@ COMPONENT('textarea', function() {
 
 		attr('data-placeholder');
 		attr('data-maxlength');
+
+		if (self.attr('data-readonly'))
+			attrs.push('readonly="readonly"');
 
 		var element = self.element;
 		var height = element.attr('data-height');
@@ -1063,14 +1165,22 @@ COMPONENT('pictures', function() {
 COMPONENT('fileupload', function() {
 
 	var self = this;
+	var customvalue = null;
+	var loader;
 
 	self.error = function(err) {};
-	self.readonly();
+	self.noValid();
 	self.setter = null;
+	self.getter = null;
 
 	var isRequired = this.element.attr('data-required') === 'true';
 
-	this.make = function() {
+	self.custom = function(val) {
+		customvalue = val;
+		return self;
+	};
+
+	self.make = function() {
 
 		var element = this.element;
 		var content = self.html();
@@ -1083,13 +1193,13 @@ COMPONENT('fileupload', function() {
 			if (window.managerurl)
 				url = window.managerurl + '/upload/';
 			else
-				url = window.location.pathname
+				url = location.pathname
 		}
 
 		var multiple = self.attr('data-multiple') === 'true';
 		var html = '<span class="fa fa-folder"></span><input type="file"' + (accept ? ' accept="' + accept + '"' : '') + (multiple ? ' multiple="multiple"' : '') + ' class="ui-fileupload-input" /><input type="text" placeholder="' + (placeholder ? placeholder : '') + '" readonly="readonly" />';
 
-		if (content.length > 0) {
+		if (content.length) {
 			element.empty();
 			element.append('<div class="ui-fileupload-label' + (isRequired ? ' ui-fileupload-label-required' : '') + '">' + (icon ? '<span class="fa ' + icon + '"></span> ' : '') + content + ':</div>');
 			element.append('<div class="ui-fileupload">' + html + '</div>');
@@ -1098,7 +1208,11 @@ COMPONENT('fileupload', function() {
 			element.append(html);
 		}
 
-		element.find('.ui-fileupload-input').bind('change', function(evt) {
+		element.append('<div class="ui-fileupload-progress hidden"><div style="width:0%"></div></div>');
+		loader = element.find('.ui-fileupload-progress').find('div');
+
+		element.find('.ui-fileupload-input').on('change', function(evt) {
+
 			var files = evt.target.files;
 			var filename = [];
 			var el = this;
@@ -1108,11 +1222,14 @@ COMPONENT('fileupload', function() {
 			for (var i = 0, length = files.length; i < length; i++)
 				data.append('file' + i, files[i]);
 
+			if (customvalue)
+				data.append('custom', customvalue);
+
 			var loading = FIND('loading');
 			if (loading)
 				loading.show();
 
-			$.components.UPLOAD(url, data, function(response, err) {
+			COM.UPLOAD(url, data, function(response, err) {
 
 				if (err) {
 
@@ -1142,12 +1259,22 @@ COMPONENT('fileupload', function() {
 				}
 
 				if (self.attr('data-singlefile') === 'true')
-					self.set(response[0]);
+					self.set(response);
 				else
 					self.push(response);
 
 				if (loading)
 					loading.hide(500);
+
+				loader.css({ width: 0 });
+				loader.parent().removeClass('hidden');
+			}, function(percentage) {
+				loader.animate({ width: percentage + '%' }, 300);
+				if (percentage !== 100)
+					return;
+				setTimeout(function() {
+					loader.parent().addClass('hidden');
+				}, 1000);
 			});
 		});
 	};
@@ -2303,7 +2430,7 @@ COMPONENT('range', function() {
 		attrs.attr('max', self.attr('data-max'));
 		attrs.attr('min', self.attr('data-min'));
 		self.element.addClass('ui-range');
-		self.html('{0}<input type="range" data-component-bind=""{1} />'.format(name, attrs.length ? ' ' + attrs.join(' ') : ''));
+		self.html('{0}<input type="range" data-component-keypress-delay="100" data-component-bind=""{1} />'.format(name, attrs.length ? ' ' + attrs.join(' ') : ''));
 	};
 });
 
@@ -2347,4 +2474,108 @@ jC.formatter(function(path, value, type) {
 	}
 
 	return value.format(2);
+});
+
+/**
+ * Tagger
+ * @version 1.0.0
+ */
+COMPONENT('tagger', function() {
+
+	var self = this;
+	var elements;
+
+	self.readonly();
+
+	self.make = function() {
+		elements = self.find('[data-name]');
+		elements.each(function() {
+			this.$tagger = {};
+			this.$tagger.def = this.innerHTML;
+		});
+	};
+
+	self.arrow = function(value) {
+		return FN(value.replace(/\&gt\;/g, '>').replace(/\&lt\;/g, '<').replace(/\&amp\;/g, '&'));
+	};
+
+	self.setter = function(value) {
+
+		if (!value) {
+			self.element.addClass('hidden');
+			return;
+		}
+
+		// self.element.toggleClass('transparent', true).removeClass('hidden');
+		elements.each(function() {
+
+			var name = this.getAttribute('data-name');
+			var format = this.getAttribute('data-format');
+			var type = this.getAttribute('data-type');
+			var visible = this.getAttribute('data-visible');
+			var before = this.getAttribute('data-before');
+			var after = this.getAttribute('data-after');
+			var val = name ? GET(name, value) : value;
+			var key;
+			var cache = this.$tagger;
+
+			if (format) {
+				key = 'format';
+				if (!cache[key])
+					format = cache[key] = self.arrow(format);
+				else
+					format = cache[key];
+			}
+
+			var typeval = typeof(val);
+
+			switch (type) {
+				case 'date':
+					if (typeval === 'string')
+						val = val.parseDate();
+					else if (typeval === 'number')
+						val = new Date(val);
+					else
+						val = '';
+					break;
+
+				case 'number':
+				case 'currency':
+					if (typeval === 'string')
+						val = val.parseFloat();
+					if (typeof(val) !== 'number')
+						val = '';
+					break;
+			}
+
+			if ((val || val === 0) && format)
+				val = format(val);
+
+			if (visible) {
+				key = 'visible';
+				if (!cache[key])
+					visible = cache[key] = self.arrow(visible);
+				else
+					visible = cache[key];
+				var is = visible(val);
+				$(this).toggleClass('hidden', !is);
+				return;
+			}
+
+			val = val === null || val === undefined ? '' : val.toString();
+
+			if (val && !format)
+				val = Ta.helpers.encode(val);
+
+			if (val) {
+				if (this.innerHTML !== val)
+					this.innerHTML = (before ? before : '') + val + (after ? after : '');
+				return;
+			}
+
+			if (this.innerHTML !== cache.def)
+				this.innerHTML = cache.def;
+		});
+		self.element.removeClass('transparent hidden');
+	};
 });

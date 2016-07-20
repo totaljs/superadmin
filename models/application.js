@@ -1,106 +1,236 @@
-var Fs = require('fs');
-var Path = require('path');
+const Fs = require('fs');
+const Path = require('path');
+const Exec = require('child_process').exec;
+const Spawn = require('child_process').spawn;
 
 NEWSCHEMA('Application').make(function(schema) {
 
 	schema.define('id',         'UID');
 	schema.define('url',        'Url', true);
-	schema.define('redirect',   '[Url]');
+	schema.define('category',   'String(50)');
+	schema.define('redirect',   '[String]');
 	schema.define('allow',      '[String]');
 	schema.define('disallow',   '[String]');
+	schema.define('monitor',    'String(50)');              // URL to monitoring
 	schema.define('ssl_key',    'String');
 	schema.define('ssl_cer',    'String');
+	schema.define('notes',      'String');
 	schema.define('nginx',      'String');                  // Additional NGINX settings (lua)
+	schema.define('delay',       Number);                   // Delay after start
+	schema.define('priority',    Number);                   // Start priority
 	schema.define('port',        Number);
 	schema.define('cluster',     Number);                   // Thread count
 	schema.define('ddos',        Number);                   // Maximum count of request per second
+	schema.define('size',        Number);                   // Maximum size of request body (upload size)
 	schema.define('debug',       Boolean);                  // Enables debug mode
 
 	schema.setQuery(function(error, options, callback) {
-		callback([]);
+		callback(APPLICATIONS);
 	});
 
 	schema.setSave(function(error, model, options, callback) {
 
 		var plain = model.$plain();
 
+		plain.linker = model.linker = model.url.superadmin_linker();
+
 		if (!model.id) {
 			plain.id = model.id = UID();
-			DB('applications').insert(plain).callback(() => callback(SUCCESS(true)));
-			return;
+			APPLICATIONS.push(plain);
+			F.emit('applications.create', plain);
+			model.$repository('restart', true)
+		} else {
+			var index = APPLICATIONS.findIndex('id', model.id);
+
+			if (index === -1) {
+				error.push('error-app-404');
+				return callback();
+			}
+
+			var app = APPLICATIONS[index];
+
+			if (app.linker !== model.linker) {
+				error.push('error-app-linker');
+				return callback();
+			}
+
+			model.$repository('restart', app.cluster !== model.cluster || model.debug !== app.debug);
+			APPLICATIONS[index] = plain;
+			F.emit('applications.update', plain, index);
 		}
 
-		delete plain.id;
-		DB('applications').modify(plain).where('id', model.id).callback(() => callback(SUCCESS(true)));
+		SuperAdmin.save();
+		callback(SUCCESS(true));
 	});
 
-	schema.addOperation('start', function(error, model, options, callback) {
-		// starts app
-	});
-
-	schema.addOperation('restart', function(error, model, options, callback) {
-		// restarts app
-	});
-
-	schema.addOperation('stop', function(error, model, options, callback) {
-		// stops app
-	});
-
-	schema.addOperation('monitor', function(error, model, options, callback) {
-		// reads monitor
+	schema.setGet(function(error, model, id, callback) {
+		var item = APPLICATIONS.findItem('id', id);
+		if (!item)
+			error.push('error-app-404');
+		callback(item);
 	});
 
 	schema.addWorkflow('info', function(error, model, options, callback) {
-		// get temporary size
-		// get cpu %
-		// get memory
-		// get opened files
-		// get PID
+
+		var output = [];
+
+		APPLICATIONS.wait(function(item, next) {
+			SuperAdmin.pid(item.port, function(err, pid) {
+
+				if (err)
+					return next();
+
+				SuperAdmin.appinfo(pid, function(err, response) {
+
+					if (response) {
+						response.cluster = item.cluster;
+						response.port = item.port;
+						response.pid = pid;
+						output.push(response);
+					}
+
+					next();
+				});
+			});
+
+		}, () => callback(output), 2);
+	});
+
+	schema.addWorkflow('logs', function(error, model, id, callback) {
+		var item = APPLICATIONS.findItem('id', id);
+		if (!item) {
+			error.push('error-app-404');
+			return callback();
+		}
+
+		Fs.readFile(Path.join(CONFIG('directory-console'), item.linker + '.log'), function(err, response) {
+			if (err)
+				return callback('');
+			callback(response.toString('utf8'));
+		});
+	});
+
+	// Checks port number
+	schema.addWorkflow('check', function(error, model, options, callback) {
+		var item = APPLICATIONS.findItem('url', model.url);
+		if (item && item.id !== model.id)
+			error.push('error-url-exists');
+		callback();
 	});
 
 	// Checks port number
 	schema.addWorkflow('port', function(error, model, options, callback) {
-		NOSQL('applications').find().make(function(builder) {
-			builder.fields('url', 'port');
-			builder.callback(function(err, response) {
-				if (model.port) {
-					if (!port_check(response, model.id, model.port))
-						error.push('error-port');
-				} else
-					model.port = port_create(response);
+		if (model.port) {
+			if (port_check(APPLICATIONS, model.id, model.port))
+				error.push('error-port');
+		} else
+			model.port = port_create(APPLICATIONS);
+		callback(SUCCESS(true));
+	});
+
+	schema.setRemove(function(error, id, callback) {
+		var index = APPLICATIONS.findIndex('id', id);
+		if (index === -1) {
+			error.push('error-app-404');
+			return callback();
+		}
+
+		var app = APPLICATIONS[index];
+
+		SuperAdmin.kill(app.port, function() {
+			var linker = app.linker;
+			var directory = Path.join(CONFIG('directory-www'), linker);
+			Exec('rm -r ' + directory, function(err) {
 				callback(SUCCESS(true));
+				APPLICATIONS.splice(index, 1);
+				SuperAdmin.save();
 			});
 		});
 	});
 
 	// Creates nginx configuration
 	schema.addWorkflow('nginx', function(error, model, options, callback) {
-		var url = model.url.replace(/^(http|https)\:\/\//gi, '').replace(/\//g, '');
-		model.linker = url.linker();
+
+		var ssl = model.url.startsWith('https', true);
+		var url = model.url.superadmin_url();
+
+		if (!model.linker)
+			model.linker = model.url.superadmin_linker();
 
 		var filename = Path.join(CONFIG('directory-nginx'), model.linker + '.conf');
 		var data = {};
 
 		data.url = url;
-		data.ssl = '';
 		data.port = model.port;
 		data.ddos = model.ddos;
+		data.ssl = ssl;
+		data.allow = model.allow;
+		data.disallow = model.disallow;
+		data.nginx = model.nginx;
+		data.version = SuperAdmin.nginx;
+		data.redirect = [];
+		data.size = model.size;
+
+		// Prepares redirect
+		model.redirect.forEach(url => data.redirect.push(url.superadmin_nginxredirect()));
+
+		data.ssl_cer = model.ssl_cer || (CONFIG('directory-ssl') + url + '/fullchain.cer');
+		data.ssl_key = model.ssl_key || (CONFIG('directory-ssl') + url + '/' + url + '.key');
 
 		Fs.readFile(F.path.databases('website.conf'), function(err, response) {
 			response = response.toString('utf8');
-			Fs.writeFile(filename, F.view(response, data));
-			error.push('error-port');
-			callback();
+			Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
+
+				if (!ssl) {
+					SuperAdmin.reload(function(err) {
+
+						if (err) {
+							error.push('nginx', err.toString());
+							return callback();
+						}
+
+						run(model, () => callback(SUCCESS(true)));
+					});
+					return;
+				}
+
+				SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err) {
+
+					if (err) {
+						error.push('ssl', err);
+						callback();
+						return;
+					}
+
+					Fs.readFile(F.path.databases('website-ssl.conf'), function(err, response) {
+						response = response.toString('utf8');
+						data.redirect = model.redirect;
+						Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
+							SuperAdmin.reload(function(err) {
+
+								if (err) {
+									error.push('nginx', err.toString());
+									return callback();
+								}
+
+								if (model.$repository('restart'))
+									run(model, () => callback(SUCCESS(true)));
+								else
+									callback(SUCCESS(true));
+							});
+						});
+					});
+				});
+			});
 		});
 	});
-
-	// Checks / creates ssl
-	schema.addWorkflow('ssl', function(error, model, options, callback) {
-
-	});
-
 });
 
+function run(model, callback) {
+	SuperAdmin.makescripts(model, function() {
+		SuperAdmin.restart(model.port, () => callback());
+	});
+}
 
 function port_create(arr) {
 	var max = 7999;
@@ -115,5 +245,7 @@ function port_create(arr) {
 
 function port_check(arr, id, number) {
 	var item = arr.findItem('port', number);
-	return item && item.id === id;
+	if (item)
+		return item.id !== id;
+	return false;
 }

@@ -7,18 +7,7 @@ common.page = '';
 common.form = '';
 
 $(document).ready(function() {
-
 	jR.clientside('.jrouting');
-
-	$('.jrouting').each(function(index) {
-		var el = $(this);
-		(function(el) {
-			setTimeout(function() {
-				el.toggleClass('hidden', su.roles.length && su.roles.indexOf(el.attr('data-role')) === -1);
-			}, index * 200);
-		})(el);
-	});
-
 	FIND('loading', FN('() => this.hide(500)'));
 	$(window).on('resize', resizer);
 	resizer();
@@ -56,12 +45,8 @@ function resizer() {
 
 function success() {
 	var el = $('#success');
+	el.fadeIn(300).delay(2000).fadeOut(300);
 	FIND('loading').hide(500);
-	el.css({ right: '90%' }).delay(500).fadeIn(100).animate({ right: '0%' }, 1000, 'easeOutBounce', function() {
-		setTimeout(function() {
-			el.fadeOut(200);
-		}, 800);
-	});
 }
 
 function can(name) {
