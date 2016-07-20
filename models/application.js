@@ -144,6 +144,9 @@ NEWSCHEMA('Application').make(function(schema) {
 				callback(SUCCESS(true));
 				APPLICATIONS.splice(index, 1);
 				SuperAdmin.save();
+
+				// Removes nginx config
+				F.unlink([Path.join(CONFIG('directory-nginx'), linker + '.conf')], NOOP);
 			});
 		});
 	});
