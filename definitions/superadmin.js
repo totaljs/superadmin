@@ -328,17 +328,30 @@ SuperAdmin.run = function(port, callback) {
 
 	var filename = app.debug ? 'debug.js' : 'release.js';
 	var linker = app.linker;
-	var log = Path.join(CONFIG('directory-console'), linker + '.log');
+	var log = app.debug ? Path.join(CONFIG('directory-www'), linker, 'logs', 'debug.log') : Path.join(CONFIG('directory-console'), linker + '.log');
+
+	var fn = function(callback) {
+		if (!app.debug)
+			return callback();
+		// Creates log directory
+		console.log('bash {0} {1}'.format(F.path.databases('mkdir.sh'), Path.join(CONFIG('directory-www'), linker, 'logs')));
+		Exec('bash {0} {1}'.format(F.path.databases('mkdir.sh'), Path.join(CONFIG('directory-www'), linker, 'logs')), function() {
+			console.log(arguments);
+			callback();
+		});
+	};
 
 	app.pid = 0;
 
 	F.unlink([log], function() {
-		Spawn('node', ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200', Path.join(CONFIG('directory-www'), linker, filename), app.port], {
-			stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
-			cwd: Path.join(CONFIG('directory-www'), linker),
-			detached: true
-		}).unref();
-		setTimeout(() => callback(), app.delay || 100);
+		fn(function() {
+			Spawn('node', ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200', Path.join(CONFIG('directory-www'), linker, filename), app.port], {
+				stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
+				cwd: Path.join(CONFIG('directory-www'), linker),
+				detached: true
+			}).unref();
+			setTimeout(() => callback(), app.delay || 100);
+		});
 	});
 
 	return SuperAdmin;

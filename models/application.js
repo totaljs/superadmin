@@ -103,7 +103,7 @@ NEWSCHEMA('Application').make(function(schema) {
 			return callback();
 		}
 
-		Fs.readFile(Path.join(CONFIG('directory-console'), item.linker + '.log'), function(err, response) {
+		Fs.readFile(item.debug ? Path.join(CONFIG('directory-www'), item.linker, 'logs', 'debug.log') : Path.join(CONFIG('directory-console'), item.linker + '.log'), function(err, response) {
 			if (err)
 				return callback('');
 			callback(response.toString('utf8'));
