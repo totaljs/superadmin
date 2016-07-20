@@ -564,7 +564,7 @@
 	}
 
 	function applications_new() {
-		SET('applications.form', { cluster: 1, port: 'auto', ddos: 20, debug: false, redirect: [], allow: [], disallow: [], size: 5 }, true);
+		SET('applications.form', { cluster: 1, port: 'auto', ddos: 20, debug: false, redirect: [], allow: [], disallow: [], size: 5, delay: 0, priority: 0 }, true);
 		SET('common.form', 'applications');
 	}
 
