@@ -295,6 +295,9 @@ SuperAdmin.pid = function(port, callback) {
 		return;
 	}
 
+	if (item.debug)
+		item.pid = 0;
+
 	if (item.pid) {
 		callback(null, item.pid);
 		return;
@@ -334,11 +337,7 @@ SuperAdmin.run = function(port, callback) {
 		if (!app.debug)
 			return callback();
 		// Creates log directory
-		console.log('bash {0} {1}'.format(F.path.databases('mkdir.sh'), Path.join(CONFIG('directory-www'), linker, 'logs')));
-		Exec('bash {0} {1}'.format(F.path.databases('mkdir.sh'), Path.join(CONFIG('directory-www'), linker, 'logs')), function() {
-			console.log(arguments);
-			callback();
-		});
+		Exec('bash {0} {1}'.format(F.path.databases('mkdir.sh'), Path.join(CONFIG('directory-www'), linker, 'logs')), callback);
 	};
 
 	app.pid = 0;
