@@ -280,9 +280,9 @@
 	</div>
 	<hr />
 	<div class="padding">
-		<div data-component="textboxlist" data-component-path="applications.form.redirect" class="m" data-maxlength="50" data-placeholder="@(e.g. www.totaljs.com)" data-icon="fa-arrow-left" data-component-value="[]">@(Redirects)</div>
-		<div data-component="textboxlist" data-component-path="applications.form.allow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33)" data-icon="fa-globe" data-component-value="[]">@(Allow IP addresses)</div>
-		<div data-component="textboxlist" data-component-path="applications.form.disallow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33)" data-icon="fa-ban" data-component-value="[]">@(Disallow IP addresses)</div>
+		<div data-component="textboxlist" data-component-path="applications.form.redirect" class="m" data-maxlength="50" data-placeholder="@(e.g. www.totaljs.com and press enter)" data-icon="fa-arrow-left" data-component-value="[]">@(Redirects)</div>
+		<div data-component="textboxlist" data-component-path="applications.form.allow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-globe" data-component-value="[]">@(Allow IP addresses)</div>
+		<div data-component="textboxlist" data-component-path="applications.form.disallow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-ban" data-component-value="[]">@(Disallow IP addresses)</div>
 	</div>
 	<hr class="nmt" />
 	<div class="padding">
@@ -303,7 +303,7 @@
 		<div class="row">
 			<div class="col-md-12">
 				<h2 class="black nmb"><i class="fa fa-globe mr5"></i><b data-component="" data-component-path="applications.upload.name"></b></h2>
-				<div class="help mt10"><b>SuperAdmin</b> supports uploading packages. Is easy to create the package, just install Total.js as global module, then open your application directory in the terminal and write <code>$ tpm create myapp.package</code>.</div>
+				<div class="help mt10">@(<b>SuperAdmin</b> supports uploading packages. Is easy to create the package, just install Total.js as global module, then open your application directory in the terminal and write <code>$ tpm create myapp.package</code>.)</div>
 				<br />
 				<div data-component="fileupload" data-component-id="applications.package" data-component-path="applications.upload.filename" data-icon="fa fa-search" data-placeholder="myapplication.package" data-required="true" data-url="/api/apps/upload/" data-singlefile="true">@(Browse device)</div>
 				<div data-component="template" data-component-path="applications.upload">
