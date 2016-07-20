@@ -11,7 +11,7 @@
 					<button class="operation-button" name="add" title="@(Add application)"><i class="fa fa-plus-circle"></i></button>
 					<button class="operation-button" name="summary" title="@(Summary)"><i class="fa fa-bar-chart"></i></button>
 					<button class="operation-button" name="restart" title="@(Restart all)"><i class="fa fa-refresh"></i></button>
-					<button class="operation-button" name="stop" title="@(Stop all)"><i class="fa fa-pause-circle"></i></button>
+					<button class="operation-button" name="stop" title="@(Stop all)"><i class="fa fa-stop-circle"></i></button>
 					<button class="operation-button" name="reconfigure" title="@(Reconfigure all)"><i class="fa fa-retweet"></i></button>
 					<button class="operation-button" name="backup" title="@(Backup the server)"><i class="fa fa-cloud-download"></i></button>
 				</div>
@@ -31,7 +31,7 @@
 						<td style="width:145px" class="right" data-id="{{ id }}">
 							<button class="application-button" name="logs" title="@(Show logs)"><i class="fa fa-search"></i></button>
 							<button class="application-button" name="restart" title="@(Restart)"><i class="fa fa-refresh"></i></button>
-							<button class="application-button" name="stop" title="@(Stop)"><i class="fa fa-pause-circle"></i></button>
+							<button class="application-button" name="stop" title="@(Stop)"><i class="fa fa-stop-circle"></i></button>
 							<button class="application-button" name="upload" title="@(Upload as package)"><i class="fa fa-cloud-upload"></i></button>
 							<button class="application-button" name="settings" title="@(Settings)"><i class="fa fa-cog"></i></button>
 							<button class="application-button" name="download" title="@(Backup as package)"><i class="fa fa-cloud-download"></i></button>
@@ -302,7 +302,9 @@
 	<div class="padding">
 		<div class="row">
 			<div class="col-md-12">
-				<h2 class="black"><i class="fa fa-globe mr5"></i><b data-component="" data-component-path="applications.upload.name"></b></h2>
+				<h2 class="black nmb"><i class="fa fa-globe mr5"></i><b data-component="" data-component-path="applications.upload.name"></b></h2>
+				<div class="help mt10"><b>SuperAdmin</b> supports uploading packages. Is easy to create the package, just install Total.js as global module, then open your application directory in the terminal and write <code>$ tpm create myapp.package</code>.</div>
+				<br />
 				<div data-component="fileupload" data-component-id="applications.package" data-component-path="applications.upload.filename" data-icon="fa fa-search" data-placeholder="myapplication.package" data-required="true" data-url="/api/apps/upload/" data-singlefile="true">@(Browse device)</div>
 				<div data-component="template" data-component-path="applications.upload">
 					<script type="text/html">
