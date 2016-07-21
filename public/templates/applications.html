@@ -84,7 +84,7 @@
 				<br />
 				<div class="caption"><i class="fa fa-sitemap"></i>@(Network)</div>
 				<div class="stats">
-					<div>@(Opened connections)</div>
+					<div>@(Open connections)</div>
 					<div data-name="connections" data-after="x">...</div>
 				</div>
 
@@ -235,7 +235,7 @@
 		<div class="row">
 			<div class="col-md-10 m">
 				<div data-component="range" data-component-path="applications.form.cluster" data-component-type="number" data-min="1" data-max="50" data-component-value="1">@(Thread count)</div>
-				<div class="help"><i class="fa fa-warning"></i>@(The application must be optimized for the cluster. The cluster mode is enabled when the thread count is great than <b>one thread</b>.)</div>
+				<div class="help"><i class="fa fa-warning"></i>@(The application must be optimized for the cluster. The cluster mode is enabled when the thread count is greater than <b>one thread</b>.)</div>
 			</div>
 			<div class="col-md-2 center m">
 				<div data-component="" data-component-path="applications.form.cluster" style="font-size:40px"></div>
@@ -246,7 +246,7 @@
 	<div class="padding npb">
 		<div class="row">
 			<div class="col-md-10 m">
-				<div data-component="range" data-component-path="applications.form.ddos" data-component-type="number" data-min="10" data-max="100" data-component-value="15">@(Maximum count of request per second from the one IP)</div>
+				<div data-component="range" data-component-path="applications.form.ddos" data-component-type="number" data-min="10" data-max="100" data-component-value="15">@(Maximum count of request per second from a single IP)</div>
 				<div class="help"><i class="fa fa-warning"></i>@(This settings is a prevention for DDOS attacks. Nginx responds via 503 error for other requests.)</div>
 			</div>
 			<div class="col-md-2 center m">
@@ -259,11 +259,10 @@
 		<div class="row">
 			<div class="col-md-3 m">
 				<div data-component="textbox" data-component-path="applications.form.priority" data-component-type="number" data-maxlength="3" data-align="center" data-increment="true">@(Process priority)</div>
-				<div class="help">@(Process with highest priority is executed at first.)</div>
+				<div class="help">@(Process with highest priority is executed as first.)</div>
 			</div>
 			<div class="col-md-3 m">
 				<div data-component="textbox" data-component-path="applications.form.delay" data-component-type="number" data-maxlength="5" data-align="center" data-increment="true">@(Delay (ms))</div>
-				<div class="help">@(Delay after is the process executed. Other requests will wait.)</div>
 			</div>
 			<div class="col-md-3 m">
 				<div data-component="textbox" data-component-path="applications.form.size" data-component-type="number" data-maxlength="5" data-align="center" data-icon="fa-cloud-upload" data-placeholder="e.g. 5" data-increment="true">@(Maximum upload size (MB))</div>
@@ -281,8 +280,8 @@
 	<hr />
 	<div class="padding">
 		<div data-component="textboxlist" data-component-path="applications.form.redirect" class="m" data-maxlength="50" data-placeholder="@(e.g. www.totaljs.com and press enter)" data-icon="fa-arrow-left" data-component-value="[]">@(Redirects)</div>
-		<div data-component="textboxlist" data-component-path="applications.form.allow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-globe" data-component-value="[]">@(Allow IP addresses)</div>
-		<div data-component="textboxlist" data-component-path="applications.form.disallow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-ban" data-component-value="[]">@(Disallow IP addresses)</div>
+		<div data-component="textboxlist" data-component-path="applications.form.allow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-globe" data-component-value="[]">@(Allowed IP addresses)</div>
+		<div data-component="textboxlist" data-component-path="applications.form.disallow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-ban" data-component-value="[]">@(Blocked IP addresses)</div>
 	</div>
 	<hr class="nmt" />
 	<div class="padding">
