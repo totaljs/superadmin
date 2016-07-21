@@ -44,6 +44,7 @@ h2 b { font-weight: 700; }
 .ml5 { margin-left: 5px !important; }
 .mr15 { margin-right: 15px !important; }
 .nmb { margin-bottom: 0 !important; }
+.nmr { margin-right: 0 !important; }
 .nmt { margin-top: 0 !important; }
 .npt { padding-top: 0 !important; }
 .npb { padding-bottom: 0 !important; }

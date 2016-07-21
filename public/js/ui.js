@@ -126,7 +126,6 @@ COMPONENT('textboxlist', function() {
 			return;
 		}
 
-		// array
 		if (!value || !value.length) {
 			container.empty();
 			return;
@@ -141,7 +140,6 @@ COMPONENT('textboxlist', function() {
 
 		container.empty().append(builder.join(''));
 	};
-
 });
 
 COMPONENT('message', function() {

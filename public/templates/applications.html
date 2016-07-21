@@ -3,7 +3,7 @@
 	<div class="filter">
 		<div class="row">
 			<div class="col-md-4 m">
-				<div data-component="textbox" data-component-path="applications.filter.search" data-control-icon="fa-search" data-placeholder="@(Search ...)">@(Search applications)</div>
+				<div data-component="textbox" data-component-path="applications.filter.search" data-control-icon="fa-search" data-placeholder="@(Type a word)">@(Search applications)</div>
 			</div>
 			<div class="col-md-3 col-md-offset-5 m">
 				<br />
@@ -259,11 +259,11 @@
 		<div class="row">
 			<div class="col-md-3 m">
 				<div data-component="textbox" data-component-path="applications.form.priority" data-component-type="number" data-maxlength="3" data-align="center" data-increment="true">@(Process priority)</div>
-				<div class="help">Process with highest priority is executed at first.</div>
+				<div class="help">@(Process with highest priority is executed at first.)</div>
 			</div>
 			<div class="col-md-3 m">
 				<div data-component="textbox" data-component-path="applications.form.delay" data-component-type="number" data-maxlength="5" data-align="center" data-increment="true">@(Delay (ms))</div>
-				<div class="help">Delay after is the process executed. Other requests will wait.</div>
+				<div class="help">@(Delay after is the process executed. Other requests will wait.)</div>
 			</div>
 			<div class="col-md-3 m">
 				<div data-component="textbox" data-component-path="applications.form.size" data-component-type="number" data-maxlength="5" data-align="center" data-icon="fa-cloud-upload" data-placeholder="e.g. 5" data-increment="true">@(Maximum upload size (MB))</div>
@@ -274,7 +274,7 @@
 		<div class="row">
 			<div class="col-md-6 m">
 				<div data-component="textbox" data-component-path="applications.form.monitor" data-maxlength="200" data-placeholder="/$monitor/" data-icon="fa-desktop">@(Relative URL address for monitoring)</div>
-				<div class="help">If you use Total.js <b>monitor</b> module then add its URL address.</div>
+				<div class="help">@(If you use Total.js <b>monitor</b> module then add its relative URL address.)</div>
 			</div>
 		</div>
 	</div>
@@ -303,7 +303,7 @@
 		<div class="row">
 			<div class="col-md-12">
 				<h2 class="black nmb"><i class="fa fa-globe mr5"></i><b data-component="" data-component-path="applications.upload.name"></b></h2>
-				<div class="help mt10">@(<b>SuperAdmin</b> supports uploading packages. Is easy to create the package, just install Total.js as global module, then open your application directory in the terminal and write <code>$ tpm create myapp.package</code>.)</div>
+				<div class="help mt10">@(<b>SuperAdmin</b> supports uploading packages. Is easy to create the package, just install Total.js as a global module, then open your application directory in the terminal and type <code>$ tpm create myapp.package</code>.)</div>
 				<br />
 				<div data-component="fileupload" data-component-id="applications.package" data-component-path="applications.upload.filename" data-icon="fa fa-search" data-placeholder="myapplication.package" data-required="true" data-url="/api/apps/upload/" data-singlefile="true">@(Browse device)</div>
 				<div data-component="template" data-component-path="applications.upload">
@@ -315,7 +315,8 @@
 					</script>
 				</div>
 				<br />
-				<div data-component="checkbox" data-component-path="applications.upload.remove">@(Removes all files)</div>
+				<div data-component="checkbox" class="b" data-component-path="applications.upload.remove">@(Removes all files)</div>
+				<div class="help">@(When is this option checked then SuperAdmin removes all <i class="fa fa-trash nmr"></i> files before unpacking package.)</div>
 			</div>
 		</div>
 	</div>
@@ -370,6 +371,7 @@
 	applications.info = null;
 	applications.stats = {};
 	applications.logs = null;
+	applications.waiting = false;
 
 	$(document).on('click', '.application-button', function() {
 		var button = $(this);
@@ -448,7 +450,9 @@
 					if (index)
 						return;
 					SETTER('loading', 'show');
+					applications.waiting = true;
 					AJAX('GET /api/apps/restart/', function(response) {
+						applications.waiting = false;
 						success();
 					});
 				});
@@ -459,7 +463,9 @@
 					if (index)
 						return;
 					SETTER('loading', 'show');
+					applications.waiting = true;
 					AJAX('GET /api/apps/reconfigure/', function(response) {
+						applications.waiting = false;
 						success();
 					});
 				});
@@ -470,7 +476,9 @@
 					if (index)
 						return;
 					SETTER('loading', 'show');
+					applications.waiting = true;
 					AJAX('GET /api/apps/stop/', function(response) {
+						applications.waiting = false;
 						success();
 					});
 				});
@@ -608,11 +616,18 @@
 	}
 
 	function applications_info() {
+
+		var timeout = 6000;
 		clearTimeout(applications.timeout_info);
+
+		if (applications.waiting) {
+			applications.timeout_info = setTimeout(applications_info, timeout);
+			return;
+		}
 
 		AJAX('GET /api/apps/info/', function(response) {
 			SET('applications.info', response);
-			applications.timeout_info = setTimeout(applications_info, 6000);
+			applications.timeout_info = setTimeout(applications_info, timeout);
 
 			var sum = 0;
 
@@ -634,10 +649,17 @@
 	}
 
 	function applications_monitor() {
+		var timeout = 30000;
 		clearTimeout(applications.timeout_monitor);
+
+		if (applications.waiting) {
+			applications.timeout_monitor = setTimeout(applications_monitor, timeout);
+			return;
+		}
+
 		AJAX('GET /api/apps/monitor/', function(response) {
 			EXTEND('applications.monitor', response);
-			applications.timeout_stats = setTimeout(applications_monitor, 30000);
+			applications.timeout_monitor = setTimeout(applications_monitor, timeout);
 		});
 	}
 
@@ -646,10 +668,7 @@
 			var tr = $(this);
 			var id = tr.attr('data-id');
 			var item = response[id];
-			if (!item)
-				return;
-			var has = item.errors && item.errors.length > 0;
-			tr.toggleClass('error', has);
+			tr.toggleClass('error', item ? item.errors : false);
 		});
 	});
 
@@ -659,6 +678,7 @@
 		var recompile = false;
 		var template_table = '<div class="items"><table border="0">{0}</table></div>';
 		var template_category = '<div class="category"><span>{1}x</span><i class="fa fa-folder"></i>{0}</div>';
+		var REG_CLEANURL = /^(http|https)\:\/\//g;
 
 		self.readonly();
 
@@ -710,8 +730,8 @@
 				var items = categories[name];
 
 				items.sort(function(a, b) {
-					var an = a.url.replace(/^(http|https)\:\/\//g, '').substring(0, 15).toLowerCase();
-					var bn = b.url.replace(/^(http|https)\:\/\//g, '').substring(0, 15).toLowerCase();
+					var an = a.url.replace(REG_CLEANURL, '').substring(0, 15).toLowerCase();
+					var bn = b.url.replace(REG_CLEANURL, '').substring(0, 15).toLowerCase();
 					return an.localeCompare(bn);
 				});
 
@@ -737,7 +757,6 @@
 		var port = self.attr('data-port').parseInt();
 
 		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg silver" style="width:60px">{{ hdd }}<i class="fa fa-folder ml5"></i></td><td style="width:75px" class="right visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td style="width:85px" class="right">{{ memory | application-round }}{{ memory | application-progress(\'memory\', 500) }}</td><td style="width:45px" class="right visible-lg">{{ openedfiles }}<i class="fa fa-hdd-o ml5"></i></td><td style="width:45px" class="right visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
-
 		self.readonly();
 
 		self.setter = function(value) {
