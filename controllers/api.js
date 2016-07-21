@@ -32,7 +32,7 @@ function json_save() {
 
 function json_apps_save() {
 	var self = this;
-	self.$async(self.callback(), 1).$workflow('check').$workflow('port').$save().$workflow('nginx');
+	self.$async(self.callback(), 1).$workflow('check').$workflow('port').$save().$workflow('directory').$workflow('nginx');
 }
 
 function json_apps_info() {

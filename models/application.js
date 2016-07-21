@@ -128,6 +128,15 @@ NEWSCHEMA('Application').make(function(schema) {
 		callback(SUCCESS(true));
 	});
 
+	// Checks directory
+	schema.addWorkflow('directory', function(error, model, options, callback) {
+		var filename = Path.join(CONFIG('directory-www'), model.linker, 'release.js');
+		F.path.exists(filename, function(e) {
+			model.$repository('restart', true);
+			callback(SUCCESS(true));
+		});
+	});
+
 	schema.setRemove(function(error, id, callback) {
 		var index = APPLICATIONS.findIndex('id', id);
 		if (index === -1) {

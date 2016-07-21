@@ -344,12 +344,17 @@ SuperAdmin.run = function(port, callback) {
 
 	F.unlink([log], function() {
 		fn(function() {
-			Spawn('node', ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200', Path.join(CONFIG('directory-www'), linker, filename), app.port], {
-				stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
-				cwd: Path.join(CONFIG('directory-www'), linker),
-				detached: true
-			}).unref();
-			setTimeout(() => callback(), app.delay || 100);
+			filename = Path.join(CONFIG('directory-www'), linker, filename);
+			F.path.exists(filename, function(e) {
+				if (!e)
+					return;
+				Spawn('node', ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200', filename, app.port], {
+					stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
+					cwd: Path.join(CONFIG('directory-www'), linker),
+					detached: true
+				}).unref();
+				setTimeout(() => callback(), app.delay || 100);
+			});
 		});
 	});
 
