@@ -24,11 +24,11 @@
 			<div data-component="applications" data-component-path="applications.grid">
 				<script type="text/html">
 					<tr data-search="{{ url }}" class="tr" data-id="{{ id }}">
-						<td class="first" style="width:250px"><a href="{{ url }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}</a></td>
-						<td class="right" style="width:70px">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
+						<td class="first td-name"><a href="{{ url }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}</a></td>
+						<td class="hidden-xs td-mode">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
 						<td class="hidden-xs"><div data-component="application-appinfo" data-port="{{ port }}" data-component-path="applications.info"></div></td>
-						<td style="width:50px" class="right"><span class="badge badge-silver">{{ port }}</span></td>
-						<td style="width:145px" class="right" data-id="{{ id }}">
+						<td class="hidden-xs td-port"><span class="badge badge-silver">{{ port }}</span></td>
+						<td class="td-buttons" data-id="{{ id }}">
 							<button class="application-button" name="logs" title="@(Show logs)"><i class="fa fa-search"></i></button>
 							<button class="application-button" name="restart" title="@(Restart)"><i class="fa fa-refresh"></i></button>
 							<button class="application-button" name="stop" title="@(Stop)"><i class="fa fa-stop-circle"></i></button>

@@ -148,6 +148,10 @@ canvas { display: block; }
 .applications .error .name { color: #DA4453 !important; }
 .applications .error .name .fa-bug { display: block; float: left; margin: 3px 5px 0 0; }
 .applications .error .fa-search { color: #DA4453; }
+.applications .td-name { width: 250px; }
+.applications .td-mode { width: 70px; text-align: right; }
+.applications .td-port { width: 50px; text-align: right; }
+.applications .td-buttons { width: 145px; text-align: right; }
 
 .operations { margin: 0; }
 .operations button { outline: 0; background-color: #F0F0F0; border: 0; font-size: 14px; width: 16.6%; height: 36px; border-left: 1px solid #E0E0E0; }
@@ -179,6 +183,13 @@ canvas { display: block; }
 	.table-xs td { display: block; }
 	.table-xs td:before { content: attr(data-label); font-weight: bold; border-right: 1px solid #E0E0E0; width: 100px; float: left; margin-right: 10px; }
 	.table-xs tr { margin-bottom: 20px; display: block; }
+
+	.applications .items > table td { display: block; border: 0; }
+	.applications .items > table tr { display: block; border-bottom: 1px solid #E0E0E0; padding: 10px 0; }
+	.applications .td-buttons { width: 100%; text-align: left; }
+	.applications .td-mode { text-align: left; }
+	.applications td button { width: 14.2%; height: 30px; border-left: 1px solid #F0F0F0; }
+	.applications td button:first-child { border-left: 0; }
 }
 
 
