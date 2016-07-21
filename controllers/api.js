@@ -1,23 +1,23 @@
 const Path = require('path');
 
 exports.install = function() {
-	F.route('/api/apps/',              json_query,            ['*Application']);
-	F.route('/api/apps/',              json_apps_save,        ['post', '*Application', 50000]);
-	F.route('/api/apps/info/',         json_apps_info,        ['*Application', 20000]);
-	F.route('/api/stats/',             json_stats,            [20000]);
-	F.route('/api/apps/{id}/',         json_read,             ['*Application']);
-	F.route('/api/apps/{id}/restart/', json_apps_restart,     ['*Application', 20000]);
-	F.route('/api/apps/{id}/stop/',    json_apps_stop,        ['*Application', 20000]);
-	F.route('/api/apps/{id}/remove/',  json_apps_remove,      ['delete', '*Application', 20000]);
-	F.route('/api/apps/{id}/logs/',    json_apps_logs,        ['*Application']);
-	F.route('/api/apps/{id}/pack/',    file_apps_pack,         ['*Application']);
-	F.route('/api/apps/restart/',      json_apps_restart,     ['*Application', 50000]);
-	F.route('/api/apps/stop/',         json_apps_stop,        ['*Application', 50000]);
-	F.route('/api/apps/reconfigure/',  json_apps_reconfigure, ['*Application', 120000]);
-	F.route('/api/apps/upload/',       json_apps_upload,      ['upload', 120000], 1024 * 50); // Max 50 MB
-	F.route('/api/apps/unpack/',       json_apps_unpack,      ['post', '*Package', 120000]);
-	F.route('/api/apps/backup/',       json_apps_backup,      [500000]);
-	F.route('/api/apps/monitor/',      json_apps_monitor,     [60000]);
+	F.route('/api/apps/',              json_query,            ['authorize', '*Application']);
+	F.route('/api/apps/',              json_apps_save,        ['authorize', 'post', '*Application', 50000]);
+	F.route('/api/apps/info/',         json_apps_info,        ['authorize', '*Application', 20000]);
+	F.route('/api/stats/',             json_stats,            ['authorize', 20000]);
+	F.route('/api/apps/{id}/',         json_read,             ['authorize', '*Application']);
+	F.route('/api/apps/{id}/restart/', json_apps_restart,     ['authorize', '*Application', 20000]);
+	F.route('/api/apps/{id}/stop/',    json_apps_stop,        ['authorize', '*Application', 20000]);
+	F.route('/api/apps/{id}/remove/',  json_apps_remove,      ['authorize', 'delete', '*Application', 20000]);
+	F.route('/api/apps/{id}/logs/',    json_apps_logs,        ['authorize', '*Application']);
+	F.route('/api/apps/{id}/pack/',    file_apps_pack,        ['authorize', '*Application']);
+	F.route('/api/apps/restart/',      json_apps_restart,     ['authorize', '*Application', 50000]);
+	F.route('/api/apps/stop/',         json_apps_stop,        ['authorize', '*Application', 50000]);
+	F.route('/api/apps/reconfigure/',  json_apps_reconfigure, ['authorize', '*Application', 120000]);
+	F.route('/api/apps/upload/',       json_apps_upload,      ['authorize', 'upload', 120000], 1024 * 50); // Max 50 MB
+	F.route('/api/apps/unpack/',       json_apps_unpack,      ['authorize', 'post', '*Package', 120000]);
+	F.route('/api/apps/backup/',       json_apps_backup,      ['authorize', 500000]);
+	F.route('/api/apps/monitor/',      json_apps_monitor,     ['authorize', 60000]);
 };
 
 function json_query() {
@@ -181,7 +181,7 @@ function json_apps_monitor() {
 			var data = response.parseJSON();
 			if (data) {
 				var obj = {};
-				obj.errors = data.errors;
+				obj.errors = data.errors ? data.errors.length > 0 : false;
 				obj.versionTotal = data.versionTotal;
 				obj.reqstats = data.reqstats;
 				output[item.id] = obj;
