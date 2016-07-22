@@ -181,7 +181,7 @@ NEWSCHEMA('Application').make(function(schema) {
 		data.nginx = model.nginx;
 		data.version = SuperAdmin.nginx;
 		data.redirect = [];
-		data.size = model.size;
+		data.size = model.size || 1;
 
 		// Prepares redirect
 		model.redirect.forEach(url => data.redirect.push(url.superadmin_nginxredirect()));
