@@ -334,10 +334,12 @@ SuperAdmin.run = function(port, callback) {
 	var log = app.debug ? Path.join(CONFIG('directory-www'), linker, 'logs', 'debug.log') : Path.join(CONFIG('directory-console'), linker + '.log');
 
 	var fn = function(callback) {
-		if (!app.debug)
-			return callback();
-		// Creates log directory
-		Exec('bash {0} {1}'.format(F.path.databases('mkdir.sh'), Path.join(CONFIG('directory-www'), linker, 'logs')), callback);
+		SuperAdmin.makescripts(app, function() {
+			if (!app.debug)
+				return callback();
+			// Creates log directory
+			Exec('bash {0} {1}'.format(F.path.databases('mkdir.sh'), Path.join(CONFIG('directory-www'), linker, 'logs')), callback);
+		});
 	};
 
 	app.pid = 0;
