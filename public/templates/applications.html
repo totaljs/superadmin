@@ -369,7 +369,7 @@
 			<tbody>
 				{{ foreach m in memory }}
 				<tr>
-					<td class="col-xs-9"><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
 					<td class="col-xs-3 right b black active">{{ m.value }}</td>
 				</tr>
 				{{ end }}
@@ -380,7 +380,7 @@
 			<tbody>
 				{{ foreach m in hdd }}
 				<tr>
-					<td class="col-xs-9"><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
 					<td class="col-xs-3 right b black active">{{ m.value }}</td>
 				</tr>
 				{{ end }}
@@ -391,7 +391,7 @@
 			<tbody>
 				{{ foreach m in openfiles }}
 				<tr>
-					<td class="col-xs-9"><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
 					<td class="col-xs-3 right b black active">{{ m.value }}x</td>
 				</tr>
 				{{ end }}
@@ -402,7 +402,7 @@
 			<tbody>
 				{{ foreach m in connections }}
 				<tr>
-					<td class="col-xs-9"><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
 					<td class="col-xs-3 right b black active">{{ m.value }}x</td>
 				</tr>
 				{{ end }}

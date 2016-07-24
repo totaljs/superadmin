@@ -61,6 +61,10 @@ Tangular.register('default', function(value, def) {
 	return value;
 });
 
+Tangular.register('indexer', function(index) {
+	return index + 1;
+});
+
 jQuery.easing.easeOutBounce = function(e, f, a, h, g) {
 	if ((f /= g) < (1 / 2.75)) {
 		return h * (7.5625 * f * f) + a
