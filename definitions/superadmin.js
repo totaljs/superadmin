@@ -88,12 +88,12 @@ SuperAdmin.appinfo = function(pid, callback) {
 		});
 	});
 
-	// Get count of opened files
+	// Get count of open files
 	arr.push(function(next) {
 		Exec('lsof -a -p {0} | wc -l'.format(pid), function(err, response) {
 			if (err)
 				return next();
-		 	output.openedfiles = response.trim().parseInt();
+		 	output.openfiles = response.trim().parseInt();
 		 	next();
 		});
 	});

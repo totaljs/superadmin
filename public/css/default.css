@@ -26,7 +26,7 @@ header nav img { float: right; height: 40px; }
 h1 { font-weight: 200; font-family: $font; margin: 0 0 20px 0; padding: 0; color: black; font-size: 30px; }
 h1 b { font-weight: 400; }
 
-h2 { font-weight: 400; font-family: $font; margin: 0 0 20px 0; padding: 0; color: gray; font-size: 18px; }
+h2 { font-weight: 400; font-family: $font; margin: 0 0 20px 0; padding: 0; color: gray; font-size: 16px; }
 h2 .fa { margin-right: 7px; }
 h2 b { font-weight: 700; }
 
@@ -55,11 +55,13 @@ h2 b { font-weight: 700; }
 .red { color: #D63B32; }
 .blue { color: #377BB5; }
 .black { color: black; }
+.gray { color: gray; }
 .green { color: #68B25B !important; }
 .right { text-align: right; }
 
 footer { border-top: 1px solid #E0E0E0; padding: 30px 0 0; text-align: center; font-size: 12px; background-color: #F8F8F8; height: 100px; }
 table td { vertical-align: middle !important;}
+.table-small td { padding: 3px 10px !important; font-size: 12px; }
 
 .checkoutlist input { border: 0; border-bottom: 1px dotted silver; background-color: transparent; outline: 0; }
 .order-completed td { background-color: rgba(150,150,150,0.1); color: gray; }

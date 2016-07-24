@@ -101,6 +101,10 @@ T2374095             : Logs
 T797140910           : Backuping...
 T-1399633753         : <b>Please wait</b> for file saving dialog and don't do nothing. The browser waits for the backup file.
 T1695877173          : I understand
+T249796867           : CPU consumption
+T142384924           : Memory consumption
+T1662241347          : HDD consumption
+T868774209           : Open files
 T-433420311          : Are you sure you want to remove this application?
 T88775               : Yes
 T-277725174          : Are you sure you want to create a backup of the whole server?
@@ -108,3 +112,4 @@ T-290260840          : Are you sure you want to restart all applications?
 T-1486485092         : Are you sure you want to reconfigure all applications?
 T-370695949          : Are you sure you want to stop all applications?
 T376907615           : Are you sure you want to unpack uploaded package?
+T-830629437          : OFFLINE
