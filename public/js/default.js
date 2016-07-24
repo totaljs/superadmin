@@ -9,8 +9,6 @@ common.form = '';
 $(document).ready(function() {
 	jR.clientside('.jrouting');
 	FIND('loading', FN('() => this.hide(500)'));
-	$(window).on('resize', resizer);
-	resizer();
 });
 
 function isError(arguments) {
@@ -31,24 +29,18 @@ jR.on('location', function(url) {
 	$('header nav').removeClass('mainmenu-visible');
 });
 
-function resizer() {
-	var h = $(window).height();
-	var el = $('.scroller');
-	if (el.length)
-		el.height($(window).height() - el.offset().top);
-	el = $('#body');
-	if (!el.length)
-		return;
-	var t = el.offset().top + 100;
-	el.css('min-height', h - t);
-}
-
 function success() {
 	var el = $('#success');
-	el.fadeIn(300).delay(2000).fadeOut(300);
+	el.show();
+	el.addClass('success-animation');
+	setTimeout(function() {
+		el.removeClass('success-animation');
+		setTimeout(function() {
+			el.hide();
+		}, 1000);
+	}, 1500);
 	FIND('loading').hide(500);
 }
-
 function can(name) {
 	if (su.roles.length === 0)
 		return true;

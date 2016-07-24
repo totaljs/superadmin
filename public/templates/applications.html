@@ -24,11 +24,11 @@
 			<div data-component="applications" data-component-path="applications.grid">
 				<script type="text/html">
 					<tr data-search="{{ url }}" class="tr" data-id="{{ id }}">
-						<td class="first td-name"><a href="{{ url }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}</a></td>
-						<td class="hidden-xs td-mode">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
-						<td class="hidden-xs"><div data-component="application-appinfo" data-port="{{ port }}" data-component-path="applications.info"></div></td>
-						<td class="hidden-xs td-port"><span class="badge badge-silver">{{ port }}</span></td>
-						<td class="td-buttons" data-id="{{ id }}">
+						<td class="atd first td-name"><a href="{{ url }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}</a></td>
+						<td class="atd hidden-xs td-mode">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
+						<td class="atd"><div data-component="application-appinfo" data-port="{{ port }}" data-component-path="applications.info"></div></td>
+						<td class="atd hidden-xs td-port"><span class="badge badge-silver">{{ port }}</span></td>
+						<td class="atd td-buttons" data-id="{{ id }}">
 							<button class="application-button" name="logs" title="@(Show logs)"><i class="fa fa-search"></i></button>
 							<button class="application-button" name="restart" title="@(Restart)"><i class="fa fa-refresh"></i></button>
 							<button class="application-button" name="stop" title="@(Stop)"><i class="fa fa-stop-circle"></i></button>
@@ -756,7 +756,8 @@
 
 		AJAX('GET /api/apps/info/', function(response) {
 			SET('applications.info', response);
-			applications.timeout_info = setTimeout(applications_info, timeout);
+
+			// applications.timeout_info = setTimeout(applications_info, timeout);
 
 			var sum = 0;
 
@@ -885,7 +886,7 @@
 		var self = this;
 		var port = self.attr('data-port').parseInt();
 
-		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg silver" style="width:60px">{{ hdd }}<i class="fa fa-folder-o ml5"></i></td><td style="width:75px" class="right visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td style="width:85px" class="right">{{ memory | application-round }}{{ memory | application-progress(\'memory\', 500) }}</td><td style="width:45px" class="right visible-lg">{{ openfiles }}<i class="fa fa-hdd-o ml5"></i></td><td style="width:45px" class="right visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
+		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg visible-xs ttd-hdd">{{ hdd }}<i class="fa fa-folder-o ml5"></i></td><td class="ttd-cpu visible-xs visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td class="ttd-memory">{{ memory | application-round }}{{ memory | application-progress(\'memory\', 500) }}</td><td class="ttd-files visible-lg">{{ openfiles }}<i class="fa fa-hdd-o ml5"></i></td><td class="ttd-connections visible-xs visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
 		self.readonly();
 
 		self.setter = function(value) {
