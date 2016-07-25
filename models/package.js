@@ -30,6 +30,12 @@ NEWSCHEMA('Package').make(function(schema) {
 	});
 
 	schema.addWorkflow('restart', function(error, model, options, callback) {
+
+		if (mode.app.stopped) {
+			model.app.stopped = false;
+			SuperAdmin.save(NOOP);
+		}
+
 		SuperAdmin.run(model.app.port, function(err) {
 			if (err)
 				error.push('restart', err);

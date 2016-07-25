@@ -108,6 +108,8 @@ SuperAdmin.appinfo = function(pid, callback) {
 			if (err)
 				return next();
 		 	output.connections = response.trim().parseInt() - 1;
+		 	if (output.connections < 0)
+		 		output.connections = 0;
 		 	next();
 		});
 	});
@@ -292,14 +294,6 @@ SuperAdmin.pid = function(port, callback) {
 	var item = APPLICATIONS.findItem('port', port);
 	if (!item) {
 		callback(null, 'error-app-404');
-		return;
-	}
-
-	if (item.debug)
-		item.pid = 0;
-
-	if (item.pid) {
-		callback(null, item.pid);
 		return;
 	}
 
@@ -606,6 +600,10 @@ SuperAdmin.init = function() {
 		SuperAdmin.versions(function() {
 
 			APPLICATIONS.wait(function(item, next) {
+
+				if (item.stopped)
+					return next();
+
 				SuperAdmin.pid(item.port, function(err, pid) {
 					if (pid)
 						return next();
@@ -613,7 +611,6 @@ SuperAdmin.init = function() {
 				});
 			});
 
-			// console.log(SuperAdmin.nginx);
 		});
 	});
 	return SuperAdmin;

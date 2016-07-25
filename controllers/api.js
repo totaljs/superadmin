@@ -57,18 +57,28 @@ function json_apps_restart(id) {
 	if (!id) {
 		var errors = [];
 		APPLICATIONS.wait(function(item, next) {
+			item.stopped = false;
 			SuperAdmin.restart(item.port, function(err) {
 				err && errors.push(err);
 				next();
 			});
-		}, () => self.json(SUCCESS(true, errors)));
+		}, function() {
+			SuperAdmin.save(NOOP);
+			self.json(SUCCESS(true, errors));
+		});
 		return;
 	}
 
 	var app = APPLICATIONS.find('id', id);
 	if (!app)
 		return self.invalid().push('error-app-404');
+
 	SuperAdmin.restart(app.port, (err) => self.json(SUCCESS(true, err)));
+
+	if (app.stopped) {
+		app.stopped = false;
+		SuperAdmin.save(NOOP);
+	}
 }
 
 function json_apps_stop(id) {
@@ -78,18 +88,28 @@ function json_apps_stop(id) {
 	if (!id) {
 		var errors = [];
 		APPLICATIONS.wait(function(item, next) {
+			item.stopped = true;
 			SuperAdmin.kill(item.port, function(err) {
 				err && errors.push(err);
 				next();
 			});
-		}, () => self.json(SUCCESS(true, errors)));
+		}, function() {
+			SuperAdmin.save(NOOP);
+			self.json(SUCCESS(true, errors));
+		});
 		return;
 	}
 
 	var app = APPLICATIONS.find('id', id);
 	if (!app)
 		return self.invalid().push('error-app-404');
+
 	SuperAdmin.kill(app.port, (err) => self.json(SUCCESS(true, err)));
+
+	if (!app.stopped) {
+		app.stopped = true;
+		SuperAdmin.save(NOOP);
+	}
 }
 
 function json_apps_logs(id) {
@@ -102,6 +122,7 @@ function json_apps_reconfigure() {
 	var errors = [];
 
 	APPLICATIONS.wait(function(item, next) {
+		item.stopped = false;
 		var model = GETSCHEMA('Application').create();
 		U.copy(item, model);
 		model.$async(function(err) {
@@ -109,6 +130,8 @@ function json_apps_reconfigure() {
 			next();
 		}).$workflow('check').$workflow('port').$workflow('nginx');
 	}, function() {
+
+		SuperAdmin.save(NOOP);
 
 		if (!errors.length) {
 			self.json(SUCCESS(true));
@@ -192,4 +215,3 @@ function json_apps_monitor() {
 	}, () => self.json(output));
 
 }
-
