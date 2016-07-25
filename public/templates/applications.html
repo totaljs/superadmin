@@ -158,7 +158,7 @@
 
 				<hr style="margin:15px 0" />
 				<div data-name="cpu" style="font-size:32px;line-height:45px">...</div>
-				<div class="fs11">@(CPU occupancy (all cores))</div>
+				<div class="fs11">@(CPU utilization (all cores))</div>
 				<hr />
 				<div class="fs11 b black" data-name="version_server">...</div>
 				<div class="stats mt5">
@@ -643,6 +643,7 @@
 
 	// Method refreshes grid
 	function applications_refresh(reset) {
+
 		if (reset)
 			applications.filter.page = 1;
 
