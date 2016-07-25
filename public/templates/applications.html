@@ -648,6 +648,7 @@
 
 		AJAX('GET /api/apps/', applications.filter, function(response) {
 			var categories = {};
+
 			SET('applications.grid', response);
 
 			response.forEach(function(item) {
@@ -897,7 +898,7 @@
 
 		self.setter = function(value) {
 			if (!value)
-				return self.html(empty);
+				return self.empty();
 			var obj = value.findItem('port', port);
 			if (obj)
 				self.html(self.template(obj));

@@ -871,9 +871,6 @@ COMPONENT('page', function() {
 					fn(self);
 			}
 
-			if (reload)
-				self.get(reload)();
-
 			isProcessed = true;
 			el.toggleClass('hidden', !is);
 			loading.hide(1200);
