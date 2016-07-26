@@ -1,8 +1,9 @@
+[![MIT License][license-image]][license-url]
 [![Support](https://www.totaljs.com/img/button-support.png)](https://www.totaljs.com/support/)
 
 # Installation
 
-__SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`.
+__License__: [MIT](license.txt). __SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`.
 
 - __IMPORTANT__: superadmin must run as `root`
 - open terminal `$ sudo su`
@@ -32,3 +33,6 @@ __SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`.
 ## Where does SuperAdmin store data?
 
 All data are stored in `/superadmin/databases/` directory. Applications are stored in `application.json`.
+
+[license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat
+[license-url]: license.txt
