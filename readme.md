@@ -1,5 +1,7 @@
 # Installation
 
+__SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`.
+
 - __IMPORTANT__: superadmin must run as `root`
 - open terminal `$ sudo su`
 - open `superadmin` directory in terminal `cd /www/superadmin/`
