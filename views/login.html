@@ -3,16 +3,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>SuperAdmin v@{config.version}</title>
+	<title>@{config.name} v@{config.version}</title>
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=10" />
 	<meta name="format-detection" content="telephone=no" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<meta name="robots" content="all,follow" />
-	@{head}
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimal-ui" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="#A0A0A0" />
+	<meta name="apple-mobile-web-app-title" content="@{config.name}" />
+	<link rel="apple-touch-icon" href="/icon.png" />
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" />
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700&subset=latin,latin-ext" />
-	@{import('default.css', 'favicon.ico')}
+	@{import('head', 'default.css', 'favicon.ico')}
 </head>
 <body>
 	<div data-component="loading" class="ui-loading"></div>
@@ -56,8 +58,8 @@
 			var dt = new Date();
 			dt.setDate(dt.getDate() + 7);
 			document.cookie = '__sa=' + (id.toString()) + '; expires=' + dt.toUTCString() + '; path=/';
-			FIND('loading').show();
-			window.location.reload(true);
+			SETTER('loading', 'show');
+			location.reload(true);
 		}
 	</script>
 
