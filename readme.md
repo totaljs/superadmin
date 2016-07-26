@@ -11,3 +11,12 @@
 - reload nginx `service nginx reload`
 - run superadmin via `bash /www/superadmin/run.sh`
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `superadmin/config`)
+
+## How do I to translate SuperAdmin?
+
+- install Total.js as global module `npm install -g total.js`
+- then open HelpDesk directory `cd helpdesk`
+- then perform this command `totaljs --translate`
+- translate translated file `translate.resource`
+- and copy the content to `/resources/default.resource`
+- run app
