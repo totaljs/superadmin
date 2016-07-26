@@ -1,3 +1,5 @@
+[![Support](https://www.totaljs.com/img/button-support.png)](https://www.totaljs.com/support/)
+
 # Installation
 
 __SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`.
@@ -14,6 +16,8 @@ __SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`.
 - run superadmin via `bash /www/superadmin/run.sh`
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `superadmin/config`)
 
+---
+
 ## How do I to translate SuperAdmin?
 
 - install Total.js as global module `npm install -g total.js`
@@ -22,3 +26,9 @@ __SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`.
 - translate translated file `translate.resource`
 - and copy the content to `/resources/default.resource`
 - run app
+
+---
+
+## Where does SuperAdmin store data?
+
+All data are stored in `/superadmin/databases/` directory. Applications are stored in `application.json`.
