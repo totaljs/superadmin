@@ -1,6 +1,6 @@
 name                      : MyServer
 version                   : 1.0.0
-author                    : Peter Širka
+author                    : Total.js Labs
 
 superadmin                : admin:admin
 
