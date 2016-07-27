@@ -764,7 +764,7 @@
 		AJAX('GET /api/apps/info/', function(response) {
 			SET('applications.info', response);
 
-			// applications.timeout_info = setTimeout(applications_info, timeout);
+			applications.timeout_info = setTimeout(applications_info, timeout);
 
 			var sum = 0;
 
