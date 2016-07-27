@@ -70,6 +70,7 @@ NEWSCHEMA('Application').make(function(schema) {
 		callback(item);
 	});
 
+	// Reads info
 	schema.addWorkflow('info', function(error, model, options, callback) {
 
 		var output = [];
@@ -96,6 +97,7 @@ NEWSCHEMA('Application').make(function(schema) {
 		}, () => callback(output), 2);
 	});
 
+	// Reads logs
 	schema.addWorkflow('logs', function(error, model, id, callback) {
 		var item = APPLICATIONS.findItem('id', id);
 		if (!item) {

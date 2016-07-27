@@ -4,9 +4,9 @@
 
 # Installation
 
-__License__: [MIT](license.txt). __SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`.
+__License__: [MIT](license.txt). __SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`. __IMPORTANT__: All ports from `8000` must be free for SuperAdmin applications because __SuperAdmin__ uses auto-generating port numbers for new applications.
 
-- __IMPORTANT__: superadmin must run as `root`
+- __IMPORTANT__: superadmin must run as `root` (very important)
 - open terminal `$ sudo su`
 - open `superadmin` directory in terminal `cd /www/superadmin/`
 - run `install.sh` (Nginx, Node.js, GraphicsMagick, ACME, Total.js)
