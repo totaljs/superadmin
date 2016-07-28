@@ -44,14 +44,15 @@ function success() {
 	}, 1500);
 	FIND('loading').hide(500);
 }
+
 function can(name) {
-	if (su.roles.length === 0)
+	if (!su.roles.length)
 		return true;
 	return su.roles.indexOf(name) !== -1;
 }
 
 Tangular.register('default', function(value, def) {
-	if (value === undefined || value === null || value === '')
+	if (value == null || value === '')
 		return def;
 	return value;
 });
@@ -75,14 +76,6 @@ jQuery.easing.easeOutBounce = function(e, f, a, h, g) {
 		}
 	}
 };
-
-function getSelectionStartNode(context){
-	if (!context.getSelection)
-		return;
-	var node = context.getSelection().anchorNode;
-	var startNode = (node.nodeName == "#text" ? node.parentNode : node);
-	return startNode;
-}
 
 function mainmenu() {
 	$('header nav').toggleClass('mainmenu-visible');
