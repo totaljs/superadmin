@@ -4,7 +4,7 @@ exports.install = function() {
 	F.route('/api/apps/',              json_query,            ['authorize', '*Application']);
 	F.route('/api/apps/',              json_apps_save,        ['authorize', 'post', '*Application', 50000]);
 	F.route('/api/apps/info/',         json_apps_info,        ['authorize', '*Application', 20000]);
-	F.route('/api/stats/',             json_stats,            ['authorize', 20000]);
+	F.route('/api/stats/',             json_stats,            [20000]);
 	F.route('/api/apps/{id}/',         json_read,             ['authorize', '*Application']);
 	F.route('/api/apps/{id}/restart/', json_apps_restart,     ['authorize', '*Application', 20000]);
 	F.route('/api/apps/{id}/stop/',    json_apps_stop,        ['authorize', '*Application', 20000]);
