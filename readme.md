@@ -38,5 +38,11 @@ __License__: [MIT](license.txt). __SuperAdmin__ needs latest Total.js from NPM `
 
 All data are stored in `/superadmin/databases/` directory. Applications are stored in `application.json`.
 
+## Contributors
+
+- Peter Širka <petersirka@gmail.com>
+- Martin Smola  <smola.martin@gmail.com>
+- Athul B Raj <https://github.com/Athuli7>
+
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat
 [license-url]: license.txt
