@@ -7,18 +7,8 @@
 __License__: [MIT](license.txt). __SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`. __IMPORTANT__: All ports from `8000` must be free for SuperAdmin applications because __SuperAdmin__ uses auto-generating port numbers for new applications.
 
 - __IMPORTANT__: superadmin must run as `root` (very important)
-- run `sudo su` to change user to root
-- run `apt-get install git` to install git
-- run `git clone https://github.com/totaljs/superadmin` to clone the repository
-- run `cd superadmin` to move into the directory
-- run `bash install.sh` (Nginx, Node.js, GraphicsMagick, ACME, Total.js)
-- run `mv ../superadmin /www/` to move the files to the right directory
-- run `cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup` to backup the original file
-- run `cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf` to replace the current configuration file
-- run `cp /www/superadmin/superadmin.conf /www/nginx/` to copy the vhost file
-- run `nano /www/nginx/superadmin.conf` to update the configuration to your needs
-- run `service nginx reload` to reload nginx
-- run `bash /www/superadmin/run.sh` to start the superadmin
+- run `sudo wget https://raw.githubusercontent.com/totaljs/superadmin/master/install.sh`
+- run `sudo bash install.sh`
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `/www/superadmin/config`)
 
 ---
