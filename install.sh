@@ -84,9 +84,31 @@ sed -i -e $repexp /www/nginx/superadmin.conf
 sed -i -e $subrepexp /www/nginx/superadmin.conf
 service nginx reload
 
+rm /www/superadmin/user.guid
+read -p "Which user should SuperAdmin use to run your applications ? (default root) : " user
+if id "$user" >/dev/null 2>&1; then
+    printf "Using user -> %s\n" "$user"
+    id -u ${user} >> /www/superadmin/user.guid
+    id -g ${user} >> /www/superadmin/user.guid
+else
+    printf "User %s does not exist. Using root instead.\n" "$user"
+    id -u 0 >> /www/superadmin/user.guid
+    id -g 0 >> /www/superadmin/user.guid
+fi
+
+read -p "Do you wish to install cron job to start SuperAdmin automaticly after server restart? (y/n) :" autorestart
+if [ "$autorestart" == "y" ]; then
+    #write out current crontab
+    crontab -l > mycron
+    #check cron job exists if not add it
+    crontab -l | grep '@reboot /bin/bash /www/superadmin/run.sh' || echo '@reboot /bin/bash /www/superadmin/run.sh' >> mycron
+    crontab mycron
+    rm mycron
+    echo "Cron job added."
+fi
+
 #Starting
-cd /www/superadmin
-node --nouse-idle-notification --expose-gc --max_inlined_source_size=1200 release.js 9999 > superadmin.log &
+/bin/bash /www/superadmin/run.sh
 
 else
 echo "Sorry, this installation cannot continue."
