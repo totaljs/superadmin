@@ -31,7 +31,7 @@ NEWSCHEMA('Package').make(function(schema) {
 
 	schema.addWorkflow('restart', function(error, model, options, callback) {
 
-		if (mode.app.stopped) {
+		if (model.app.stopped) {
 			model.app.stopped = false;
 			SuperAdmin.save(NOOP);
 		}
