@@ -75,19 +75,8 @@ NEWSCHEMA('Package').make(function(schema) {
 				error.push(err);
 				return callback();
 			}
-			console.log('CHOWN on', directory);
-			var ls = Spawn('chown', ['-R', SuperAdmin.run_as_user.user, directory]).unref();
-			ls.stdout.on('data', (data) => {
-				console.log(`stdout: ${data}`);
-			});
-
-			ls.stderr.on('data', (data) => {
-				console.log(`stderr: ${data}`);
-			});
-
-			ls.on('close', (code) => {
-				console.log(`child process exited with code ${code}`);
-			});
+			
+			Spawn('chown', ['-R', SuperAdmin.run_as_user.user, directory]);
 
 			F.unlink([filename], NOOP);
 			SuperAdmin.makescripts(model.app, function(err) {

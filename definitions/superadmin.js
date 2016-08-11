@@ -16,7 +16,7 @@ SuperAdmin.server = {};
 
 var user;
 try {
-	var tmp = Fs.readFileSync('/www/superadmin/user.guid', 'utf8').split(':');
+	var tmp = Fs.readFileSync('/www/superadmin/user.guid', 'utf8').split('\n')[0].split(':');
 	if(tmp.length === 3)
 		user = {user: tmp[0], id: parseInt(tmp[1]), group: parseInt(tmp[2])};
 } catch (err) {}

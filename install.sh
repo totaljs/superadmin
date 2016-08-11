@@ -88,12 +88,12 @@ rm /www/superadmin/user.guid
 read -p "Which user should SuperAdmin use to run your applications ? (default root) : " user
 if id "$user" >/dev/null 2>&1; then
     printf "Using user -> %s\n" "$user"
-    id -u ${user} >> /www/superadmin/user.guid
-    id -g ${user} >> /www/superadmin/user.guid
+    uid=$(id -u ${user})
+    gid=$(id -g ${user})
+    echo "$user:$uid:$gid" >> /www/superadmin/user.guid
 else
     printf "User %s does not exist. Using root instead.\n" "$user"
-    id -u 0 >> /www/superadmin/user.guid
-    id -g 0 >> /www/superadmin/user.guid
+    echo "root:0:0" >> /www/superadmin/user.guid
 fi
 
 read -p "Do you wish to install cron job to start SuperAdmin automaticly after server restart? (y/n) :" autorestart
