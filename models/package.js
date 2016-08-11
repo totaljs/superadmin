@@ -1,5 +1,6 @@
 const Path = require('path');
 const Fs = require('fs');
+const Spawn = require('child_process').spawn;
 
 NEWSCHEMA('Package').make(function(schema) {
 
@@ -74,6 +75,8 @@ NEWSCHEMA('Package').make(function(schema) {
 				error.push(err);
 				return callback();
 			}
+			
+			Spawn('chown', ['-R', SuperAdmin.run_as_user.user, directory]);
 
 			F.unlink([filename], NOOP);
 			SuperAdmin.makescripts(model.app, function(err) {

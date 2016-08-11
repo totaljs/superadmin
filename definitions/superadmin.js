@@ -14,6 +14,15 @@ const REG_FINDVERSION = /[0-9\.]+/;
 
 SuperAdmin.server = {};
 
+var user;
+try {
+	var tmp = Fs.readFileSync('/www/superadmin/user.guid', 'utf8').split('\n')[0].split(':');
+	if(tmp.length === 3)
+		user = {user: tmp[0], id: parseInt(tmp[1]), group: parseInt(tmp[2])};
+} catch (err) {}
+
+SuperAdmin.run_as_user = user || {user: 'root', id:0, group:0};
+
 String.prototype.superadmin_url = function() {
 	return this.replace(REG_PROTOCOL, '').replace(/\//g, '');
 };
@@ -347,7 +356,9 @@ SuperAdmin.run = function(port, callback) {
 				Spawn('node', ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200', filename, app.port], {
 					stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
 					cwd: Path.join(CONFIG('directory-www'), linker),
-					detached: true
+					detached: true,
+					uid: SuperAdmin.run_as_user.id,
+					gid: SuperAdmin.run_as_user.group
 				}).unref();
 				setTimeout(() => callback(), app.delay || 100);
 			});
