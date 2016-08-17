@@ -16,7 +16,7 @@ __License__: [MIT](license.txt). __SuperAdmin__ needs latest Total.js from NPM `
 ## How do I to translate SuperAdmin?
 
 - install Total.js as global module `npm install -g total.js`
-- then open HelpDesk directory `cd helpdesk`
+- then open HelpDesk directory `cd superadmin`
 - then perform this command `totaljs --translate`
 - translate translated file `translate.resource`
 - and copy the content to `/resources/default.resource`
