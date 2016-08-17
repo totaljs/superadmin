@@ -55,9 +55,13 @@ function json_apps_restart(id) {
 
 	// restarts all
 	if (!id) {
+
 		var errors = [];
 		APPLICATIONS.wait(function(item, next) {
-			item.stopped = false;
+
+			if (item.stopped)
+				return next();
+
 			SuperAdmin.restart(item.port, function(err) {
 				err && errors.push(err);
 				next();
@@ -66,6 +70,7 @@ function json_apps_restart(id) {
 			SuperAdmin.save(NOOP);
 			self.json(SUCCESS(true, errors));
 		});
+
 		return;
 	}
 
