@@ -23,7 +23,7 @@
 		<div class="col-lg-10 col-md-9">
 			<div data-component="applications" data-component-path="applications.grid">
 				<script type="text/html">
-					<tr data-search="{{ url }}" class="tr" data-id="{{ id }}">
+					<tr data-search="{{ url }}" class="tr" data-id="{{ id }}" data-category="{{ category }}">
 						<td class="atd first td-name"><a href="{{ url }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}</a></td>
 						<td class="atd hidden-xs td-mode">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
 						<td class="atd"><div data-component="application-appinfo" data-port="{{ port }}" data-component-path="applications.info"></div></td>
@@ -192,7 +192,7 @@
 				<div data-component="textbox" data-component-path="applications.form.url" data-required="true" data-placeholder="https://www.totaljs.com" data-component-value="''" data-component-type="url">@(URL address)</div>
 				<div class="help"><i class="fa fa-info-circle"></i>@(The URL address must contain the protocol <code>http</code> or <code>https</code>.)</div>
 				<br />
-				<div data-component="checkbox" data-component-path="applications.form.debug">@(Enables debug mode)</div>
+				<div data-component="checkbox" data-component-path="applications.form.debug" class="inline mr15">@(Enables debug mode)</div>
 			</div>
 			<div class="col-md-2">
 				<div data-component="textbox" data-component-path="applications.form.port" data-required="true" data-component-value="''" data-align="center" data-maxlength="4">@(Port)</div>
@@ -330,12 +330,12 @@
 	</div>
 </div>
 
-<div data-component="form" data-title="@(Application's logs)" data-component-path="common.form" data-if="value === 'applications-logs'" data-width="900px" data-autocenter="true">
+<div data-component="form" data-title="@(Application's logs)" data-component-path="common.form" data-if="value === 'applications-logs'" data-width="1400px" data-autocenter="false">
 	<div class="padding">
-		<div data-component="textarea" data-component-path="applications.logs" data-height="500px" class="ui-textarea-code" data-readonly="true">@(Logs)</div>
+		<div data-component="textarea" data-component-path="applications.logs" data-height="600px" class="ui-textarea-code" data-readonly="true" data-component-id="applications.logs">@(Logs)</div>
 	</div>
-	<div class="ui-form-buttons">
-		<button name="cancel">@(Cancel)</button>
+	<div class="ui-form-buttons center">
+		<button name="cancel" style="width:200px">@(Cancel)</button>
 	</div>
 </div>
 
@@ -474,6 +474,9 @@
 			case 'logs':
 				SETTER('loading', 'show');
 				AJAX('GET /api/apps/{0}/logs/'.format(id), function(response) {
+
+					FIND('#applications.logs').find('textarea').css({ height: $(window).height() - 300 });
+
 					SET('applications.logs', response);
 					SET('common.form', 'applications-logs');
 					success();
@@ -557,11 +560,21 @@
 			return;
 		if (!value)
 			value = '';
+
 		value = value.toLowerCase();
+		var categories = {};
+
 		FIND('applications').element.find('tr.tr').each(function(index) {
 			var el = $(this);
 			var search = el.attr('data-search').toLowerCase();
-			el.toggleClass('hidden', value ? search.indexOf(value) === -1 : false);
+			var no = value ? search.indexOf(value) === -1 : false;
+			el.toggleClass('hidden', no);
+			if (!no)
+				categories[el.attr('data-category')] = true;
+		});
+
+		FIND('applications').element.find('.category,.items').each(function() {
+			$(this).toggleClass('hidden', categories[this.getAttribute('data-category')] === undefined);
 		});
 	});
 
@@ -813,8 +826,8 @@
 
 		var self = this;
 		var recompile = false;
-		var template_table = '<div class="items"><table border="0">{0}</table></div>';
-		var template_category = '<div class="category"><span>{1}x</span><i class="fa fa-folder-o"></i>{0}</div>';
+		var template_table = '<div class="items" data-category="{1}"><table border="0">{0}</table></div>';
+		var template_category = '<div class="category" data-category="{0}"><span>{1}x</span><i class="fa fa-folder-o"></i>{0}</div>';
 		var REG_CLEANURL = /^(http|https)\:\/\//g;
 
 		self.readonly();
@@ -876,7 +889,7 @@
 					builder.push(self.template(item).replace(/\$index/g, index.toString()).replace(/\$/g, self.path + '[' + index + ']'));
 				});
 
-				self.element.append(template_category.format(name, builder.length) + template_table.format(builder.join('')));
+				self.element.append(template_category.format(name, builder.length) + template_table.format(builder.join(''), name));
 			});
 
 			if (recompile)
