@@ -6,7 +6,8 @@ $font   : 'Arial';
 html { overflow: hidden; }
 html,body { margin: 0; height: 100%; position: relative; }
 body { background-color: white; padding: 0; color: gray; font-smoothing: antialiased; overflow-y: scroll; overflow-x: hidden; overflow-scrolling: touch; }
-#body { margin-left: 30px; }
+
+#body { margin: 0 40px 0 80px; }
 
 header { background-color: #F0F0F0; width: 50px; border-bottom: 1px solid #E0E0E0; position: fixed; left: 0; top: 0; bottom: 0; }
 header nav { font-size: 20px; position: relative; display: inline-block; font-smoothing: antialiased; width: 100%; }
