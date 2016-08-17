@@ -183,6 +183,7 @@ button { outline: 0; }
 .ui-textbox-invalid { border-color: #E7B8B8 !important; background-color: #FFF3F3 !important; }
 .ui-textbox-invalid input { background-color: #FFF3F3 !important; }
 .ui-textbox ul { margin: 20px 0 0 -5px; padding: 0; list-style-type: none; position: absolute; width: 100%; background-color: white; z-index: 5; border: 1px solid #E0E0E0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: none; }
+.ui-textbox .fa-times { color: black; cursor: pointer; }
 .ui-textbox li { display: block; padding: 5px 10px; border-top: 1px solid #E0E0E0; cursor: pointer; }
 .ui-textbox li:first-child { border-top: 0; }
 .ui-textbox li.selected { background-color: #F0F0F0; }

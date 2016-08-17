@@ -501,6 +501,90 @@ COMPONENT('textbox', function() {
 	};
 });
 
+COMPONENT('textboxsearch', function() {
+
+	var self = this;
+	var required = self.attr('data-required') === 'true';
+	var input;
+	var container;
+	var icon;
+
+	self.validate = function(value) {
+
+		var is = false;
+		var type = typeof(value);
+
+		if (input.prop('disabled'))
+			return true;
+
+		if (type === 'undefined' || type === 'object')
+			value = '';
+		else
+			value = value.toString();
+
+		if (window.$calendar)
+			window.$calendar.hide();
+
+		return value.length > 0;
+	};
+
+	!required && self.noValid();
+
+	self.make = function() {
+
+		var attrs = [];
+		var builder = [];
+		var tmp;
+
+		attrs.attr('type', 'text');
+		attrs.attr('placeholder', self.attr('data-placeholder'));
+		attrs.attr('maxlength', self.attr('data-maxlength'));
+		attrs.attr('data-component-keypress', self.attr('data-component-keypress'));
+		attrs.attr('data-component-keypress-delay', self.attr('data-component-keypress-delay'));
+		attrs.attr('data-component-bind', '');
+
+		tmp = self.attr('data-align');
+		tmp && attrs.attr('class', 'ui-' + tmp);
+		self.attr('data-autofocus') === 'true' && attrs.attr('autofocus');
+
+		var content = self.html();
+		builder.push('<input {0} />'.format(attrs.join(' ')));
+		builder.push('<div><span class="fa fa-search"></span></div>');
+
+		var html = builder.join('');
+
+		builder = [];
+		builder.push('<div class="ui-textbox-label{0}">'.format(required ? ' ui-textbox-label-required' : ''));
+		builder.push(content);
+		builder.push(':</div><div class="ui-textbox">{0}</div>'.format(html));
+
+		self.html(builder.join(''));
+		self.element.addClass('ui-textbox-container');
+		input = self.find('input');
+		container = self.find('.ui-textbox');
+
+		icon = self.find('.fa');
+
+		self.element.on('click', '.fa-times', function() {
+			self.set('');
+		});
+
+		self.watch(function(path, value) {
+			icon.toggleClass('fa-search', value ? false : true).toggleClass('fa-times', value ? true : false);
+		});
+	};
+
+	self.state = function(type, who) {
+		if (!type)
+			return;
+		var invalid = self.isInvalid();
+		if (invalid === self.$oldstate)
+			return;
+		self.$oldstate = invalid;
+		container.toggleClass('ui-textbox-invalid', self.isInvalid());
+	};
+});
+
 COMPONENT('textarea', function() {
 
 	var self = this;
