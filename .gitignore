@@ -1,2 +1,4 @@
 sftp-config.json
 superadmin.log
+databases/applications.json
+debug.pid
