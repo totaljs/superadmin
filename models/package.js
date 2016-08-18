@@ -75,7 +75,7 @@ NEWSCHEMA('Package').make(function(schema) {
 				error.push(err);
 				return callback();
 			}
-			
+
 			Spawn('chown', ['-R', SuperAdmin.run_as_user.user, directory]);
 
 			F.unlink([filename], NOOP);
