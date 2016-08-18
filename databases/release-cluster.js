@@ -13,6 +13,8 @@ function master() {
 		var fork = Cluster.fork();
 		fork.send({ type: 'id', id: i });
 	}
+
+	process.title = 'total.js cluster';
 }
 
 function fork() {

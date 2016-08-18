@@ -4,10 +4,11 @@
 			<div class="col-md-4 m">
 				<div data-component="textboxsearch" data-component-path="applications.filter.search" data-placeholder="@(Type a word)">@(Search applications)</div>
 			</div>
-			<div class="col-md-3 col-md-offset-5 m">
+			<div class="col-md-4 col-md-offset-4 m">
 				<br />
 				<div class="operations">
 					<button class="operation-button" name="add" title="@(Add application)"><i class="fa fa-plus-circle"></i></button>
+					<button class="operation-button" name="addsubprocess" title="@(Add subprocess)"><i class="fa fa-plug"></i></button>
 					<button class="operation-button" name="summary" title="@(Summary)"><i class="fa fa-bar-chart"></i></button>
 					<button class="operation-button" name="restart" title="@(Restart all)"><i class="fa fa-refresh"></i></button>
 					<button class="operation-button" name="stop" title="@(Stop all)"><i class="fa fa-stop-circle"></i></button>
@@ -24,8 +25,8 @@
 		<div class="col-lg-10 col-md-9">
 			<div data-component="applications" data-component-path="applications.grid">
 				<script type="text/html">
-					<tr data-search="{{ url }}" class="tr" data-id="{{ id }}" data-category="{{ category }}">
-						<td class="atd first td-name"><a href="{{ url }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}</a></td>
+					<tr data-search="{{ url }}" class="tr{{ if subprocess }} tr-subprocess{{ fi }}{{ if $.last }} tr-subprocess-last{{ fi }}" data-id="{{ id }}" data-category="{{ category }}">
+						<td class="atd first td-name"><a href="{{ url }}{{ path }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}{{ path }}{{ if cluster > 1 }}<span class="badge badge-silver cluster">{{ cluster }}</span>{{ fi }}</a></td>
 						<td class="atd hidden-xs td-mode">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
 						<td class="atd"><div data-component="application-appinfo" data-port="{{ port }}" data-component-path="applications.info"></div></td>
 						<td class="atd hidden-xs td-port"><span class="badge badge-silver">{{ port }}</span></td>
@@ -180,242 +181,12 @@
 	</div>
 </div>
 
-<div data-component="form" data-title="@(Edit application)" data-component-path="common.form" data-if="value === 'applications'" data-width="900px" data-component-id="applications.form" data-autocenter="false">
-	<div class="padding">
-
-		<div data-component="visible" data-component-path="applications.form.id" data-if="!value" class="hidden">
-			<div class="silver">@(When you add the application then you have to upload it as <b>package</b> via <i class="fa fa-cloud-upload"></i> button in application's grid.)</div>
-			<br />
-		</div>
-
-		<div class="row">
-			<div class="col-md-10">
-				<div data-component="textbox" data-component-path="applications.form.url" data-required="true" data-placeholder="https://www.totaljs.com" data-component-value="''" data-component-type="url">@(URL address)</div>
-				<div class="help"><i class="fa fa-info-circle"></i>@(The URL address must contain the protocol <code>http</code> or <code>https</code>.)</div>
-				<br />
-				<div data-component="checkbox" data-component-path="applications.form.debug" class="inline mr15">@(Enables debug mode)</div>
-			</div>
-			<div class="col-md-2">
-				<div data-component="textbox" data-component-path="applications.form.port" data-required="true" data-component-value="''" data-align="center" data-maxlength="4">@(Port)</div>
-			</div>
-		</div>
-	</div>
-	<div data-component="visible" data-component-path="applications.form.url" data-if="value && value.substring(0, 8) === 'https://'" class="hidden">
-		<div class="padding bg-smoke" style="border-bottom:1px solid #E0E0E0">
-			<div><span class="badge badge-green mr5">@(security)</span><b>@(SSL configuration)</b></div>
-			<div class="help nmt">@(Type a path if you want to prevent <b>auto configure</b>.)</div>
-			<br />
-			<div class="row">
-				<div class="col-md-6 m">
-					<div data-component="textbox" data-component-path="applications.form.ssl_key" data-placeholder="@(auto configure)" data-icon="fa-key">@(SSL key)</div>
-				</div>
-				<div class="col-md-6 m">
-					<div data-component="textbox" data-component-path="applications.form.ssl_cer" data-placeholder="@(auto configure)">@(SSL certificate)</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="padding bg-smoke npb" style="padding-top:30px">
-		<h2><i class="fa fa-folder"></i>@(Categorization)</h2>
-		<div class="row">
-			<div class="col-md-6 m">
-				<div data-component="dropdown" data-component-path="applications.form.category" data-source="applications.categories" data-empty="" data-source-value="name">@(Existing category)</div>
-			</div>
-			<div class="col-md-6 m">
-				<div data-component="textbox" data-component-path="applications.form.category" data-required="true" data-placeholder="@(e.g. E-commerce)">@(Category)</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-12 m">
-				<div data-component="textarea" data-component-path="applications.form.notes" data-placeholder="@(e.g. Hosting ends january 2029)" data-component-value="''" data-height="50px">@(Notes)</div>
-			</div>
-		</div>
-		<br />
-	</div>
-	<div class="padding npb">
-		<div class="row">
-			<div class="col-md-10 m">
-				<div data-component="range" data-component-path="applications.form.cluster" data-component-type="number" data-min="1" data-max="50" data-component-value="1">@(Thread count)</div>
-				<div class="help"><i class="fa fa-warning"></i>@(The application must be optimized for the cluster. The cluster mode is enabled when the thread count is greater than <b>one thread</b>.)</div>
-			</div>
-			<div class="col-md-2 center m">
-				<div data-component="" data-component-path="applications.form.cluster" style="font-size:40px"></div>
-			</div>
-		</div>
-	</div>
-	<hr />
-	<div class="padding npb">
-		<div class="row">
-			<div class="col-md-10 m">
-				<div data-component="range" data-component-path="applications.form.ddos" data-component-type="number" data-min="10" data-max="100" data-component-value="15">@(Maximum count of request per second from a single IP)</div>
-				<div class="help"><i class="fa fa-warning"></i>@(This settings is a prevention for DDOS attacks. Nginx responds via 503 error for other requests.)</div>
-			</div>
-			<div class="col-md-2 center m">
-				<div data-component="" data-component-path="applications.form.ddos" style="font-size:40px"></div>
-			</div>
-		</div>
-	</div>
-	<hr />
-	<div class="padding npb">
-		<div class="row">
-			<div class="col-md-3 m">
-				<div data-component="textbox" data-component-path="applications.form.priority" data-component-type="number" data-maxlength="3" data-align="center" data-increment="true">@(Process priority)</div>
-				<div class="help">@(Process with highest priority is executed as first.)</div>
-			</div>
-			<div class="col-md-3 m">
-				<div data-component="textbox" data-component-path="applications.form.delay" data-component-type="number" data-maxlength="5" data-align="center" data-increment="true">@(Delay (ms))</div>
-				<div class="help">@(Delay before executing the process. Other requests will wait.)</div>
-			</div>
-			<div class="col-md-3 m">
-				<div data-component="textbox" data-component-path="applications.form.size" data-component-type="number" data-maxlength="5" data-align="center" data-icon="fa-cloud-upload" data-placeholder="e.g. 5" data-increment="true">@(Maximum upload size (MB))</div>
-			</div>
-		</div>
-		<hr />
-		<br />
-		<div class="row">
-			<div class="col-md-6 m">
-				<div data-component="textbox" data-component-path="applications.form.monitor" data-maxlength="200" data-placeholder="/$monitor/" data-icon="fa-desktop">@(Relative URL address for monitoring)</div>
-				<div class="help">@(If you use Total.js <b>monitor</b> module then add its relative URL address.)</div>
-			</div>
-		</div>
-	</div>
-	<hr />
-	<div class="padding">
-		<div data-component="textboxlist" data-component-path="applications.form.redirect" class="m" data-maxlength="50" data-placeholder="@(e.g. www.totaljs.com and press enter)" data-icon="fa-arrow-left" data-component-value="[]">@(Redirects)</div>
-		<div data-component="textboxlist" data-component-path="applications.form.allow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-globe" data-component-value="[]">@(Allowed IP addresses)</div>
-		<div data-component="textboxlist" data-component-path="applications.form.disallow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-ban" data-component-value="[]">@(Blocked IP addresses)</div>
-	</div>
-	<hr class="nmt" />
-	<div class="padding">
-		<div data-component="codemirror" data-component-path="applications.form.nginx" data-icon="fa-code" data-height="200px" data-type="nginx" class="ui-textarea-code">@(Custom NGINX configuration)</div>
-		<br />
-	</div>
-	<div data-component="error" data-component-path="applications.form.response"></div>
-	<div class="ui-form-buttons">
-		<div data-component="validation" data-component-path="applications.form">
-			<button name="submit">@(SUBMIT)</button>
-		</div>
-		<button name="cancel">@(Cancel)</button>
-	</div>
-</div>
-
-<div data-component="form" data-title="@(Upload a new application)" data-component-path="common.form" data-if="value === 'applications-upload'" data-width="600px" data-component-id="applications.upload" data-autocenter="true">
-	<div class="padding">
-		<div class="row">
-			<div class="col-md-12">
-				<h2 class="black nmb"><i class="fa fa-globe mr5"></i><b data-component="" data-component-path="applications.upload.name"></b></h2>
-				<div class="help mt10">@(<b>SuperAdmin</b> supports uploading packages. Is easy to create the package, just install Total.js as a global module, then open your application directory in the terminal and type <code>$ tpm create myapp.package</code>.)</div>
-				<br />
-				<div data-component="fileupload" data-component-id="applications.package" data-component-path="applications.upload.filename" data-icon="fa fa-search" data-placeholder="myapplication.package" data-required="true" data-url="/api/apps/upload/" data-singlefile="true">@(Browse device)</div>
-				<div data-component="template" data-component-path="applications.upload">
-					<script type="text/html">
-						{{ if filename }}
-						<div class="fs11 mt10"><i class="fa fa-file mr5"></i><b>@(Filename:)</b> {{ filename }}</div>
-						<hr style="margin:10px 0 0" />
-						{{ fi }}
-					</script>
-				</div>
-				<br />
-				<div data-component="checkbox" class="b" data-component-path="applications.upload.remove">@(Removes all files)</div>
-				<div class="help">@(When is this option checked then SuperAdmin removes all <i class="fa fa-trash nmr"></i> files before unpacking package.)</div>
-			</div>
-		</div>
-	</div>
-
-	<div data-component="error" data-component-path="applications.upload.response"></div>
-	<div class="ui-form-buttons">
-		<div data-component="validation" data-component-path="applications.upload" data-if="applications.upload.filename ? true : false">
-			<button name="submit">@(SUBMIT)</button>
-		</div>
-		<button name="cancel">@(Cancel)</button>
-	</div>
-</div>
-
-<div data-component="form" data-title="@(Application's logs)" data-component-path="common.form" data-if="value === 'applications-logs'" data-width="1400px" data-autocenter="false">
-	<div class="padding">
-		<div data-component="textarea" data-component-path="applications.logs" data-height="600px" class="ui-textarea-code" data-readonly="true" data-component-id="applications.logs">@(Logs)</div>
-	</div>
-	<div class="ui-form-buttons center">
-		<button name="cancel" style="width:200px">@(Cancel)</button>
-	</div>
-</div>
-
-<div data-component="form" data-title="@(Backuping...)" data-component-path="common.form" data-if="value === 'applications-backup'" data-width="380px" data-autocenter="true">
-	<div class="padding">
-		<i class="fa fa-clock-o mr5"></i>@(<b>Please wait</b> for file saving dialog and don't do nothing. The browser waits for the backup file.)
-	</div>
-	<div class="ui-form-buttons">
-		<button name="cancel">@(I understand)</button>
-	</div>
-</div>
-
-<div data-component="form" data-title="@(Summary)" data-component-path="common.form" data-if="value === 'applications-summary'" data-width="700px" data-autocenter="true">
-	<div class="padding" data-component="template" data-component-path="applications.summary">
-		<script type="text/html">
-		{{ if cpu.length }}
-		<h2><i class="fa fa-calculator"></i>@(CPU consumption)</h2>
-		<table class="table table-bordered table-small">
-			<tbody>
-				{{ foreach m in cpu }}
-				<tr>
-					<td class="col-xs-9"><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
-					<td class="col-xs-3 right b black active">{{ m.value }}</td>
-				</tr>
-				{{ end }}
-			</tbody>
-		</table>
-		{{ fi }}
-		<h2><i class="fa fa-server"></i>@(Memory consumption)</h2>
-		<table class="table table-bordered table-small">
-			<tbody>
-				{{ foreach m in memory }}
-				<tr>
-					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
-					<td class="col-xs-3 right b black active">{{ m.value }}</td>
-				</tr>
-				{{ end }}
-			</tbody>
-		</table>
-		<h2><i class="fa fa-hdd-o"></i>@(HDD consumption)</h2>
-		<table class="table table-bordered table-small">
-			<tbody>
-				{{ foreach m in hdd }}
-				<tr>
-					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
-					<td class="col-xs-3 right b black active">{{ m.value }}</td>
-				</tr>
-				{{ end }}
-			</tbody>
-		</table>
-		<h2><i class="fa fa-folder-o"></i>@(Open files)</h2>
-		<table class="table table-bordered table-small">
-			<tbody>
-				{{ foreach m in openfiles }}
-				<tr>
-					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
-					<td class="col-xs-3 right b black active">{{ m.value }}x</td>
-				</tr>
-				{{ end }}
-			</tbody>
-		</table>
-		<h2><i class="fa fa-globe"></i>@(Open connections)</h2>
-		<table class="table table-bordered table-small nmb">
-			<tbody>
-				{{ foreach m in connections }}
-				<tr>
-					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
-					<td class="col-xs-3 right b black active">{{ m.value }}x</td>
-				</tr>
-				{{ end }}
-			</tbody>
-		</table>
-		</script>
-	</div>
-	<div class="ui-form-buttons center">
-		<button name="cancel" style="width:200px">@(Close)</button>
-	</div>
-</div>
-
+<div data-url="/templates/applications-form-summary.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-summary'" data-reload="applications_summary_refresh"></div>
+<div data-url="/templates/applications-form-logs.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-logs'" data-reload="applications_logs_refresh"></div>
+<div data-url="/templates/applications-form-backup.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-backup'"></div>
+<div data-url="/templates/applications-form-upload.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-upload'" data-reload="applications_upload_refresh"></div>
+<div data-url="/templates/applications-form-subprocess.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-subprocess'" data-reload="applications_subprocess_refresh"></div>
+<div data-url="/templates/applications-form.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications'" data-reload="applications_form_refresh"></div>
 
 <script>
 
@@ -423,18 +194,17 @@
 
 	applications.filter = {};
 	applications.filter.page = 1;
-
 	applications.grid = {};
 	applications.form = {};
-	applications.upload = {};
 	applications.info = null;
 	applications.stats = {};
-	applications.logs = null;
 	applications.waiting = false;
+	applications.id = null;          // contains current application (when the user click on some button in the grid)
 
-	$(document).on('click', '.application-button', function() {
+	$(document).on('click', '.application-button', function(e) {
 		var button = $(this);
 		var id = button.parent().attr('data-id');
+		applications.id = id;
 
 		switch (this.name) {
 			case 'remove':
@@ -443,7 +213,7 @@
 						return;
 					SETTER('loading', 'show');
 					AJAX('DELETE /api/apps/{0}/remove/'.format(id), function(response) {
-						applications_refresh();
+						setTimeout(applications_refresh, 100);
 						success();
 					});
 				});
@@ -465,23 +235,13 @@
 				});
 				return;
 			case 'upload':
-				FIND('#applications.package').custom(id);
-				SET('applications.upload', { id: id, filename: '', remove: false, name: applications.grid.findItem('id', id).url });
 				SET('common.form', 'applications-upload');
 				return;
 			case 'download':
 				location.href = '/api/apps/{0}/pack/'.format(id);
 				return;
 			case 'logs':
-				SETTER('loading', 'show');
-				AJAX('GET /api/apps/{0}/logs/'.format(id), function(response) {
-
-					FIND('#applications.logs').find('textarea').css({ height: $(window).height() - 300 });
-
-					SET('applications.logs', response);
-					SET('common.form', 'applications-logs');
-					success();
-				});
+				SET('common.form', 'applications-logs');
 				return;
 			case 'settings':
 				applications_edit(id, -1);
@@ -493,7 +253,7 @@
 		switch (this.name) {
 
 			case 'summary':
-				applications_summary();
+				SET('common.form', 'applications-summary', 100);
 				break;
 
 			case 'backup':
@@ -509,6 +269,10 @@
 
 			case 'add':
 				applications_new();
+				break;
+
+			case 'addsubprocess':
+				applications_newsubprocess();
 				break;
 
 			case 'restart':
@@ -579,59 +343,10 @@
 		});
 	});
 
-	ON('#applications.form', function(component) {
-		component.submit = function(hide) {
-			var loading = FIND('loading');
-			loading.show();
-			AJAX('POST /api/apps/', applications.form, function(response) {
-
-				if (isError(arguments))
-					return;
-
-				loading.hide(500);
-
-				// Error handling
-				SET('applications.form.response', response);
-				if (response instanceof Array)
-					return;
-
-				hide();
-				applications_refresh();
-				success();
-			});
-		};
-	});
-
-	ON('#applications.upload', function(component) {
-		component.submit = function(hide) {
-
-			FIND('confirm').confirm('@(Are you sure you want to unpack uploaded package?)', ['@(Yes)', '@(Cancel)'], function(index) {
-				if (index)
-					return;
-				var loading = FIND('loading');
-				loading.show();
-				AJAX('POST /api/apps/unpack/', applications.upload, function(response) {
-
-					if (isError(arguments))
-						return;
-
-					loading.hide(500);
-
-					// Error handling
-					SET('applications.upload.response', response);
-					if (response instanceof Array)
-						return;
-
-					hide();
-					success();
-				});
-			});
-		};
-	});
-
 	function applications_edit(id, index) {
 		var loading = FIND('loading');
 		loading.show();
+		applications.id = id;
 		AJAX('GET /api/apps/{0}/'.format(id), function(response) {
 
 			if (isError(arguments))
@@ -645,14 +360,24 @@
 				return;
 			}
 
-			SET('applications.form', $.extend({ $index: index }, response), true);
-			SET('common.form', 'applications');
+			if (response.subprocess) {
+				SET('applications.subprocess', $.extend({ $index: index }, response), true);
+				SET('common.form', 'applications-subprocess');
+			} else {
+				SET('applications.form', $.extend({ $index: index }, response), true);
+				SET('common.form', 'applications');
+			}
 		});
 	}
 
 	function applications_new() {
-		SET('applications.form', { cluster: 1, port: 'auto', ddos: 20, debug: false, redirect: [], allow: [], disallow: [], size: 5, delay: 0, priority: 0 }, true);
+		applications.id = null;
 		SET('common.form', 'applications');
+	}
+
+	function applications_newsubprocess() {
+		applications.id = null;
+		SET('common.form', 'applications-subprocess');
 	}
 
 	// Method refreshes grid
@@ -661,7 +386,8 @@
 		if (reset)
 			applications.filter.page = 1;
 
-		AJAX('GET /api/apps/', applications.filter, function(response) {
+		AJAX('GET /api/apps/', applications.filter, function(response, a, b, c) {
+
 			var categories = {};
 
 			SET('applications.grid', response);
@@ -681,84 +407,9 @@
 
 	function applications_reload() {
 		var hash = location.hash;
-		if (hash && hash.length > 1) {
-			setTimeout(function() {
-				applications_edit(hash.substring(1));
-			}, 500);
-		}
-	}
-
-	function applications_summary_find(max, type, desc) {
-
-		var output = [];
-
-		applications.info.forEach(function(item) {
-
-			var obj = {};
-			var app = applications.grid.findItem('port', item.port);
-			obj.url = app.url;
-
-			switch (type) {
-				case 0: // cpu
-					obj.sorting = item.cpu.replace(/\%/g, '').trim().parseFloat();
-					obj.value = item.cpu;
-
-					if (!obj.sorting)
-						return;
-
-					break;
-
-				case 1: // memory
-					obj.sorting = item.memory.replace(/MB/g, '').trim().parseFloat();
-					obj.value = item.memory;
-					break;
-
-				case 2: // hdd
-					obj.sorting = item.hdd.replace(/G|K|M/g, '').trim().parseFloat();
-
-					if (item.hdd.indexOf('G') !== -1)
-						obj.sorting *= 1000;
-					else if (item.hdd.indexOf('K') !== -1)
-						obj.sorting = obj.sorting / 1000;
-
-					obj.value = item.hdd;
-					break;
-
-				case 3: // openfiles
-					obj.sorting = item.openfiles;
-					obj.value = item.openfiles;
-					break;
-
-				case 4: // connections
-					obj.sorting = item.connections;
-					obj.value = item.connections;
-					break;
-
-			}
-
-			output.push(obj);
-		});
-
-		output.sort(function(a, b) {
-			if (desc)
-				return a.sorting > b.sorting ? -1 : a.sorting === b.sorting ? 0 : 1;
-			return a.sorting > b.sorting ? 1 : a.sorting === b.sorting ? 0 : -1;
-		});
-
-		return output.take(max);
-	}
-
-	function applications_summary() {
-		SETTER('loading', 'show');
-		SETTER('loading', 'hide', 1200);
-		var output = {};
-		output.cpu = applications_summary_find(5, 0, true);
-		output.memory = applications_summary_find(5, 1, true);
-		output.hdd = applications_summary_find(5, 2, true);
-		output.openfiles = applications_summary_find(5, 3, true);
-		output.connections = applications_summary_find(5, 4, true);
-		SET('applications.summary', output);
-		SET('common.form', 'applications-summary', 1000);
+		hash && hash.length > 1 && setTimeout(function() {
+			applications_edit(hash.substring(1));
+		}, 500);
 	}
 
 	function applications_init() {
@@ -857,11 +508,20 @@
 			}
 
 			var categories = {};
+			var subprocesses = {};
 
 			self.toggle('hidden', true);
 			self.empty();
 
 			value.forEach(function(item) {
+
+				if (item.subprocess) {
+					if (!subprocesses[item.url])
+						subprocesses[item.url] = [];
+					subprocesses[item.url].push(item);
+					return;
+				}
+
 				if (categories[item.category])
 					categories[item.category].push(item);
 				else
@@ -887,7 +547,14 @@
 				});
 
 				items.forEach(function(item, index) {
-					builder.push(self.template(item).replace(/\$index/g, index.toString()).replace(/\$/g, self.path + '[' + index + ']'));
+					builder.push(self.template(item));
+					var sub = subprocesses[item.url];
+					if (!sub)
+						return;
+					var length = sub.length - 1;
+					sub.forEach(function(item, index) {
+						builder.push(self.template(item, { last: index === length }));
+					});
 				});
 
 				self.element.append(template_category.format(name, builder.length) + template_table.format(builder.join(''), name));
@@ -924,7 +591,7 @@
 
 	Tangular.register('application-name', function(value) {
 		var https = value.substring(0, 8) === 'https://';
-		return (https ? '<span>ssl</span>' : '') + value.replace(/(http|https)\:\/\//g, '');
+		return (!this.subprocess && https ? '<span class="ssl">ssl</span>' : '') + value.replace(/(http|https)\:\/\//g, '');
 	});
 
 	Tangular.register('application-uptime', function(value) {

@@ -54,14 +54,14 @@ String.prototype.superadmin_redirect = function() {
 	return this.substring(0, 8) + end;
 };
 
-String.prototype.superadmin_linker = function() {
+String.prototype.superadmin_linker = function(path) {
 	var url = this.replace(REG_PROTOCOL, '').replace(/\//g, '');
 	var arr = url.split('.');
 	arr.reverse();
 	var tmp = arr[1];
 	arr[1] = arr[0];
 	arr[0] = tmp;
-	return arr.join('-').replace('-', '_');
+	return arr.join('-').replace('-', '_') + (path ? path.replace(/\//g, '--').replace(/--$/g, '') : '');
 };
 
 SuperAdmin.nginx = 0;
@@ -562,7 +562,7 @@ SuperAdmin.load = function(callback) {
 		// Resets PID
 		APPLICATIONS.forEach(function(item) {
 			item.pid = 0;
-			item.linker = item.url.superadmin_linker();
+			item.linker = item.url.superadmin_linker(item.path);
 			if (!item.priority)
 				item.priority = 0;
 			if (!item.delay)

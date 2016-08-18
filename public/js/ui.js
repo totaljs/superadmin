@@ -860,6 +860,8 @@ COMPONENT('form', function() {
 		});
 
 		self.element.find('button').on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
 			window.$$form_level--;
 			switch (this.name) {
 				case 'submit':
@@ -1365,5 +1367,70 @@ COMPONENT('tagger', function() {
 				this.innerHTML = cache.def;
 		});
 		self.element.removeClass('transparent hidden');
+	};
+});
+
+COMPONENT('importer', function() {
+	var self = this;
+	var imported = false;
+	var reload = self.attr('data-reload');
+
+	self.readonly();
+	self.setter = function(value) {
+
+		if (!self.evaluate(self.attr('data-if')))
+			return;
+
+		if (imported) {
+			if (reload)
+				return EXEC(reload);
+			self.setter = null;
+			return;
+		}
+
+		imported = true;
+		IMPORT(self.attr('data-url'), function() {
+			if (reload)
+				return EXEC(reload);
+			self.remove();
+		});
+	};
+});
+
+COMPONENT('disable', function() {
+	var self = this;
+	var condition = self.attr('data-if');
+	var selector = self.attr('data-selector') || 'input,texarea,select';
+	var validate = self.attr('data-validate');
+
+	if (validate)
+		validate = validate.split(',').trim();
+
+	self.readonly();
+
+	self.setter = function(value) {
+		var is = true;
+
+		if (condition)
+			is = EVALUATE(self.path, condition);
+		else
+			is = value ? false : true;
+
+		self.find(selector).each(function() {
+			var el = $(this);
+			var tag = el.get(0).tagName;
+			if (tag === 'INPUT' || tag === 'SELECT') {
+				el.prop('disabled', is);
+				el.parent().toggleClass('ui-disabled', is);
+				return;
+			}
+			el.toggleClass('ui-disabled', is);
+		});
+
+		validate && validate.forEach(function(key) { jC.reset(key); });
+	};
+
+	self.state = function(type) {
+		self.update();
 	};
 });
