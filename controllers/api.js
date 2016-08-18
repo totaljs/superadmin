@@ -161,7 +161,7 @@ function json_apps_upload(argument) {
 		return self.json(SUCCESS(false));
 
 	var file = self.files[0];
-	var filename = Path.join(CONFIG('directory-www'), app.url.superadmin_linker(), app.id + '.package');
+	var filename = Path.join(CONFIG('directory-www'), app.url.superadmin_linker(app.path), app.id + '.package');
 
 	file.copy(filename, function(err) {
 		if (err)
