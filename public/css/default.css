@@ -149,7 +149,7 @@ canvas { display: block; }
 	header nav .logoff:hover { background-color: #E74839 !important; }
 	header nav .selected { background-color: black !important; color: white; }
 	header nav .highlight { background-color: #E9E9E9 !important; }
-	#body { margin-left: 0; }
+	#body { margin: 0; }
 }
 
 @media(max-width: 767px) {
