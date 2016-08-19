@@ -114,6 +114,8 @@ canvas { display: block; }
 .applications .error .name .fa-bug { display: block; float: left; margin: 3px 5px 0 0; }
 .applications .error .fa-search { color: #DA4453; }
 .applications .td-name { width: 250px; }
+.applications .stopped .name { color: #A0A0A0 !important; }
+.applications .stopped .ssl { background-color: #DA4453; }
 .applications .td-mode { width: 70px; text-align: right; }
 .applications .td-port { width: 50px; text-align: right; }
 .applications .td-buttons { width: 145px; text-align: right; }

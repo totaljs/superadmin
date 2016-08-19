@@ -390,6 +390,8 @@
 
 			var categories = {};
 
+			applications.filter.search = '';
+			NOTIFY('applications.filter.search');
 			SET('applications.grid', response);
 
 			response.forEach(function(item) {
@@ -574,18 +576,27 @@
 		var self = this;
 		var port = self.attr('data-port').parseInt();
 		var empty = '<div class="offline">@(OFFLINE)</div>';
+		var parent;
 
 		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg visible-xs ttd-hdd">{{ hdd }}<i class="fa fa-folder-o ml5"></i></td><td class="ttd-cpu visible-xs visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td class="ttd-memory">{{ memory | application-round }}{{ memory | application-progress(\'memory\', 500) }}</td><td class="ttd-files visible-lg">{{ openfiles }}<i class="fa fa-hdd-o ml5"></i></td><td class="ttd-connections visible-xs visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
+
+		self.make = function() {
+			parent = self.element.closest('tr');
+		};
+
 		self.readonly();
 
 		self.setter = function(value) {
+
 			if (!value)
 				return self.empty();
+
 			var obj = value.findItem('port', port);
 			if (obj)
 				self.html(self.template(obj));
 			else
 				self.html(empty);
+			parent.toggleClass('stopped', obj ? false : true);
 		};
 	});
 
