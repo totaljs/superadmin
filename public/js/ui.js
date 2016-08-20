@@ -545,7 +545,7 @@ COMPONENT('textboxsearch', function() {
 
 		tmp = self.attr('data-align');
 		tmp && attrs.attr('class', 'ui-' + tmp);
-		self.attr('data-autofocus') === 'true' && attrs.attr('autofocus');
+		!isMOBILE && attrs.attr('autofocus');
 
 		var content = self.html();
 		builder.push('<input {0} />'.format(attrs.join(' ')));
