@@ -14,7 +14,10 @@
 					<div data-component="textbox" data-component-path="applications.subprocess.path" data-required="true" data-placeholder="/eshop/" data-component-value="''">@(Path)</div>
 				</div>
 				<br />
-				<div data-component="checkbox" data-component-path="applications.subprocess.debug" class="inline mr15">@(Enables debug mode)</div>
+				<div data-component="checkbox" data-component-path="applications.subprocess.debug" class="inline b mr5 black">@(Enables debug mode)</div>
+				<div class="inline middle mr15"><span class="badge badge-red">@(debug)</span></div>
+				<div data-component="checkbox" data-component-path="applications.subprocess.npm" class="inline mr5">@(Performs NPM install)</div>
+				<div class="inline middle"><span class="badge badge-blue">package.json</span></div>
 			</div>
 			<div class="col-md-2">
 				<div data-component="textbox" data-component-path="applications.subprocess.port" data-required="true" data-component-value="''" data-align="center" data-maxlength="4">@(Port)</div>

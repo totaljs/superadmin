@@ -25,6 +25,7 @@ NEWSCHEMA('Application').make(function(schema) {
 	schema.define('size',        Number);                   // Maximum size of request body (upload size)
 	schema.define('debug',       Boolean);                  // Enables debug mode
 	schema.define('subprocess',  Boolean);
+	schema.define('npm',         Boolean);                  // Performs NPM install
 
 	schema.setQuery(function(error, options, callback) {
 		callback(APPLICATIONS);
@@ -293,7 +294,16 @@ NEWSCHEMA('Application').make(function(schema) {
 });
 
 function run(model, callback) {
-	SuperAdmin.makescripts(model, function() {
+
+	if (model.npm) {
+		return SuperAdmin.npminstall(model, function() {
+			SuperAdmin.makescripts(model, function() {
+				SuperAdmin.restart(model.port, () => callback());
+			});
+		});
+	}
+
+	return SuperAdmin.makescripts(model, function() {
 		SuperAdmin.restart(model.port, () => callback());
 	});
 }

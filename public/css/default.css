@@ -133,6 +133,9 @@ canvas { display: block; }
 .operations button:first-child { border-radius: 4px 0 0 4px; border-left: 0; }
 .operations button:last-child { border-radius: 0 4px 4px 0; }
 
+.inline { position: relative; display: inline-block; }
+.middle { vertical-align: middle; }
+
 @keyframes animate {
 	0% { transform: scale(0.8); }
 	50% { transform: scale(1); }

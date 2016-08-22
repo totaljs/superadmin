@@ -10,13 +10,16 @@
 			<div class="col-md-10">
 				<div data-component="textbox" data-component-path="applications.form.url" data-required="true" data-placeholder="https://www.totaljs.com" data-component-value="''" data-component-type="url">@(URL address)</div>
 				<div class="help"><i class="fa fa-info-circle"></i>@(The URL address must contain the protocol <code>http</code> or <code>https</code>.)</div>
-				<br />
-				<div data-component="checkbox" data-component-path="applications.form.debug" class="inline mr15">@(Enables debug mode)</div>
 			</div>
 			<div class="col-md-2">
 				<div data-component="textbox" data-component-path="applications.form.port" data-required="true" data-component-value="''" data-align="center" data-maxlength="4">@(Port)</div>
 			</div>
 		</div>
+		<hr />
+		<div data-component="checkbox" data-component-path="applications.form.debug" class="inline b mr5 black">@(Enables debug mode)</div>
+		<div class="inline middle mr15"><span class="badge badge-red">@(debug)</span></div>
+		<div data-component="checkbox" data-component-path="applications.form.npm" class="inline mr5">@(Performs NPM install)</div>
+		<div class="inline middle"><span class="badge badge-blue">package.json</span></div>
 	</div>
 	<div data-component="visible" data-component-path="applications.form.url" data-if="value && value.substring(0, 8) === 'https://'" class="hidden">
 		<div class="padding bg-smoke" style="border-bottom:1px solid #E0E0E0">

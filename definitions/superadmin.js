@@ -374,6 +374,11 @@ SuperAdmin.restart = function(port, callback) {
 	});
 };
 
+SuperAdmin.npminstall = function(app, callback) {
+	Exec('bash {0} {1}'.format(F.path.databases('npminstall.sh'), Path.join(CONFIG('directory-www'), app.linker)), (err) => callback());
+	return SuperAdmin;
+};
+
 /**
  * Kills application
  * @param {Number} port
