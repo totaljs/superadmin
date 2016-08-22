@@ -8,8 +8,6 @@ html,body { margin: 0; height: 100%; position: relative; }
 body { background-color: white; padding: 0; color: gray; font-smoothing: antialiased; overflow-y: scroll; overflow-x: hidden; overflow-scrolling: touch; }
 
 #body { margin: 0 40px 0 80px; }
-.logo { display: block; text-align: center; padding: 8px 0 0 1px; }
-.logo:hover { text-decoration: none; }
 
 header { background-color: #F0F0F0; width: 50px; border-bottom: 1px solid #E0E0E0; position: fixed; left: 0; top: 0; bottom: 0; }
 header nav { font-size: 20px; position: relative; display: inline-block; font-smoothing: antialiased; width: 100%; }
@@ -90,6 +88,7 @@ canvas { display: block; }
 .mainmenu-button { font-size: 25px; margin-top: 4px; color: gray; float: right; }
 .mainmenu-visible { display: block; }
 
+.applications .items { border: 1px solid #F0F0F0; padding: 6px; margin-bottom: 20px; border-radius: 4px; background-color: white; box-shadow: 0 3px 10px #F9F9F9; }
 .applications .items > table { width: 100%; }
 .applications .items > table td { border-top: 1px solid #F0F0F0; padding: 0; font-size: 12px; }
 .applications .items > table tr:first-child td { border-top: 0 !important; }
@@ -99,7 +98,6 @@ canvas { display: block; }
 .applications td button { outline: 0; background-color: transparent; border: 0; font-size: 12px; width: 20px; height: 20px; padding: 0; color: silver; }
 .applications td button:hover { color: black; background-color: #E0E0E0; }
 .applications td button:last-child { color: #E9573F; }
-.applications .items { border: 1px solid #F0F0F0; padding: 8px; margin-bottom: 20px; border-radius: 4px; }
 .applications .first { padding-left: 5px !important; }
 .applications .name { color: gray; display: block; width: 250px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 .applications .ssl { background-color: #68B25B; padding: 1px 3px; border-radius: 3px; font-variant: normal; font-size: 9px; text-transform: uppercase; margin-right: 5px; color: white; vertical-align: middle; line-height: 0; }
@@ -129,10 +127,10 @@ canvas { display: block; }
 .tr-subprocess .td-name { font-size: 11px !important; padding-left: 20px !important; background-image: url(../img/line-continue.png); background-repeat: no-repeat; background-position: 0 -1px; }
 .tr-subprocess-last .td-name { background-image: url(../img/line.png) !important; }
 
-.operations { margin: 0; }
-.operations button { outline: 0; background-color: #F0F0F0; border: 0; font-size: 14px; width: 14.2%; height: 36px; border-left: 1px solid #E0E0E0; }
+.operations { margin: 5px 0 0 0; padding: 0;}
+.operations button { outline: 0; color: #989FA9; background-color: white; border: 0; font-size: 16px; width: 14.285%; height: 44px; margin: 0; padding: 0; border-top: 1px solid #E0E0E0; border-bottom: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0; }
 .operations button:hover { color: black; background-color: #E0E0E0; }
-.operations button:first-child { border-radius: 4px 0 0 4px; border-left: 0; }
+.operations button:first-child { border-radius: 4px 0 0 4px; border-left: 1px solid #E0E0E0; }
 .operations button:last-child { border-radius: 0 4px 4px 0; }
 
 .inline { position: relative; display: inline-block; }
