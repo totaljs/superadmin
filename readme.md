@@ -4,9 +4,15 @@
 
 # Installation
 
-__License__: [MIT](license.txt). __SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`. __IMPORTANT__: All ports from `8000` must be free for SuperAdmin applications because __SuperAdmin__ uses auto-generating port numbers for new applications.
+__License__: [MIT](license.txt). 
 
-- __IMPORTANT__: superadmin must run as `root` (very important)
+__SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`. 
+
+__IMPORTANT__: SuperAdmin is running on port 9999 which can be changed in `run.sh` script in `/www/superadmin/run.sh`
+
+__IMPORTANT__: SuperAdmin is auto-generating port numbers for new applications starting from `8000`. So for 100 apps you need to make sure ports `8000-8099` are free.
+
+- __IMPORTANT__: SuperAdmin must be run as `root` (very important)
 - run `sudo wget https://raw.githubusercontent.com/totaljs/superadmin/master/install.sh`
 - run `sudo bash install.sh`
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `/www/superadmin/config`)
