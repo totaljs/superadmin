@@ -8,21 +8,23 @@ __License__: [MIT](license.txt).
 
 __SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`. 
 
-__IMPORTANT__: SuperAdmin is running on port 9999 which can be changed in `run.sh` script in `/www/superadmin/run.sh`
+__IMPORTANT__
+- SuperAdmin is running on port 9999 which can be changed in `run.sh` script in `/www/superadmin/run.sh`
+- SuperAdmin is auto-generating port numbers for new applications starting from `8000`. So for 100 apps you need to make sure ports `8000-8099` are free.
 
-__IMPORTANT__: SuperAdmin is auto-generating port numbers for new applications starting from `8000`. So for 100 apps you need to make sure ports `8000-8099` are free.
+__VERY IMPORTANT__: SuperAdmin must be run as `root`
 
-- __IMPORTANT__: SuperAdmin must be run as `root` (very important)
+__To install SuperAdmin run commands bellow__
 - run `sudo wget https://raw.githubusercontent.com/totaljs/superadmin/master/install.sh`
 - run `sudo bash install.sh`
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `/www/superadmin/config`)
 
 ---
 
-## How do I to translate SuperAdmin?
+## How do I translate SuperAdmin?
 
 - install Total.js as global module `npm install -g total.js`
-- then open HelpDesk directory `cd superadmin`
+- then open SuperAdmin directory `cd superadmin`
 - then perform this command `totaljs --translate`
 - translate translated file `translate.resource`
 - and copy the content to `/resources/default.resource`
