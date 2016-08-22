@@ -8,6 +8,8 @@ html,body { margin: 0; height: 100%; position: relative; }
 body { background-color: white; padding: 0; color: gray; font-smoothing: antialiased; overflow-y: scroll; overflow-x: hidden; overflow-scrolling: touch; }
 
 #body { margin: 0 40px 0 80px; }
+.logo { display: block; text-align: center; padding: 8px 0 0 1px; }
+.logo:hover { text-decoration: none; }
 
 header { background-color: #F0F0F0; width: 50px; border-bottom: 1px solid #E0E0E0; position: fixed; left: 0; top: 0; bottom: 0; }
 header nav { font-size: 20px; position: relative; display: inline-block; font-smoothing: antialiased; width: 100%; }
