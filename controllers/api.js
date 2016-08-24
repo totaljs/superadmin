@@ -204,14 +204,31 @@ function json_apps_monitor() {
 	APPLICATIONS.wait(function(item, next) {
 		if (!item.monitor)
 			return next();
+
+		var duration = Date.now();
+
 		U.request(item.url + item.monitor, ['get', 'dnscache'], function(err, response) {
 
 			var data = response.parseJSON();
 			if (data) {
 				var obj = {};
+
 				obj.errors = data.errors ? data.errors.length > 0 : false;
 				obj.versionTotal = data.versionTotal;
 				obj.reqstats = data.reqstats;
+				obj.memoryTotal = data.memoryTotal;
+				obj.memoryUsage = data.memoryUsage;
+				obj.request = data.request;
+				obj.response = data.response;
+				obj.problems = data.problems ? data.problems.length > 0 : false;
+
+				if (data.webcounter) {
+					obj.webcounter = {};
+					obj.webcounter.online = data.webcounter.online;
+					obj.webcounter.today = data.webcounter.today;
+				}
+
+				obj.duration = Date.now() - duration;
 				output[item.id] = obj;
 			}
 

@@ -1,19 +1,38 @@
-<div class="filter">
+<div class="filter nmb">
 	<div class="container">
 		<div class="row">
 			<div class="col-md-4 m">
 				<div data-component="textboxsearch" data-component-path="applications.filter.search" data-placeholder="@(Type a word)">@(Search applications)</div>
 			</div>
-			<div class="col-md-4 col-md-offset-4 m">
+			<div class="col-md-5 col-md-offset-3 m">
 				<div class="operations">
 					<button class="operation-button" name="add" title="@(Add application)"><i class="fa fa-plus-circle"></i></button>
 					<button class="operation-button" name="addsubprocess" title="@(Add subprocess)"><i class="fa fa-plug"></i></button>
 					<button class="operation-button" name="summary" title="@(Summary)"><i class="fa fa-bar-chart"></i></button>
+					<button class="operation-button" name="monitor" title="@(Monitoring)"><i class="fa fa-desktop"></i></button>
 					<button class="operation-button" name="restart" title="@(Restart all)"><i class="fa fa-refresh"></i></button>
 					<button class="operation-button" name="stop" title="@(Stop all)"><i class="fa fa-stop-circle"></i></button>
 					<button class="operation-button" name="reconfigure" title="@(Reconfigure all)"><i class="fa fa-retweet"></i></button>
 					<button class="operation-button" name="backup" title="@(Backup the server)"><i class="fa fa-cloud-download"></i></button>
 				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="monitoring">
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-2">
+				<div class="label"><i class="fa fa-users"></i>Online visitors:</div>
+				<div class="value">34</div>
+			</div>
+			<div class="col-sm-2">
+				<div class="label"><i class="fa fa-calendar"></i>Current month:</div>
+				<div class="value">303 k</div>
+			</div>
+			<div class="col-sm-2">
+				<div class="label"><i class="fa fa-calendar"></i>Previous month:</div>
+				<div class="value">303 k</div>
 			</div>
 		</div>
 	</div>
@@ -25,9 +44,9 @@
 			<div data-component="applications" data-component-path="applications.grid">
 				<script type="text/html">
 					<tr data-search="{{ url }}" class="tr{{ if subprocess }} tr-subprocess{{ fi }}{{ if $.last }} tr-subprocess-last{{ fi }}" data-id="{{ id }}" data-category="{{ category }}">
-						<td class="atd first td-name"><a href="{{ url }}{{ path }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}{{ path }}{{ if cluster > 1 }}<span class="badge badge-silver cluster">{{ cluster }}</span>{{ fi }}</a></td>
+						<td class="atd first td-name"><a href="{{ url }}{{ path }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}{{ path }}{{ if monitor }}<i class="fa fa-desktop fs10 ml5 silver"></i>{{ fi }}{{ if cluster > 1 }}<span class="badge badge-silver cluster">{{ cluster }}</span>{{ fi }}</a></td>
 						<td class="atd hidden-xs td-mode">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
-						<td class="atd"><div data-component="application-appinfo" data-port="{{ port }}" data-component-path="applications.info"></div></td>
+						<td class="atd"><div data-component="application-appinfo" data-port="{{ port }}" data-monitor="{{ monitor }}" data-component-path="applications.info"></div></td>
 						<td class="atd hidden-xs td-port"><span class="badge badge-silver">{{ port }}</span></td>
 						<td class="atd td-buttons" data-id="{{ id }}">
 							<button class="application-button" name="logs" title="@(Show logs)"><i class="fa fa-search"></i></button>
@@ -43,7 +62,7 @@
 			</div>
 		</div>
 		<div class="col-lg-2 col-md-3">
-			<div style="height:32px" class="visible-lg visible-md"></div>
+			<div style="height:6px" class="visible-lg visible-md"></div>
 			<div data-component="tagger" data-component-path="applications.stats">
 				<div class="caption"><i class="fa fa-server"></i>@(Memory)</div>
 				<div class="stats">

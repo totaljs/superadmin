@@ -26,6 +26,11 @@ h2 { font-weight: 400; font-family: $font; margin: 0 0 20px 0; padding: 0; color
 h2 .fa { margin-right: 7px; }
 h2 b { font-weight: 700; }
 
+.monitoring { background-color: #F8F8F8; border-radius: 0 0 4px 4px; margin-bottom: 20px; padding: 10px 0; border-bottom: 1px solid #F0F0F0; font-size: 11px; line-height: 16px; }
+.monitoring .label { color: gray; font-size: 11px; }
+.monitoring .fa { margin-right: 5px; }
+.monitoring .value { font-size: 16px; font-weight: bold; }
+
 #loading { background: rgba(255,255,255,0.9) url(../img/preloader.gif) no-repeat 50% 50%; position: fixed; left: 0; right: 0; bottom: 0; top: 0; z-index: 15; }
 #success { height: 50px; top: 0; left: 0; width: 50px; background-color: #66B258; font-size: 30px; line-height: 0; position: fixed; z-index: 20; color: white; text-align: center; padding-top: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: none; }
 
@@ -128,7 +133,7 @@ canvas { display: block; }
 .tr-subprocess-last .td-name { background-image: url(../img/line.png) !important; }
 
 .operations { margin: 5px 0 0 0; padding: 0;}
-.operations button { outline: 0; color: #989FA9; background-color: white; border: 0; font-size: 16px; width: 14.285%; height: 44px; margin: 0; padding: 0; border-top: 1px solid #E0E0E0; border-bottom: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0; }
+.operations button { outline: 0; color: #989FA9; background-color: white; border: 0; font-size: 16px; width: 12.5%; height: 44px; margin: 0; padding: 0; border-top: 1px solid #E0E0E0; border-bottom: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0; }
 .operations button:hover { color: black; background-color: #E0E0E0; }
 .operations button:first-child { border-radius: 4px 0 0 4px; border-left: 1px solid #E0E0E0; }
 .operations button:last-child { border-radius: 0 4px 4px 0; }

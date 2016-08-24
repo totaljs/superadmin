@@ -23,6 +23,9 @@ if (window.su) {
 	jR.route('/', function() {
 		SET('common.page', 'applications');
 	});
+	jR.route('/settings/', function() {
+		SET('common.page', 'settings');
+	});
 }
 
 jR.on('location', function(url) {
