@@ -391,8 +391,8 @@
 	<hr />
 	<div class="row">
 		<div class="col-md-4 center">
-			<div><i class="fa fa-circle green blink mr5"></i>@(Online visitors)</div>
-			<span class="mt5 badge badge-large badge-green">{{ webcounter.online | format2 | default('...') }}</span>
+			<div><i class="fa fa-circle {{ if webcounter && webcounter.online }}green{{ else }}red{{ fi }} blink mr5"></i>@(Online visitors)</div>
+			<span class="mt5 badge badge-large {{ if webcounter && webcounter.online }}badge-green{{ else }}badge-red{{ fi }}">{{ webcounter.online | format2 | default('...') }}</span>
 		</div>
 		<div class="col-md-8">
 			<div class="label label-upper">@(Requests)</div>
