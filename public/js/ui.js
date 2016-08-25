@@ -891,21 +891,20 @@ COMPONENT('form', function() {
 	self.getter = null;
 	self.setter = function(value) {
 
+		$('html').toggleClass('noscroll', value ? true : false);
+
 		var isHidden = !EVALUATE(self.path, self.condition);
 		self.element.toggleClass('hidden', isHidden);
 
-		if (window.$calendar)
-			window.$calendar.hide();
+		window.$calendar && window.$calendar.hide();
 
 		if (!isHidden) {
 			self.resize();
 			var el = self.element.find('input,select,textarea');
-			if (el.length > 0)
-				el.eq(0).focus();
 
+			el.length > 0 && el.eq(0).focus();
 			window.$$form_level++;
 			self.element.css('z-index', window.$$form_level * 10);
-
 			self.element.animate({ scrollTop: 0 }, 0, function() {
 				setTimeout(function() {
 					self.element.find('.ui-form').addClass('ui-form-animate');
@@ -1434,3 +1433,103 @@ COMPONENT('disable', function() {
 		self.update();
 	};
 });
+
+COMPONENT('info', function() {
+	var self = this;
+	var $window = $(window);
+	var is = false;
+	var timeout;
+	var container;
+	var arrow;
+	var orient = { left: '' };
+
+	self.singleton();
+	self.readonly();
+	self.blind();
+
+	self.make = function() {
+
+		self.element.addClass('ui-info');
+		self.element.append('<span class="ui-info-arrow fa fa-caret-up"></span><div class="ui-info-body"></div>');
+		container = self.element.find('.ui-info-body');
+		arrow = self.element.find('.ui-info-arrow');
+
+		$(document).on('touchstart mousedown', function(e) {
+			self.hide();
+		});
+
+		$(window).on('scroll', function() {
+			self.hide(1);
+		});
+	};
+
+	self.show = function(orientation, target, body) {
+
+		if (is) {
+			clearTimeout(timeout);
+			var obj = target instanceof jQuery ? target.get(0) : target;
+			if (self.target === obj)
+				return self.hide(0);
+		}
+
+		target = $(target);
+
+		if (!body)
+			return self.hide(0);
+
+		container.html(body);
+
+		var offset = target.offset();
+
+		switch (orientation) {
+			case 'left':
+				orient.left = '15px';
+				break;
+			case 'right':
+				orient.left = '210px';
+				break;
+			case 'center':
+				orient.left = '107px';
+				break;
+		}
+
+		arrow.css(orient);
+
+		var options = SINGLETON('ui-info');
+		options.left = orientation === 'center' ? Math.ceil((offset.left - self.element.width() / 2) + (target.innerWidth() / 2)) : orientation === 'left' ? offset.left - 8 : (offset.left - self.element.width()) + target.innerWidth();
+		options.top = offset.top + target.innerHeight() + 10;
+
+		var h = $('#body').height();
+
+		if (options.top + 380 > h) {
+			options.top -= 410;
+			arrow.addClass('ui-info-arrow-down').removeClass('fa-caret-up').addClass('fa-caret-down');
+		} else
+			arrow.removeClass('ui-info-arrow-down').removeClass('fa-caret-down').addClass('fa-caret-up');
+
+		self.element.css(options);
+
+		if (is)
+			return;
+
+		self.element.show();
+
+		setTimeout(function() {
+			self.element.addClass('ui-info-visible');
+		}, 100);
+
+		is = true;
+	};
+
+	self.hide = function(sleep) {
+		if (!is)
+			return;
+		clearTimeout(timeout);
+		timeout = setTimeout(function() {
+			self.element.hide().removeClass('ui-info-visible');
+			self.target = null;
+			is = false;
+		}, sleep ? sleep : 100);
+	};
+});
+

@@ -27,6 +27,7 @@
 	<div data-component="message" data-button="@(Close)"></div>
 	<div data-component="confirm"></div>
 	<div data-component="loading" class="ui-loading"></div>
+	<div data-component="info"></div>
 
 	<header>
 		<div class="mainmenu">
@@ -40,17 +41,11 @@
 	</header>
 
 	<div id="body">
-		<div data-component="page" data-component-path="common.page" data-if="applications" data-template="/templates/applications.html" data-init="applications_init" data-reload="applications_init"></div>
+		<div data-component="page" data-component-path="common.page" data-if="applications" data-template="/templates/applications.html" data-init="applications_init"></div>
 	</div>
 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/codemirror.min.js"></script>
-	<!--
-	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/mode/javascript/javascript.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/mode/htmlmixed/htmlmixed.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/mode/xml/xml.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/mode/css/css.min.js"></script>
-	-->
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.13.2/mode/nginx/nginx.min.js"></script>
 
 	@{import('default.js')}
