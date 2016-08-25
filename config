@@ -2,7 +2,7 @@ name                      : MyServer
 version                   : 3.0.0
 author                    : Totaljs.com Ltd
 
-superadmin                : petersirka:kokotaris
+superadmin                : admin:admin
 
 // Custom SMTP settings
 mail.smtp                 : YOUR.SMTPSERVER.COM
