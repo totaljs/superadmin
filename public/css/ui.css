@@ -27,6 +27,7 @@ button { outline: 0; }
 .ui-grid .row button .fa { width: 20px; color: #377BB5; }
 
 .badge { font-size: 9px; padding: 0 6px; border-radius: 4px; background-color: #F0F0F0; line-height: 12px; vertical-align: middle; margin-top: -2px; position: relative; display: inline-block; }
+.badge-large { font-size: 18px; line-height: 20px; padding: 4px 15px; }
 .badge-blue { background-color: #4CC1E9; color: white; }
 .badge-red { background-color: #DA4453; color: white; }
 .badge-green { background-color: #8CC152; color: white; }
@@ -83,12 +84,6 @@ button { outline: 0; }
 .ui-textboxtags-values li .fa { font-size: 12px; color: red; margin-left: 5px; cursor: pointer; }
 .ui-textboxtags input { background-color: transparent; font-size: 12px; color: black; width: auto; position: relative; display: inline-block; border: 0; width: 99px; outline: 0; margin: 2px; padding: 5px 0; }
 
-.ui-pictures {}
-.ui-pictures img { border-radius: 4px; border: 4px solid #F0F0F0; cursor: pointer; }
-.ui-pictures .fa-times { position: absolute; margin: -6px 0 0 -8px; color: white; background-color: red; border-radius: 40px; width: 21px; text-align: center; padding: 3px 0 2px; cursor: pointer; border-bottom: 2px solid #BE1317; }
-.ui-pictures .fa-times:active { margin-top: -3px; }
-.ui-pictures .selected { border: 4px solid yellow; }
-
 .ui-fileupload { border: 2px solid #E0E0E0; padding: 6px 8px; border-radius: 2px; position: relative; display: block; width: 100%; background-color: white; }
 .ui-fileupload input[type="text"] { border: 0; width: 100%; outline: 0; font: normal 14px Arial; color: black; }
 .ui-fileupload-input { position: absolute; width: 100%; height: 30px; border: 1px solid #E0E0E0; margin: -5px 0 0 -7px; opacity: 0; cursor: pointer; font-weight: bold; }
@@ -98,15 +93,6 @@ button { outline: 0; }
 .ui-fileupload .fa-angle-down, .ui-fileupload .fa-folder { position: absolute; right: 10px; top: 8px; color: #D0D0D0; font-size: 16px; }
 .ui-fileupload-progress { height: 5px; background-color: #F0F0F0; }
 .ui-fileupload-progress div { height: 5px; background-color: #68B23E; }
-
-.ui-crop { text-align: center; padding: 30px 0 60px; background-color: #F8F8F8; position: relative; width: 100%; }
-.ui-crop canvas { cursor: pointer; cursor: pointer; border: 1px solid #6298F3; margin: 0 auto; }
-.ui-crop div { padding: 15px 0 0 0; font-size: 11px; }
-.ui-crop-dragdrop canvas { border: 1px dashed red !important; }
-.ui-crop ul { position:absolute; list-style-type: none; margin: 0; padding: 0; left: 50%; margin-left: -60px; bottom: 25px; width: 120px; color: white; text-align: center; }
-.ui-crop ul li { font-size: 12px; padding: 3px 0; width: 25px; margin-left: 5px; position: relative; display: inline-block; cursor: pointer; text-align: center; background-color: #6498F0; line-height: 20px; border-radius: 4px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-.ui-crop ul li:first-child { border-left: 0; margin-left: 0; }
-.ui-crop ul li:hover { margin-top: 1px; background-color: #508AF0; }
 
 .ui-codemirror-label { margin-bottom: 5px; font-size: 12px; text-align: left; }
 .ui-codemirror-label .fa { width: 14px; }
@@ -239,10 +225,6 @@ label span { vertical-align: middle; }
 .ui-error li { display: block; }
 .ui-error li .fa { width: 14px; }
 
-.ui-cookie { font-size: 11px; padding: 3px 20px 5px; border-bottom: 1px solid #F0F0F0; text-align: center; }
-.ui-cookie button { position: relative; display: inline-block; padding: 1px 5px; border-radius: 4px; font-size: 10px; background-color: black; color: white; border: 0; margin-left: 5px; cursor: pointer; outline: 0; }
-.ui-cookie button:hover { background-color: #303030; }
-
 .ui-message { background-color: rgba(255,255,255,0.9); position: fixed; left: 0; right: 0; bottom: 0; top: 0; z-index: 20; width: 100%; display: table; height: 100%; transition: 0.5s all; opacity: 0; }
 .ui-message > div { display: table-cell; vertical-align: middle; text-align: center; color: white; padding: 15px; }
 .ui-message .fa { position: absolute; margin: -75px 0 0 -35px; width: 70px; left: 50%; height: 70px; padding-top: 15px; border-radius: 100px; font-size: 30px; border-width: 5px; border-style: solid; text-align: center; }
@@ -255,14 +237,6 @@ label span { vertical-align: middle; }
 .ui-message button:hover { background-color: #E5E5E5; }
 .ui-message-visible { opacity: 1; }
 .ui-message-visible .ui-message-body { transform: scale(1); }
-
-.ui-expander { position: relative; width: 100%; }
-.ui-expander-container { max-height: 150px; overflow: hidden; transition: all 0.5s; }
-.ui-expander-fade { position: absolute; left: 0; top: 50%; margin-top: -30px; background: linear-gradient(transparent,white); height: 50%; width: 100%; text-align: center; }
-.ui-expander-button { text-align: center; margin: 10px auto; cursor: pointer; font-size: 15px; color: #A0A0A0; max-width: 200px; border-top: 1px solid #E0E0E0; padding: 3px 0; border-radius: 0 0 4px 4px; }
-.ui-expander-button:hover { background-color: #F8F8F8; }
-.ui-expander-expanded .ui-expander-fade { display: none; }
-.ui-expander-expanded .ui-expander-container { max-height: 1500px !important; }
 
 .ui-range { width: 100%; }
 .ui-range-label { margin-bottom: 0; font-size: 12px; color: #656D78; text-align: left; }
@@ -291,3 +265,10 @@ label span { vertical-align: middle; }
 .ui-textboxlist-item .fa:active { margin-top: 1px; }
 .ui-textboxlist-item input { width: 100%; background-color: transparent; border: 0; padding: 3px 10px 0; border-radius: 4px; outline: 0; font-size: 12px; color: black; }
 .ui-textboxlist-base .fa { display: none; }
+
+.ui-info { position: absolute; opacity: 0; transition: 0.25s transform cubic-bezier(0.23, 1, 0.32, 1); left: -100; top: -100; z-index: 20; width: 600px; box-shadow: 0 1px 20px rgba(0,0,0,0.2); transform: translate(0px,20px); background-color: white; border-radius: 4px; font-size: 12px; }
+.ui-info-arrow { position: absolute; font-size: 30px; top: -20px; color: white; left: 107px; }
+.ui-info-arrow-down { top: auto; bottom: -18px; }
+.ui-info-visible { opacity: 1; transform: translate(0px,0px); }
+.ui-info-body { background-color: white; padding: 15px; }
+

@@ -4,12 +4,11 @@
 			<div class="col-md-4 m">
 				<div data-component="textboxsearch" data-component-path="applications.filter.search" data-placeholder="@(Type a word)">@(Search applications)</div>
 			</div>
-			<div class="col-md-5 col-md-offset-3 m">
+			<div class="col-md-4 col-md-offset-4 m">
 				<div class="operations">
 					<button class="operation-button" name="add" title="@(Add application)"><i class="fa fa-plus-circle"></i></button>
 					<button class="operation-button" name="addsubprocess" title="@(Add subprocess)"><i class="fa fa-plug"></i></button>
 					<button class="operation-button" name="summary" title="@(Summary)"><i class="fa fa-bar-chart"></i></button>
-					<button class="operation-button" name="monitor" title="@(Monitoring)"><i class="fa fa-desktop"></i></button>
 					<button class="operation-button" name="restart" title="@(Restart all)"><i class="fa fa-refresh"></i></button>
 					<button class="operation-button" name="stop" title="@(Stop all)"><i class="fa fa-stop-circle"></i></button>
 					<button class="operation-button" name="reconfigure" title="@(Reconfigure all)"><i class="fa fa-retweet"></i></button>
@@ -19,24 +18,39 @@
 		</div>
 	</div>
 </div>
-<div class="monitoring">
+
+<div class="monitoring hidden" data-component="monitoring" data-component-path="applications.monitor">
 	<div class="container">
 		<div class="row">
-			<div class="col-sm-2">
-				<div class="label"><i class="fa fa-users"></i>Online visitors:</div>
-				<div class="value">34</div>
+			<div class="col-sm-3">
+				<div class="value"><i class="fa fa-circle green blink fs10"></i><span data-key="online">?</span></div>
+				<div class="key"><i class="fa fa-users"></i>@(Online visitors)</div>
+				<div class="value" data-key="visitors">?</div>
+				<div class="key"><i class="fa fa-users"></i>@(Today visitors)</div>
 			</div>
-			<div class="col-sm-2">
-				<div class="label"><i class="fa fa-calendar"></i>Current month:</div>
-				<div class="value">303 k</div>
+			<div class="col-sm-3">
+				<div class="value" data-key="req_month_current">?</div>
+				<div class="key"><i class="fa fa-calendar"></i>@(Current month requests)</div>
+				<div class="value" data-key="req_month_previous">?</div>
+				<div class="key"><i class="fa fa-calendar"></i>@(Previous month requests)</div>
 			</div>
-			<div class="col-sm-2">
-				<div class="label"><i class="fa fa-calendar"></i>Previous month:</div>
-				<div class="value">303 k</div>
+			<div class="col-sm-3">
+				<div class="value" data-key="req_year_current">?</div>
+				<div class="key"><i class="fa fa-calendar"></i>@(Current year requests)</div>
+				<div class="value" data-key="req_year_previous">?</div>
+				<div class="key"><i class="fa fa-calendar"></i>@(Previous year requests)</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="value" data-key="errors">?</div>
+				<div class="key"><i class="fa fa-bug"></i>@(Errors)</div>
+				<div class="value" data-key="count">?</div>
+				<div class="key"><i class="fa fa-spin fa-refresh"></i>@(Count of monitoring apps)</div>
 			</div>
 		</div>
 	</div>
 </div>
+
+<br />
 
 <div class="container">
 	<div class="row">
@@ -44,7 +58,7 @@
 			<div data-component="applications" data-component-path="applications.grid">
 				<script type="text/html">
 					<tr data-search="{{ url }}" class="tr{{ if subprocess }} tr-subprocess{{ fi }}{{ if $.last }} tr-subprocess-last{{ fi }}" data-id="{{ id }}" data-category="{{ category }}">
-						<td class="atd first td-name"><a href="{{ url }}{{ path }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}{{ path }}{{ if monitor }}<i class="fa fa-desktop fs10 ml5 silver"></i>{{ fi }}{{ if cluster > 1 }}<span class="badge badge-silver cluster">{{ cluster }}</span>{{ fi }}</a></td>
+						<td class="atd first td-name" data-monitor="{{ monitor }}"><a href="{{ url }}{{ path }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}{{ path }}{{ if monitor }}<i class="fa fa-desktop fs10 ml5 silver"></i>{{ fi }}{{ if cluster > 1 }}<span class="badge badge-silver cluster">{{ cluster }}</span>{{ fi }}</a></td>
 						<td class="atd hidden-xs td-mode">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
 						<td class="atd"><div data-component="application-appinfo" data-port="{{ port }}" data-monitor="{{ monitor }}" data-component-path="applications.info"></div></td>
 						<td class="atd hidden-xs td-port"><span class="badge badge-silver">{{ port }}</span></td>
@@ -105,7 +119,7 @@
 				<div class="caption"><i class="fa fa-sitemap"></i>@(Network)</div>
 				<div class="stats">
 					<div>@(Open connections)</div>
-					<div data-name="connections" data-after="x">...</div>
+					<div><i class="fa fa-circle green blink fs10 mr5"></i><span data-name="connections" data-after="x">...</span></div>
 				</div>
 
 				<div data-name="mongodb" data-visible="n => n" class="hidden">
@@ -206,6 +220,209 @@
 <div data-url="/templates/applications-form-upload.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-upload'" data-reload="applications_upload_refresh"></div>
 <div data-url="/templates/applications-form-subprocess.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-subprocess'" data-reload="applications_subprocess_refresh"></div>
 <div data-url="/templates/applications-form.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications'" data-reload="applications_form_refresh"></div>
+
+<script type="text/html" id="template-monitoring">
+	<table class="keyvalue-table">
+		<tr>
+			<td>
+				<div class="label label-upper">@(Requests)</div>
+				<div class="keyvalue">
+					<div>@(Count)</div>
+					<div>{{ request.request | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Dynamic content)</div>
+					<div>{{ request.web | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Static files)</div>
+					<div>{{ request.file | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Pending)</div>
+					<div class="black">{{ request.pending | format2 }}<i class="fa fa-clock-o ml5"></i></div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Desktop)</div>
+					<div>{{ request.desktop | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Mobile)</div>
+					<div>{{ request.mobile | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(XHR)</div>
+					<div>{{ request.xhr | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(GET)</div>
+					<div>{{ request.get | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(POST)</div>
+					<div>{{ request.post | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(PUT)</div>
+					<div>{{ request.put | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(DELETE)</div>
+					<div>{{ request.delete | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(HEAD)</div>
+					<div>{{ request.head | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Uploads)</div>
+					<div>{{ request.upload | format2 }}</div>
+				</div>
+			</td>
+			<td>
+				<div class="label label-upper">@(Responses)</div>
+				<div class="keyvalue">
+					<div>@(Static files)</div>
+					<div>{{ response.file | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Views)</div>
+					<div>{{ response.view | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(JSON)</div>
+					<div>{{ response.json | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Websockets)</div>
+					<div>{{ response.websocket | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Redirects)</div>
+					<div>{{ response.redirect | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Not modified)</div>
+					<div>{{ response.notModified | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Destroyed)</div>
+					<div>{{ response.destroy | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(400: bad request)</div>
+					<div>{{ response.error400 | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(401: unauthorized)</div>
+					<div>{{ response.error401 | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(404: not found)</div>
+					<div>{{ response.error404 | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(408: timeout)</div>
+					<div>{{ response.error408 | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(439: too large)</div>
+					<div>{{ response.error431 | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(500: internal error)</div>
+					<div>{{ response.error500 | format2 }}</div>
+				</div>
+			</td>
+			<td>
+				<div class="label label-upper">@(Today visitors)</div>
+				<div class="keyvalue">
+					<div>@(Visitors)</div>
+					<div>{{ webcounter.today.count | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Unique visitors)</div>
+					<div>{{ webcounter.today.unique | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Unique per month)</div>
+					<div>{{ webcounter.today.uniquemonth | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Hits)</div>
+					<div>{{ webcounter.today.hits | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Pages per visitor)</div>
+					<div>{{ webcounter.today.pages }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Direct visitors)</div>
+					<div>{{ webcounter.today.direct | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Social networks)</div>
+					<div>{{ webcounter.today.social | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Search engines)</div>
+					<div>{{ webcounter.today.search | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Advert)</div>
+					<div>{{ webcounter.today.advert | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Robots)</div>
+					<div>{{ webcounter.today.robots | format2 }}</div>
+				</div>
+				<hr class="keyvalue-hr" />
+				<div class="keyvalue">
+					<div>@(Desktop)</div>
+					<div>{{ webcounter.today.desktop | format2 }}</div>
+				</div>
+				<div class="keyvalue">
+					<div>@(Mobile devices)</div>
+					<div>{{ webcounter.today.mobile | format2 }}</div>
+				</div>
+			</td>
+		</tr>
+	</table>
+	<hr />
+	<div class="row">
+		<div class="col-md-4 center">
+			<div><i class="fa fa-circle green blink mr5"></i>@(Online visitors)</div>
+			<span class="mt5 badge badge-large badge-green">{{ webcounter.online | format2 }}</span>
+		</div>
+		<div class="col-md-8">
+			<div class="label label-upper">@(Requests)</div>
+			<table class="keyvalue-table keyvalue-table2">
+				<tr>
+					<td>
+						<div class="keyvalue">
+							<div>@(Current month)</div>
+							<div>{{ req.req_month_current | format2 }}</div>
+						</div>
+						<div class="keyvalue">
+							<div>@(Previous month)</div>
+							<div>{{ req.req_month_previous | format2 }}</div>
+						</div>
+					</td>
+					<td>
+						<div class="keyvalue">
+							<div>@(Current year)</div>
+							<div>{{ req.req_year_current | format2 }}</div>
+						</div>
+						<div class="keyvalue">
+							<div>@(Previous year)</div>
+							<div>{{ req.req_year_previous | format2 }}</div>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</script>
 
 <script>
 
@@ -502,11 +719,13 @@
 		var template_table = '<div class="items" data-category="{1}"><table border="0">{0}</table></div>';
 		var template_category = '<div class="category" data-category="{0}"><span>{1}x</span><i class="fa fa-folder-o"></i>{0}</div>';
 		var REG_CLEANURL = /^(http|https)\:\/\//g;
+		var template_monitor;
 
 		self.readonly();
 
 		self.make = function() {
 
+			template_monitor = Tangular.compile($('#template-monitoring').html());
 			var element = self.element.find('script');
 
 			if (!element.length) {
@@ -519,6 +738,21 @@
 			self.template = Tangular.compile(html);
 			recompile = html.indexOf('data-component="') !== -1;
 			self.element.addClass('applications');
+
+			!isMOBILE && self.element.on('mouseenter mouseleave', '.td-name', function(e) {
+				var info = FIND('info');
+
+				if (e.type === 'mouseenter' && this.getAttribute('data-monitor')) {
+					var data = applications.monitor[$(this).parent().attr('data-id')];
+					if (data) {
+						data.req = applications_app_reqstats(data.reqstats);
+						info.show('left', this, template_monitor(data));
+						return;
+					}
+				}
+
+				info.hide();
+			});
 		};
 
 		self.setter = function(value) {
@@ -650,5 +884,126 @@
 
 		return '<div class="progress"><div style="background-color:{1};width:{0}%"></div></div>'.format(percentage, percentage < 20 ? 'green' : percentage < 60 ? 'orange' : 'red');
 	});
+
+	Tangular.register('format2', function(value) {
+		if (value == null)
+			return '...';
+		if (value >= 1000000)
+			return (value / 1000000).format(1) + ' M';
+		if (value >= 1000)
+			return (value / 1000).format(1) + ' K';
+		return value.format(0);
+	});
+
+	COMPONENT('monitoring', function() {
+		var self = this;
+
+		self.readonly();
+
+		self.setter = function(value, path) {
+
+			if (!value)
+				return self.toggle('hidden', true);
+
+			var values = SINGLETON(self.id);
+			values.online = 0;
+			values.visitors = 0;
+			values.count = 0;
+			values.errors = 0;
+
+			var dt = new Date();
+			var current_m = dt.format('yyyy-MM');
+			var previous_m = dt.add('-1 month').format('yyyy-MM');
+			var current_y = dt.format('yyyy');
+			var previous_y = dt.add('-1 year').format('yyyy');
+
+			values.req_year_current = 0;
+			values.req_year_previous = 0;
+			values.req_month_current = 0;
+			values.req_month_previous = 0;
+
+			Object.keys(value).forEach(function(key) {
+				var item = value[key];
+
+				values.count++;
+
+				if (item.errors)
+					values.errors++;
+
+				if (item.webcounter) {
+					values.online += item.webcounter.online;
+					values.visitors += item.webcounter.today.count;
+				}
+
+				if (!item.reqstats)
+					return;
+
+				Object.keys(item.reqstats).forEach(function(key) {
+					var year = key.substring(0, 4);
+					var value = item.reqstats[key].request;
+					if (year === current_y)
+						values.req_year_current += value;
+					if (year === previous_y)
+						values.req_year_previous += value;
+					if (key === current_m)
+						values.req_month_current += value;
+					if (key === previous_m)
+						values.req_month_previous += value;
+				});
+			});
+
+			// update stats
+			self.find('[data-key]').each(function() {
+				var el = $(this);
+				var key = el.attr('data-key');
+				switch (key) {
+					case 'online':
+					case 'visitors':
+					case 'count':
+					case 'errors':
+					case 'req_year_current':
+					case 'req_year_previous':
+					case 'req_month_current':
+					case 'req_month_previous':
+						return el.html(Tangular.helpers.format2(values[key]));
+				}
+			});
+
+			self.toggle('hidden', false);
+		};
+	});
+
+	function applications_app_reqstats(reqstats) {
+
+		var values = {};
+		if (!reqstats)
+			return values;
+
+		var dt = new Date();
+		var current_m = dt.format('yyyy-MM');
+		var previous_m = dt.add('-1 month').format('yyyy-MM');
+		var current_y = dt.format('yyyy');
+		var previous_y = dt.add('-1 year').format('yyyy');
+
+		values.req_year_current = 0;
+		values.req_year_previous = 0;
+		values.req_month_current = 0;
+		values.req_month_previous = 0;
+
+		Object.keys(reqstats).forEach(function(key) {
+			var year = key.substring(0, 4);
+			var value = reqstats[key].request;
+			if (year === current_y)
+				values.req_year_current += value;
+			if (year === previous_y)
+				values.req_year_previous += value;
+			if (key === current_m)
+				values.req_month_current += value;
+			if (key === previous_m)
+				values.req_month_previous += value;
+		});
+
+		return values;
+	}
 
 </script>
