@@ -222,6 +222,9 @@ function json_apps_monitor() {
 				obj.response = data.response;
 				obj.problems = data.problems ? data.problems.length > 0 : false;
 
+				if (obj.request.pending)
+					obj.request.pending--;
+
 				if (data.webcounter) {
 					obj.webcounter = {};
 					obj.webcounter.online = data.webcounter.online;
