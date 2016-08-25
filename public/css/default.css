@@ -172,7 +172,7 @@ canvas { display: block; }
 	100% { opacity: 1; }
 }
 
-@media(max-width: 1199px) {
+@media(max-width: 1279px) {
 	.monitoring .key { width: 140px; }
 }
 
