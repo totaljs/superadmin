@@ -175,6 +175,9 @@ NEWSCHEMA('Application').make(function(schema) {
 					master && schema.workflow('nginx', master, NOOP);
 				}
 
+				// Removes app directory
+				Exec('rm ' + directory, NOOP);
+
 				// Removes nginx config
 				!app.subprocess && F.unlink([Path.join(CONFIG('directory-nginx'), linker + '.conf')], NOOP);
 			});
