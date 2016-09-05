@@ -19,7 +19,7 @@
 	</div>
 </div>
 
-<div class="monitoring hidden" data-component="monitoring" data-component-path="applications.monitor">
+<div class="monitoring hidden hidden-xs hidden-sm" data-component="monitoring" data-component-path="applications.monitor">
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-3">
@@ -720,6 +720,7 @@
 		var template_category = '<div class="category" data-category="{0}"><span>{1}x</span><i class="fa fa-folder-o"></i>{0}</div>';
 		var REG_CLEANURL = /^(http|https)\:\/\//g;
 		var template_monitor;
+		var infotimeout;
 
 		self.readonly();
 
@@ -746,11 +747,16 @@
 					var data = applications.monitor[$(this).parent().attr('data-id')];
 					if (data) {
 						data.req = applications_app_reqstats(data.reqstats);
-						info.show('left', this, template_monitor(data));
+						var el = this;
+						clearTimeout(infotimeout);
+						infotimeout = setTimeout(function() {
+							info.show('left', el, template_monitor(data));
+						}, 1000);
 						return;
 					}
 				}
 
+				clearTimeout(infotimeout);
 				info.hide();
 			});
 		};
