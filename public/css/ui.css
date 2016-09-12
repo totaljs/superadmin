@@ -266,7 +266,7 @@ label span { vertical-align: middle; }
 .ui-textboxlist-item input { width: 100%; background-color: transparent; border: 0; padding: 3px 10px 0; border-radius: 4px; outline: 0; font-size: 12px; color: black; }
 .ui-textboxlist-base .fa { display: none; }
 
-.ui-info { position: absolute; opacity: 0; transition: 0.25s transform cubic-bezier(0.23, 1, 0.32, 1); left: -100; top: -100; z-index: 20; width: 600px; box-shadow: 0 1px 20px rgba(0,0,0,0.2); transform: translate(0px,20px); background-color: white; border-radius: 4px; font-size: 12px; }
+.ui-info { position: absolute; opacity: 0; transition: 0.25s transform cubic-bezier(0.23, 1, 0.32, 1); left: -100; top: -100; z-index: 20; width: 600px; box-shadow: 0 1px 20px rgba(0,0,0,0.2); transform: translate(0px,20px); background-color: white; border-radius: 4px; font-size: 12px; display: none; }
 .ui-info-arrow { position: absolute; font-size: 30px; top: -20px; color: white; left: 107px; }
 .ui-info-arrow-down { top: auto; bottom: -18px; }
 .ui-info-visible { opacity: 1; transform: translate(0px,0px); }
