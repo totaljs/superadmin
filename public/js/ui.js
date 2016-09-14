@@ -230,26 +230,28 @@ COMPONENT('validation', function() {
 COMPONENT('checkbox', function() {
 
 	var self = this;
-	var required = self.attr('data-required') === 'true';
+	var input;
+	var isRequired = self.attr('data-required') === 'true';
 
 	self.validate = function(value) {
-		var is = false;
 		var type = typeof(value);
-
-		if (type === 'undefined' || type === 'object')
-			value = '';
-		else
-			value = value.toString();
-
+		if (input.prop('disabled') || !isRequired)
+			return true;
+		value = type === 'undefined' || type === 'object' ? '' : value.toString();
 		return value === 'true' || value === 'on';
 	};
 
-	if (!required)
-		self.noValid();
+	self.required = function(value) {
+		self.find('span').toggleClass('ui-checkbox-label-required', value === true);
+		isRequired = value;
+		return self;
+	};
+
+	!isRequired && self.noValid();
 
 	self.make = function() {
 		self.element.addClass('ui-checkbox');
-		self.html('<div><i class="fa fa-check"></i></div><span{1}>{0}</span>'.format(self.html(), required ? ' class="ui-checkbox-label-required"' : ''));
+		self.html('<div><i class="fa fa-check"></i></div><span{1}>{0}</span>'.format(self.html(), isRequired ? ' class="ui-checkbox-label-required"' : ''));
 		self.element.on('click', function() {
 			self.dirty(false);
 			self.getter(!self.get(), 2, true);
@@ -264,24 +266,22 @@ COMPONENT('checkbox', function() {
 COMPONENT('dropdown', function() {
 
 	var self = this;
-	var required = self.attr('data-required') === 'true';
+	var isRequired = self.attr('data-required') === 'true';
 	var select;
 	var container;
 
 	self.validate = function(value) {
 
-		var type = typeof(value);
-
-		if (select.prop('disabled'))
+		if (select.prop('disabled') || !isRequired)
 			return true;
 
+		var type = typeof(value);
 		if (type === 'undefined' || type === 'object')
 			value = '';
 		else
 			value = value.toString();
 
-		if (window.$calendar)
-			window.$calendar.hide();
+		EXEC('$calendar.hide');
 
 		if (self.type === 'currency' || self.type === 'number')
 			return value > 0;
@@ -289,8 +289,14 @@ COMPONENT('dropdown', function() {
 		return value.length > 0;
 	};
 
-	if (!required)
-		self.noValid();
+	!isRequired && self.noValid();
+
+	self.required = function(value) {
+		self.element.find('.ui-dropdown-label').toggleClass('ui-dropdown-label-required', value);
+		self.noValid(!value);
+		isRequired = value;
+		!value && self.state(1, 1);
+	};
 
 	self.render = function(arr) {
 
@@ -301,8 +307,7 @@ COMPONENT('dropdown', function() {
 		var propValue = self.attr('data-source-value') || 'id';
 		var emptyText = self.attr('data-empty');
 
-		if (emptyText !== undefined)
-			builder.push('<option value="">{0}</option>'.format(emptyText));
+		emptyText !== undefined && builder.push('<option value="">{0}</option>'.format(emptyText));
 
 		for (var i = 0, length = arr.length; i < length; i++) {
 			var item = arr[i];
@@ -313,10 +318,6 @@ COMPONENT('dropdown', function() {
 		}
 
 		select.html(builder.join(''));
-
-		var disabled = arr.length === 0;
-		select.parent().toggleClass('ui-disabled', disabled);
-		select.prop('disabled', disabled);
 	};
 
 	self.make = function() {
@@ -336,7 +337,7 @@ COMPONENT('dropdown', function() {
 
 		if (label.length) {
 			var icon = self.attr('data-icon');
-			builder.push('<div class="ui-dropdown-label{0}">{1}{2}:</div>'.format(required ? ' ui-dropdown-label-required' : '', icon ? '<span class="fa {0}"></span> '.format(icon) : '', label));
+			builder.push('<div class="ui-dropdown-label{0}">{1}{2}:</div>'.format(isRequired ? ' ui-dropdown-label-required' : '', icon ? '<span class="fa {0}"></span> '.format(icon) : '', label));
 			builder.push('<div class="ui-dropdown-values">{0}</div>'.format(html));
 			self.html(builder.join(''));
 		} else
@@ -351,11 +352,7 @@ COMPONENT('dropdown', function() {
 
 		var prerender = function(path) {
 			var value = self.get(self.attr('data-source'));
-			if (NOTMODIFIED(self.id, value))
-				return;
-			if (!value)
-				value = [];
-			self.render(value);
+			!NOTMODIFIED(self.id, value) && self.render(value || EMPTYARRAY);
 		};
 
 		self.watch(ds, prerender, true);
@@ -375,35 +372,46 @@ COMPONENT('dropdown', function() {
 COMPONENT('textbox', function() {
 
 	var self = this;
-	var required = self.attr('data-required') === 'true';
+	var isRequired = self.attr('data-required') === 'true';
+	var validation = self.attr('data-validate');
 	var input;
 	var container;
 
 	self.validate = function(value) {
 
-		var is = false;
-		var type = typeof(value);
-
-		if (input.prop('disabled'))
+		if (input.prop('disabled') || !isRequired)
 			return true;
+
+		var type = typeof(value);
 
 		if (type === 'undefined' || type === 'object')
 			value = '';
 		else
 			value = value.toString();
 
-		if (window.$calendar)
-			window.$calendar.hide();
+		EXEC('$calendar.hide');
 
-		if (self.type === 'email')
-			return value.isEmail();
-		if (self.type === 'currency')
-			return value > 0;
-		return value.length > 0;
+		switch (self.type) {
+			case 'email':
+				return value.isEmail();
+			case 'url':
+				return value.isURL();
+			case 'currency':
+			case 'number':
+				return value > 0;
+		}
+
+		return validation ? self.evaluate(value, validation, true) ? true : false : value.length > 0;
 	};
 
-	if (!required)
-		self.noValid();
+	!isRequired && self.noValid();
+
+	self.required = function(value) {
+		self.element.find('.ui-textbox-label').toggleClass('ui-textbox-label-required', value);
+		self.noValid(!value);
+		isRequired = value;
+		!value && self.state(1, 1);
+	};
 
 	self.make = function() {
 
@@ -419,52 +427,36 @@ COMPONENT('textbox', function() {
 		attrs.attr('data-component-bind', '');
 
 		tmp = self.attr('data-align');
-		if (tmp)
-			attrs.attr('class', 'ui-' + tmp);
-
-		if (self.attr('data-autofocus') === 'true')
-			attrs.attr('autofocus');
+		tmp && attrs.attr('class', 'ui-' + tmp);
+		self.attr('data-autofocus') === 'true' && attrs.attr('autofocus');
 
 		var content = self.html();
 		var icon = self.attr('data-icon');
 		var icon2 = self.attr('data-control-icon');
-		var text = self.attr('data-control-text');
 		var increment = self.attr('data-increment') === 'true';
+
+		builder.push('<input {0} />'.format(attrs.join(' ')));
 
 		if (!icon2 && self.type === 'date')
 			icon2 = 'fa-calendar';
 
-		builder.push('<input {0} />'.format(attrs.join(' ')));
+		icon2 && builder.push('<div><span class="fa {0}"></span></div>'.format(icon2));
+		increment && !icon2 && builder.push('<div><span class="fa fa-caret-up"></span><span class="fa fa-caret-down"></span></div>');
+		increment && self.element.on('click', '.fa-caret-up,.fa-caret-down', function(e) {
+			var el = $(this);
+			var inc = -1;
+			if (el.hasClass('fa-caret-up'))
+				inc = 1;
+			self.change(true);
+			self.inc(inc);
+		});
 
-		if (icon2)
-			builder.push('<div><span class="fa {0}"></span></div>'.format(icon2));
-		else if (text)
-			builder.push('<div style="font-size:10px">{0}</div>'.format(text));
-		else if (increment)
-			builder.push('<div><span class="fa fa-caret-up"></span><span class="fa fa-caret-down"></span></div>');
-
-		if (increment) {
-			self.element.on('click', '.fa-caret-up,.fa-caret-down', function(e) {
-				var el = $(this);
-				var inc = -1;
-				if (el.hasClass('fa-caret-up'))
-					inc = 1;
-				self.change(true);
-				self.inc(inc);
+		self.type === 'date' && self.element.on('click', '.fa-calendar', function(e) {
+			e.preventDefault();
+			window.$calendar && window.$calendar.toggle($(this).parent().parent(), self.element.find('input').val(), function(date) {
+				self.set(date);
 			});
-		}
-
-		if (self.type === 'date') {
-			self.element.on('click', '.fa-calendar', function(e) {
-				e.preventDefault();
-				if (!window.$calendar)
-					return;
-				var el = $(this);
-				window.$calendar.toggle(el.parent().parent(), self.element.find('input').val(), function(date) {
-					self.set(date);
-				});
-			});
-		}
+		});
 
 		if (!content.length) {
 			self.element.addClass('ui-textbox ui-textbox-container');
@@ -476,11 +468,8 @@ COMPONENT('textbox', function() {
 
 		var html = builder.join('');
 		builder = [];
-		builder.push('<div class="ui-textbox-label{0}">'.format(required ? ' ui-textbox-label-required' : ''));
-
-		if (icon)
-			builder.push('<span class="fa {0}"></span> '.format(icon));
-
+		builder.push('<div class="ui-textbox-label{0}">'.format(isRequired ? ' ui-textbox-label-required' : ''));
+		icon && builder.push('<span class="fa {0}"></span> '.format(icon));
 		builder.push(content);
 		builder.push(':</div><div class="ui-textbox">{0}</div>'.format(html));
 
@@ -498,6 +487,91 @@ COMPONENT('textbox', function() {
 			return;
 		self.$oldstate = invalid;
 		container.toggleClass('ui-textbox-invalid', self.isInvalid());
+	};
+});
+
+COMPONENT('textarea', function() {
+
+	var self = this;
+	var isRequired = self.attr('data-required') === 'true';
+	var input;
+	var container;
+
+	self.validate = function(value) {
+
+		var is = false;
+		var type = typeof(value);
+		if (input.prop('disabled') || isRequired)
+			return true;
+
+		if (type === 'undefined' || type === 'object')
+			value = '';
+		else
+			value = value.toString();
+
+		EXEC('$calendar.hide');
+		return value.length > 0;
+	};
+
+	!isRequired && self.noValid();
+
+	self.required = function(value) {
+		self.element.find('.ui-textarea-label').toggleClass('ui-textarea-label-required', value);
+		self.noValid(!value);
+		isRequired = value;
+		!value && self.state(1, 1);
+	};
+
+	self.make = function() {
+
+		var attrs = [];
+		var builder = [];
+		var tmp;
+
+		attrs.attr('placeholder', self.attr('data-placeholder'));
+		attrs.attr('maxlength', self.attr('data-maxlength'));
+		attrs.attr('data-component-bind', '');
+
+		tmp = self.attr('data-height');
+		tmp && attrs.attr('style', 'height:' + tmp);
+		self.attr('data-autofocus') === 'true' && attrs.attr('autofocus');
+		builder.push('<textarea {0}></textarea>'.format(attrs.join(' ')));
+
+		var element = self.element;
+		var content = element.html();
+
+		if (!content.length) {
+			self.element.addClass('ui-textarea ui-textarea-container');
+			self.html(builder.join(''));
+			input = self.find('textarea');
+			container = self.element;
+			return;
+		}
+
+		var height = self.attr('data-height');
+		var icon = self.attr('data-icon');
+		var html = builder.join('');
+
+		builder = [];
+		builder.push('<div class="ui-textarea-label{0}">'.format(isRequired ? ' ui-textarea-label-required' : ''));
+		icon && builder.push('<span class="fa {0}"></span> '.format(icon));
+		builder.push(content);
+		builder.push(':</div><div class="ui-textarea">{0}</div>'.format(html));
+
+		self.html(builder.join(''));
+		self.element.addClass('ui-textarea-container');
+		input = self.find('textarea');
+		container = self.find('.ui-textarea');
+	};
+
+	self.state = function(type) {
+		if (!type)
+			return;
+		var invalid = self.isInvalid();
+		if (invalid === self.$oldstate)
+			return;
+		self.$oldstate = invalid;
+		container.toggleClass('ui-textarea-invalid', self.isInvalid());
 	};
 });
 
@@ -522,9 +596,7 @@ COMPONENT('textboxsearch', function() {
 		else
 			value = value.toString();
 
-		if (window.$calendar)
-			window.$calendar.hide();
-
+		EXEC('$calendar.hide');
 		return value.length > 0;
 	};
 
@@ -582,63 +654,6 @@ COMPONENT('textboxsearch', function() {
 			return;
 		self.$oldstate = invalid;
 		container.toggleClass('ui-textbox-invalid', self.isInvalid());
-	};
-});
-
-COMPONENT('textarea', function() {
-
-	var self = this;
-	var isRequired = self.attr('data-required') === 'true';
-
-	this.validate = function(value) {
-		var is = false;
-		var t = typeof(value);
-
-		if (t === 'undefined' || t === 'object')
-			value = '';
-		else
-			value = value.toString();
-
-		is = isRequired ? self.type === 'number' ? value > 0 : value.length > 0 : true;
-		return is;
-	};
-
-	self.make = function() {
-
-		var attrs = [];
-
-		function attr(name) {
-			var a = self.attr(name);
-			if (!a)
-				return;
-			attrs.push(name.substring(name.indexOf('-') + 1) + '="' + a + '"');
-		}
-
-		attr('data-placeholder');
-		attr('data-maxlength');
-
-		if (self.attr('data-readonly'))
-			attrs.push('readonly="readonly"');
-
-		var element = self.element;
-		var height = element.attr('data-height');
-		var icon = element.attr('data-icon');
-		var content = element.html();
-		var html = '<textarea data-component-bind=""' + (attrs.length > 0 ? ' ' + attrs.join('') : '') + (height ? ' style="height:' + height + '"' : '') + (element.attr('data-autofocus') === 'true' ? ' autofocus="autofocus"' : '') + '></textarea>';
-
-		if (content.length === 0) {
-			element.addClass('ui-textarea');
-			element.append(html);
-			return;
-		}
-
-		element.empty();
-		element.append('<div class="ui-textarea-label' + (isRequired ? ' ui-textarea-label-required' : '') + '">' + (icon ? '<span class="fa ' + icon + '"></span> ' : '') + content + ':</div>');
-		element.append('<div class="ui-textarea">' + html + '</div>');
-	};
-
-	self.state = function(type) {
-		self.element.find('.ui-textarea').toggleClass('ui-textarea-invalid', self.isInvalid());
 	};
 });
 
@@ -796,9 +811,9 @@ COMPONENT('form', function() {
 
 	var self = this;
 	var autocenter;
-	window.$$form_level = window.$$form_level || 1;
 
 	if (!MAN.$$form) {
+		window.$$form_level = window.$$form_level || 1;
 		MAN.$$form = true;
 		$(document).on('click', '.ui-form-button-close', function() {
 			SET($.components.findById($(this).attr('data-id')).path, '');
@@ -807,13 +822,26 @@ COMPONENT('form', function() {
 
 		$(window).on('resize', function() {
 			FIND('form', true).forEach(function(component) {
-				if (component.element.hasClass('hidden'))
-					return;
-				component.resize();
+				!component.element.hasClass('hidden') && component.resize();
 			});
+		});
+
+		$(document).on('click', '.ui-form-container', function(e) {
+			var el = $(e.target);
+			if (!(el.hasClass('ui-form-container-padding') || el.hasClass('ui-form-container')))
+				return;
+			var form = $(this).find('.ui-form');
+			var cls = 'ui-form-animate-click';
+			form.addClass(cls);
+			setTimeout(function() {
+				form.removeClass(cls);
+			}, 300);
 		});
 	}
 
+	self.readonly();
+	self.submit = function(hide) { self.hide(); };
+	self.cancel = function(hide) { self.hide(); };
 	self.onHide = function(){};
 
 	var hide = self.hide = function() {
@@ -821,17 +849,12 @@ COMPONENT('form', function() {
 		self.onHide();
 	};
 
-	self.readonly();
-	self.submit = function(hide) { self.hide(); };
-	self.cancel = function(hide) { self.hide(); };
-
 	self.resize = function() {
 		if (!autocenter)
 			return;
 		var ui = self.find('.ui-form');
 		var fh = ui.innerHeight();
 		var wh = $(window).height();
-
 		var r = (wh / 2) - (fh / 2);
 		if (r > 30)
 			ui.css({ marginTop: (r - 15) + 'px' });
@@ -840,50 +863,38 @@ COMPONENT('form', function() {
 	};
 
 	self.make = function() {
-		var content = self.element.html();
 		var width = self.attr('data-width') || '800px';
 		var submit = self.attr('data-submit');
 		var enter = self.attr('data-enter');
-
-		autocenter = self.attr('data-autocenter') !== 'false';
+		autocenter = self.attr('data-autocenter') === 'true';
 		self.condition = self.attr('data-if');
-		self.element.empty();
 
-		$(document.body).append('<div id="' + self._id + '" class="hidden ui-form-container"><div class="ui-form-container-padding"><div class="ui-form" style="max-width:' + width + '"><div class="ui-form-title"><span class="fa fa-times ui-form-button-close" data-id="' + self.id + '"></span>' + self.attr('data-title') + '</div>' + content + '</div></div>');
+		$(document.body).append('<div id="{0}" class="hidden ui-form-container"><div class="ui-form-container-padding"><div class="ui-form" style="max-width:{1}"><div class="ui-form-title"><span class="fa fa-times ui-form-button-close" data-id="{2}"></span>{3}</div>{4}</div></div>'.format(self._id, width, self.id, self.attr('data-title')));
 
-		self.element = $('#' + self._id);
 		self.element.data(COM_ATTR, self);
+		var el = $('#' + self._id);
+		el.find('.ui-form').get(0).appendChild(self.element.get(0));
+		self.element = el;
 
 		self.element.on('scroll', function() {
-			if (window.$calendar)
-				window.$calendar.hide();
+			EXEC('$calendar.hide');
 		});
 
 		self.element.find('button').on('click', function(e) {
-			e.preventDefault();
-			e.stopPropagation();
 			window.$$form_level--;
 			switch (this.name) {
 				case 'submit':
 					self.submit(hide);
 					break;
 				case 'cancel':
-					if (!this.disabled)
-						self[this.name](hide);
+					!this.disabled && self[this.name](hide);
 					break;
 			}
 		});
 
-		if (enter === 'true') {
-			self.element.on('keydown', 'input', function(e) {
-				if (e.keyCode !== 13)
-					return;
-				var btn = self.element.find('button[name="submit"]');
-				if (btn.get(0).disabled)
-					return;
-				self.submit(hide);
-			});
-		}
+		enter === 'true' && self.element.on('keydown', 'input', function(e) {
+			e.keyCode === 13 && self.element.find('button[name="submit"]').get(0).disabled && self.submit(hide);
+		});
 
 		return true;
 	};
@@ -891,28 +902,26 @@ COMPONENT('form', function() {
 	self.getter = null;
 	self.setter = function(value) {
 
-		$('html').toggleClass('noscroll', value ? true : false);
-
 		var isHidden = !EVALUATE(self.path, self.condition);
 		self.element.toggleClass('hidden', isHidden);
+		EXEC('$calendar.hide');
+		$('html').toggleClass('noscroll', value ? true : false);
 
-		window.$calendar && window.$calendar.hide();
-
-		if (!isHidden) {
-			self.resize();
-			var el = self.element.find('input,select,textarea');
-
-			el.length > 0 && el.eq(0).focus();
-			window.$$form_level++;
-			self.element.css('z-index', window.$$form_level * 10);
-			self.element.animate({ scrollTop: 0 }, 0, function() {
-				setTimeout(function() {
-					self.element.find('.ui-form').addClass('ui-form-animate');
-				}, 300);
-			});
-
-		} else
+		if (isHidden) {
 			self.element.find('.ui-form').removeClass('ui-form-animate');
+			return;
+		}
+
+		self.resize();
+		var el = self.element.find('input,select,textarea');
+		el.length > 0 && el.eq(0).focus();
+		window.$$form_level++;
+		self.element.css('z-index', window.$$form_level * 10);
+		self.element.animate({ scrollTop: 0 }, 0, function() {
+			setTimeout(function() {
+				self.element.find('.ui-form').addClass('ui-form-animate');
+			}, 300);
+		});
 	};
 });
 
@@ -1115,23 +1124,28 @@ COMPONENT('codemirror', function() {
 	};
 });
 
-/**
- * Confirm Message
- * @version 1.0.0
- */
 COMPONENT('confirm', function() {
 	var self = this;
 	var is = false;
 	var visible = false;
-	var timer;
 
 	self.readonly();
 	self.singleton();
 
 	self.make = function() {
-		self.element.addClass('ui-confirm hidden');
+		self.toggle('ui-confirm hidden', true);
 		self.element.on('click', 'button', function() {
 			self.hide($(this).attr('data-index').parseInt());
+		});
+
+		self.element.on('click', function(e) {
+			if (e.target.tagName !== 'DIV')
+				return;
+			var el = self.element.find('.ui-confirm-body');
+			el.addClass('ui-confirm-click');
+			setTimeout(function() {
+				el.removeClass('ui-confirm-click');
+			}, 300);
 		});
 	};
 
@@ -1148,31 +1162,20 @@ COMPONENT('confirm', function() {
 	};
 
 	self.hide = function(index) {
-
-		if (self.callback)
-			self.callback(index);
-
+		self.callback && self.callback(index);
 		self.element.removeClass('ui-confirm-visible');
-		if (timer)
-			clearTimeout(timer);
-		timer = setTimeout(function() {
+		setTimeout2(self.id, function() {
 			visible = false;
 			self.element.addClass('hidden');
 		}, 1000);
 	};
 
 	self.content = function(cls, text) {
-
-		if (!is)
-			self.html('<div><div class="ui-confirm-body"></div></div>');
-
-		if (timer)
-			clearTimeout(timer);
-
+		!is && self.html('<div><div class="ui-confirm-body"></div></div>');
 		visible = true;
 		self.element.find('.ui-confirm-body').empty().append(text);
 		self.element.removeClass('hidden');
-		setTimeout(function() {
+		setTimeout2(self.id, function() {
 			self.element.addClass('ui-confirm-visible');
 		}, 5);
 	};
