@@ -6,7 +6,7 @@
 
 __License__: [MIT](license.txt). 
 
-__SuperAdmin__ needs latest Total.js from NPM `+v2.0.1`. 
+__SuperAdmin__ needs latest Total.js from NPM `+v2.0.2`. 
 
 __IMPORTANT__
 - SuperAdmin is running on port 9999 which can be changed in `run.sh` script in `/www/superadmin/run.sh`
@@ -38,7 +38,7 @@ All data are stored in `/superadmin/databases/` directory. Applications are stor
 
 ## Contributors
 
-- Peter Širka <petersirka@gmail.com>
+- Peter Širka (author) <petersirka@gmail.com>
 - Martin Smola  <smola.martin@gmail.com>
 - Athul B Raj <https://github.com/Athuli7>
 
