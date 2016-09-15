@@ -6,7 +6,9 @@ NEWSCHEMA('Package').make(function(schema) {
 
 	schema.define('id', 'UID', true);
 	schema.define('filename', 'String(200)');
+	schema.define('template', 'String(500)');
 	schema.define('remove', Boolean);
+	schema.define('npm', Boolean);
 
 	schema.addWorkflow('check', function(error, model, options, callback) {
 
@@ -21,7 +23,22 @@ NEWSCHEMA('Package').make(function(schema) {
 		model.appfilename = Path.join(model.appdirectory, app.id + '.package');
 		model.app = app;
 
-		callback();
+		if (!model.template)
+			return callback();
+
+		U.download(model.template, ['get', 'dnscache'], function(err, response) {
+
+			if (response.statusCode !== 200) {
+				error.push('template', response.statusMessage || '@error-template');
+				return callback();
+			}
+
+			var writer = Fs.createWriteStream(model.appfilename);
+			response.pipe(writer);
+			response.on('error', (err) => error.push('template', err));
+			CLEANUP(writer, () => callback());
+		});
+
 	});
 
 	schema.addWorkflow('stop', function(error, model, options, callback) {
@@ -37,11 +54,7 @@ NEWSCHEMA('Package').make(function(schema) {
 			SuperAdmin.save(NOOP);
 		}
 
-		SuperAdmin.run(model.app.port, function(err) {
-			if (err)
-				error.push('restart', err);
-			callback(SUCCESS(true));
-		});
+		run(model.npm, model.app, () => callback(SUCCESS(true)));
 	});
 
 	schema.addWorkflow('remove', function(error, model, options, callback) {
@@ -58,7 +71,7 @@ NEWSCHEMA('Package').make(function(schema) {
 			F.unlink(files, function() {
 				directories.wait(function(item, next) {
 					Fs.rmdir(item, () => next());
-				}, () => () => callback(SUCCESS(true)));
+				}, () => callback());
 			});
 		});
 	});
@@ -78,12 +91,23 @@ NEWSCHEMA('Package').make(function(schema) {
 
 			Spawn('chown', ['-R', SuperAdmin.run_as_user.user, directory]);
 
-			F.unlink([filename], NOOP);
-			SuperAdmin.makescripts(model.app, function(err) {
-				if (err)
-					error.push('executable', err);
-				callback(SUCCESS(true));
-			});
+			F.unlink([filename], F.error());
+			callback(SUCCESS(true));
 		});
 	});
 });
+
+function run(npm, model, callback) {
+
+	if (npm) {
+		return SuperAdmin.npminstall(model, function(err) {
+			SuperAdmin.makescripts(model, function() {
+				SuperAdmin.restart(model.port, () => callback());
+			});
+		});
+	}
+
+	return SuperAdmin.makescripts(model, function() {
+		SuperAdmin.restart(model.port, () => callback());
+	});
+}

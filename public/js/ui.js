@@ -916,7 +916,7 @@ COMPONENT('form', function() {
 		var el = self.element.find('input,select,textarea');
 		el.length > 0 && el.eq(0).focus();
 		window.$$form_level++;
-		self.element.css('z-index', window.$$form_level * 10);
+		self.element.css('z-index', window.$$form_level * 5);
 		self.element.animate({ scrollTop: 0 }, 0, function() {
 			setTimeout(function() {
 				self.element.find('.ui-form').addClass('ui-form-animate');

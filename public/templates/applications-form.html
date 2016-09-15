@@ -123,21 +123,21 @@
 <script>
 
 	function applications_form_refresh() {
-		if (applications.id)
-			return;
-		SET('applications.form', { cluster: 1, port: 'auto', ddos: 20, debug: false, redirect: [], allow: [], disallow: [], size: 5, delay: 0, priority: 0 }, true);
+		!applications.id && SET('applications.form', { cluster: 1, port: 'auto', ddos: 20, debug: false, redirect: [], allow: [], disallow: [], size: 5, delay: 0, priority: 0 }, true);
 	}
 
 	ON('#applications.form', function(component) {
 		component.submit = function(hide) {
-			var loading = FIND('loading');
-			loading.show();
+			SETTER('loading', 'show');
+			applications.waiting = true;
 			AJAX('POST /api/apps/', applications.form, function(response) {
+
+				applications.waiting = false;
 
 				if (isError(arguments))
 					return;
 
-				loading.hide(500);
+				SETTER('loading', 'hide', 1000);
 
 				// Error handling
 				SET('applications.form.response', response);
@@ -147,6 +147,12 @@
 				hide();
 				setTimeout(applications_refresh, 100);
 				success();
+
+				if (applications.id)
+					return;
+
+				applications.id = response.value;
+				applications.id && SET('common.form', 'applications-upload', 1000);
 			});
 		};
 	});

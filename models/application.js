@@ -63,13 +63,12 @@ NEWSCHEMA('Application').make(function(schema) {
 		}
 
 		SuperAdmin.save();
-		callback(SUCCESS(true));
+		callback(SUCCESS(true, model.id));
 	});
 
 	schema.setGet(function(error, model, id, callback) {
 		var item = APPLICATIONS.findItem('id', id);
-		if (!item)
-			error.push('error-app-404');
+		!item && error.push('error-app-404');
 		callback(item);
 	});
 
@@ -122,12 +121,10 @@ NEWSCHEMA('Application').make(function(schema) {
 
 		if (model.subprocess) {
 			item = APPLICATIONS.findItem(n => n.url === model.url && !n.subprocesse);
-			if (!item)
-				error.push('error-url-noexist');
+			!item && error.push('error-url-noexist');
 		} else {
 			item = APPLICATIONS.findItem('url', model.url);
-			if (item && item.id !== model.id)
-				error.push('error-url-exists');
+			item && item.id !== model.id && error.push('error-url-exists');
 		}
 
 		callback();
@@ -136,8 +133,7 @@ NEWSCHEMA('Application').make(function(schema) {
 	// Checks port number
 	schema.addWorkflow('port', function(error, model, options, callback) {
 		if (model.port) {
-			if (port_check(APPLICATIONS, model.id, model.port))
-				error.push('error-port');
+			port_check(APPLICATIONS, model.id, model.port) && error.push('error-port');
 		} else
 			model.port = port_create(APPLICATIONS);
 		callback(SUCCESS(true));
@@ -324,7 +320,5 @@ function port_create(arr) {
 
 function port_check(arr, id, number) {
 	var item = arr.findItem('port', number);
-	if (item)
-		return item.id !== id;
-	return false;
+	return item ? item.id !== id : false;
 }

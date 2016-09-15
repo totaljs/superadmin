@@ -18,10 +18,10 @@ var user;
 try {
 	var tmp = Fs.readFileSync('/www/superadmin/user.guid', 'utf8').split('\n')[0].split(':');
 	if(tmp.length === 3)
-		user = {user: tmp[0], id: parseInt(tmp[1]), group: parseInt(tmp[2])};
+		user = { user: tmp[0], id: parseInt(tmp[1]), group: parseInt(tmp[2]) };
 } catch (err) {}
 
-SuperAdmin.run_as_user = user || {user: 'root', id:0, group:0};
+SuperAdmin.run_as_user = user || { user: 'root', id: 0, group: 0 };
 
 String.prototype.superadmin_url = function() {
 	return this.replace(REG_PROTOCOL, '').replace(/\//g, '');
@@ -375,7 +375,7 @@ SuperAdmin.restart = function(port, callback) {
 };
 
 SuperAdmin.npminstall = function(app, callback) {
-	Exec('bash {0} {1}'.format(F.path.databases('npminstall.sh'), Path.join(CONFIG('directory-www'), app.linker)), (err) => callback());
+	Exec('bash {0} {1}'.format(F.path.databases('npminstall.sh'), Path.join(CONFIG('directory-www'), app.linker)), (err) => callback(err));
 	return SuperAdmin;
 };
 
