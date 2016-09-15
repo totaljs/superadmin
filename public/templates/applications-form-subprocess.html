@@ -87,18 +87,12 @@
 		var arr = [];
 
 		applications.grid.forEach(function(item) {
-			if (item.subprocess)
-				return;
-			arr.push(item.url);
+			!item.subprocess && arr.push(item.url);
 		});
 
 		arr.sort();
 		SET('applicationssubprocess', arr);
-
-		if (applications.id)
-			return;
-
-		SET('applications.subprocess', { path: '', cluster: 1, port: 'auto', ddos: 20, debug: false, allow: [], disallow: [], size: 5, subprocess: true }, true);
+		!applications.id && SET('applications.subprocess', { path: '', cluster: 1, port: 'auto', ddos: 20, debug: false, allow: [], disallow: [], size: 5, subprocess: true }, true);
 	}
 
 	ON('#applications.subprocess', function(component) {
@@ -120,6 +114,12 @@
 				hide();
 				setTimeout(applications_refresh, 100);
 				success();
+
+				if (applications.id)
+					return;
+
+				applications.id = response.value;
+				applications.id && SET('common.form', 'applications-upload', 1000);
 			});
 		};
 	});
