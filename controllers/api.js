@@ -251,7 +251,7 @@ function json_templates() {
 
 	U.request(url, ['get', 'dnscache'], function(err, response) {
 		if (response.isJSON())
-			self.content(response, U.getContenType('json'));
+			self.content(response, U.getContentType('json'));
 		else
 			self.json(EMPTYARRAY);
 	});
