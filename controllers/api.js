@@ -244,5 +244,15 @@ function json_apps_monitor() {
 
 function json_templates() {
 	var self = this;
-	NOSQL('templates').find().callback(self.callback());
+	var url = CONFIG('superadmin-templates');
+
+	if (!url.isURL())
+		return self.json(EMPTYARRAY);
+
+	U.request(url, ['get', 'dnscache'], function(err, response) {
+		if (response.isJSON())
+			self.content(response, U.getContenType('json'));
+		else
+			self.json(EMPTYARRAY);
+	});
 }

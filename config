@@ -3,6 +3,7 @@ version                   : 4.0.0
 author                    : Totaljs.com Ltd
 
 superadmin                : admin:admin
+superadmin-templates      : https://modules.totaljs.com/superadmin.json
 
 // Custom SMTP settings
 mail.smtp                 : YOUR.SMTPSERVER.COM
