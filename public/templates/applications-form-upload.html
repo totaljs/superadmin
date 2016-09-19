@@ -1,0 +1,70 @@
+<div data-component="form" data-title="@(Upload a new application)" data-component-path="common.form" data-if="value === 'applications-upload'" data-width="600px" data-component-id="applications.upload" data-autocenter="true">
+	<div class="padding">
+		<div class="row">
+			<div class="col-md-12">
+				<h2 class="black nmb"><i class="fa fa-globe mr5"></i><b data-component="" data-component-path="applications.upload.name"></b></h2>
+				<div class="help mt10">@(<b>SuperAdmin</b> supports uploading packages. Is easy to create the package, just install Total.js as a global module, then open your application directory in the terminal and type <code>$ tpm create myapp.package</code>.)</div>
+				<br />
+				<div data-component="fileupload" data-component-id="applications.package" data-component-path="applications.upload.filename" data-icon="fa fa-search" data-placeholder="myapplication.package" data-required="true" data-url="/api/apps/upload/" data-singlefile="true">@(Browse device)</div>
+				<div data-component="template" data-component-path="applications.upload">
+					<script type="text/html">
+						{{ if filename }}
+						<div class="fs11 mt10"><i class="fa fa-file mr5"></i><b>@(Filename:)</b> {{ filename }}</div>
+						<hr style="margin:10px 0 0" />
+						{{ fi }}
+					</script>
+				</div>
+				<br />
+				<div data-component="checkbox" class="b" data-component-path="applications.upload.remove">@(Removes all files)</div>
+				<div class="help">@(When is this option checked then SuperAdmin removes all <i class="fa fa-trash nmr"></i> files before unpacking package.)</div>
+			</div>
+		</div>
+	</div>
+
+	<div data-component="error" data-component-path="applications.upload.response"></div>
+	<div class="ui-form-buttons">
+		<div data-component="validation" data-component-path="applications.upload" data-if="applications.upload.filename ? true : false">
+			<button name="submit">@(SUBMIT)</button>
+		</div>
+		<button name="cancel">@(Cancel)</button>
+	</div>
+</div>
+
+<script>
+
+	applications.upload = {};
+
+	function applications_upload_refresh() {
+		var id = applications.id;
+		FIND('#applications.package').custom(id);
+		SET('applications.upload', { id: id, filename: '', remove: false, name: applications.grid.findItem('id', id).url });
+	}
+
+	ON('#applications.upload', function(component) {
+		component.submit = function(hide) {
+
+			FIND('confirm').confirm('@(Are you sure you want to unpack uploaded package?)', ['@(Yes)', '@(Cancel)'], function(index) {
+				if (index)
+					return;
+				var loading = FIND('loading');
+				loading.show();
+				AJAX('POST /api/apps/unpack/', applications.upload, function(response) {
+
+					if (isError(arguments))
+						return;
+
+					loading.hide(500);
+
+					// Error handling
+					SET('applications.upload.response', response);
+					if (response instanceof Array)
+						return;
+
+					hide();
+					success();
+				});
+			});
+		};
+	});
+
+</script>

@@ -1,0 +1,21 @@
+<div data-component="form" data-title="@(Application's logs)" data-component-path="common.form" data-if="value === 'applications-logs'" data-width="1800px" data-autocenter="false">
+	<div class="padding">
+		<div data-component="textarea" data-component-path="applications.logs" data-height="600px" class="ui-textarea-code" data-readonly="true" data-component-id="applications.logs">@(Logs)</div>
+	</div>
+	<div class="ui-form-buttons center">
+		<button name="cancel" style="width:200px">@(Cancel)</button>
+	</div>
+</div>
+
+<script>
+	applications.logs = null;
+
+	function applications_logs_refresh() {
+		SETTER('loading', 'show');
+		FIND('#applications.logs').find('textarea').css({ height: $(window).height() - 300 });
+		AJAX('GET /api/apps/{0}/logs/'.format(applications.id), function(response) {
+			SET('applications.logs', response);
+			success();
+		});
+	}
+</script>

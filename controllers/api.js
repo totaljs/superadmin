@@ -55,9 +55,13 @@ function json_apps_restart(id) {
 
 	// restarts all
 	if (!id) {
+
 		var errors = [];
 		APPLICATIONS.wait(function(item, next) {
-			item.stopped = false;
+
+			if (item.stopped)
+				return next();
+
 			SuperAdmin.restart(item.port, function(err) {
 				err && errors.push(err);
 				next();
@@ -66,6 +70,7 @@ function json_apps_restart(id) {
 			SuperAdmin.save(NOOP);
 			self.json(SUCCESS(true, errors));
 		});
+
 		return;
 	}
 
@@ -156,7 +161,7 @@ function json_apps_upload(argument) {
 		return self.json(SUCCESS(false));
 
 	var file = self.files[0];
-	var filename = Path.join(CONFIG('directory-www'), app.url.superadmin_linker(), app.id + '.package');
+	var filename = Path.join(CONFIG('directory-www'), app.url.superadmin_linker(app.path), app.id + '.package');
 
 	file.copy(filename, function(err) {
 		if (err)
@@ -199,14 +204,34 @@ function json_apps_monitor() {
 	APPLICATIONS.wait(function(item, next) {
 		if (!item.monitor)
 			return next();
+
+		var duration = Date.now();
+
 		U.request(item.url + item.monitor, ['get', 'dnscache'], function(err, response) {
 
 			var data = response.parseJSON();
 			if (data) {
 				var obj = {};
+
 				obj.errors = data.errors ? data.errors.length > 0 : false;
 				obj.versionTotal = data.versionTotal;
 				obj.reqstats = data.reqstats;
+				obj.memoryTotal = data.memoryTotal;
+				obj.memoryUsage = data.memoryUsage;
+				obj.request = data.request;
+				obj.response = data.response;
+				obj.problems = data.problems ? data.problems.length > 0 : false;
+
+				if (obj.request.pending)
+					obj.request.pending--;
+
+				if (data.webcounter) {
+					obj.webcounter = {};
+					obj.webcounter.online = data.webcounter.online;
+					obj.webcounter.today = data.webcounter.today;
+				}
+
+				obj.duration = Date.now() - duration;
 				output[item.id] = obj;
 			}
 

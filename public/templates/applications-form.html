@@ -1,0 +1,154 @@
+<div data-component="form" data-title="@(Edit application)" data-component-path="common.form" data-if="value === 'applications'" data-width="900px" data-component-id="applications.form" data-autocenter="false">
+	<div class="padding">
+
+		<div data-component="visible" data-component-path="applications.form.id" data-if="!value" class="hidden">
+			<div class="silver">@(When you add the application then you have to upload it as <b>package</b> via <i class="fa fa-cloud-upload"></i> button in application's grid.)</div>
+			<br />
+		</div>
+
+		<div class="row">
+			<div class="col-md-10">
+				<div data-component="textbox" data-component-path="applications.form.url" data-required="true" data-placeholder="https://www.totaljs.com" data-component-value="''" data-component-type="url">@(URL address)</div>
+				<div class="help"><i class="fa fa-info-circle"></i>@(The URL address must contain the protocol <code>http</code> or <code>https</code>.)</div>
+			</div>
+			<div class="col-md-2">
+				<div data-component="textbox" data-component-path="applications.form.port" data-required="true" data-component-value="''" data-align="center" data-maxlength="4">@(Port)</div>
+			</div>
+		</div>
+		<hr />
+		<div data-component="checkbox" data-component-path="applications.form.debug" class="inline b mr5 black">@(Enables debug mode)</div>
+		<div class="inline middle mr15"><span class="badge badge-red">@(debug)</span></div>
+		<div data-component="checkbox" data-component-path="applications.form.npm" class="inline mr5">@(Performs NPM install)</div>
+		<div class="inline middle"><span class="badge badge-blue">package.json</span></div>
+	</div>
+	<div data-component="visible" data-component-path="applications.form.url" data-if="value && value.substring(0, 8) === 'https://'" class="hidden">
+		<div class="padding bg-smoke" style="border-bottom:1px solid #E0E0E0">
+			<div><span class="badge badge-green mr5">@(security)</span><b>@(SSL configuration)</b></div>
+			<div class="help nmt">@(Type a path if you want to prevent <b>auto configure</b>.)</div>
+			<br />
+			<div class="row">
+				<div class="col-md-6 m">
+					<div data-component="textbox" data-component-path="applications.form.ssl_key" data-placeholder="@(auto configure)" data-icon="fa-key">@(SSL key)</div>
+				</div>
+				<div class="col-md-6 m">
+					<div data-component="textbox" data-component-path="applications.form.ssl_cer" data-placeholder="@(auto configure)">@(SSL certificate)</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="padding bg-smoke npb" style="padding-top:30px">
+		<h2><i class="fa fa-folder"></i>@(Categorization)</h2>
+		<div class="row">
+			<div class="col-md-6 m">
+				<div data-component="dropdown" data-component-path="applications.form.category" data-source="applications.categories" data-empty="" data-source-value="name">@(Existing category)</div>
+			</div>
+			<div class="col-md-6 m">
+				<div data-component="textbox" data-component-path="applications.form.category" data-required="true" data-placeholder="@(e.g. E-commerce)">@(Category)</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 m">
+				<div data-component="textarea" data-component-path="applications.form.notes" data-placeholder="@(e.g. Hosting ends january 2029)" data-component-value="''" data-height="50px">@(Notes)</div>
+			</div>
+		</div>
+		<br />
+	</div>
+	<div class="padding npb">
+		<div class="row">
+			<div class="col-md-10 m">
+				<div data-component="range" data-component-path="applications.form.cluster" data-component-type="number" data-min="1" data-max="50" data-component-value="1">@(Thread count)</div>
+				<div class="help"><i class="fa fa-warning"></i>@(The application must be optimized for the cluster. The cluster mode is enabled when the thread count is greater than <b>one thread</b>. The cluster doesn't work in <b>debug mode</b>.)</div>
+			</div>
+			<div class="col-md-2 center m">
+				<div data-component="" data-component-path="applications.form.cluster" style="font-size:40px"></div>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="padding npb">
+		<div class="row">
+			<div class="col-md-10 m">
+				<div data-component="range" data-component-path="applications.form.ddos" data-component-type="number" data-min="10" data-max="100" data-component-value="15">@(Maximum count of request per second from a single IP)</div>
+				<div class="help"><i class="fa fa-warning"></i>@(This settings is a prevention for DDOS attacks. Nginx responds via 503 error for other requests.)</div>
+			</div>
+			<div class="col-md-2 center m">
+				<div data-component="" data-component-path="applications.form.ddos" style="font-size:40px"></div>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="padding npb">
+		<div class="row">
+			<div class="col-md-3 m">
+				<div data-component="textbox" data-component-path="applications.form.priority" data-component-type="number" data-maxlength="3" data-align="center" data-increment="true">@(Process priority)</div>
+				<div class="help">@(Process with highest priority is executed as first.)</div>
+			</div>
+			<div class="col-md-3 m">
+				<div data-component="textbox" data-component-path="applications.form.delay" data-component-type="number" data-maxlength="5" data-align="center" data-increment="true">@(Delay (ms))</div>
+				<div class="help">@(Delay before executing the process. Other requests will wait.)</div>
+			</div>
+			<div class="col-md-3 m">
+				<div data-component="textbox" data-component-path="applications.form.size" data-component-type="number" data-maxlength="5" data-align="center" data-icon="fa-cloud-upload" data-placeholder="e.g. 5" data-increment="true">@(Maximum upload size (MB))</div>
+			</div>
+		</div>
+		<hr />
+		<br />
+		<div class="row">
+			<div class="col-md-6 m">
+				<div data-component="textbox" data-component-path="applications.form.monitor" data-maxlength="200" data-placeholder="/$monitor/" data-icon="fa-desktop">@(Relative URL address for monitoring)</div>
+				<div class="help">@(If you use Total.js <b>monitor</b> module then add its relative URL address.)</div>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="padding">
+		<div data-component="textboxlist" data-component-path="applications.form.redirect" class="m" data-maxlength="50" data-placeholder="@(e.g. www.totaljs.com and press enter)" data-icon="fa-arrow-left" data-component-value="[]">@(Redirects)</div>
+		<div data-component="textboxlist" data-component-path="applications.form.allow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-globe" data-component-value="[]">@(Allowed IP addresses)</div>
+		<div data-component="textboxlist" data-component-path="applications.form.disallow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-ban" data-component-value="[]">@(Blocked IP addresses)</div>
+	</div>
+	<hr class="nmt" />
+	<div class="padding">
+		<div data-component="codemirror" data-component-path="applications.form.nginx" data-icon="fa-code" data-height="200px" data-type="nginx" class="ui-textarea-code">@(Custom NGINX configuration)</div>
+		<br />
+	</div>
+	<div data-component="error" data-component-path="applications.form.response"></div>
+	<div class="ui-form-buttons">
+		<div data-component="validation" data-component-path="applications.form">
+			<button name="submit">@(SUBMIT)</button>
+		</div>
+		<button name="cancel">@(Cancel)</button>
+	</div>
+</div>
+
+<script>
+
+	function applications_form_refresh() {
+		if (applications.id)
+			return;
+		SET('applications.form', { cluster: 1, port: 'auto', ddos: 20, debug: false, redirect: [], allow: [], disallow: [], size: 5, delay: 0, priority: 0 }, true);
+	}
+
+	ON('#applications.form', function(component) {
+		component.submit = function(hide) {
+			var loading = FIND('loading');
+			loading.show();
+			AJAX('POST /api/apps/', applications.form, function(response) {
+
+				if (isError(arguments))
+					return;
+
+				loading.hide(500);
+
+				// Error handling
+				SET('applications.form.response', response);
+				if (response instanceof Array)
+					return;
+
+				hide();
+				setTimeout(applications_refresh, 100);
+				success();
+			});
+		};
+	});
+
+</script>

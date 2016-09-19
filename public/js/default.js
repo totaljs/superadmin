@@ -46,36 +46,16 @@ function success() {
 }
 
 function can(name) {
-	if (!su.roles.length)
-		return true;
-	return su.roles.indexOf(name) !== -1;
+	return su.roles.length ? su.roles.indexOf(name) !== -1 : true;
 }
 
 Tangular.register('default', function(value, def) {
-	if (value == null || value === '')
-		return def;
-	return value;
+	return value == null || value === '' ? def : value;
 });
 
 Tangular.register('indexer', function(index) {
 	return index + 1;
 });
-
-jQuery.easing.easeOutBounce = function(e, f, a, h, g) {
-	if ((f /= g) < (1 / 2.75)) {
-		return h * (7.5625 * f * f) + a
-	} else {
-		if (f < (2 / 2.75)) {
-			return h * (7.5625 * (f -= (1.5 / 2.75)) * f + 0.75) + a
-		} else {
-			if (f < (2.5 / 2.75)) {
-				return h * (7.5625 * (f -= (2.25 / 2.75)) * f + 0.9375) + a
-			} else {
-				return h * (7.5625 * (f -= (2.625 / 2.75)) * f + 0.984375) + a
-			}
-		}
-	}
-};
 
 function mainmenu() {
 	$('header nav').toggleClass('mainmenu-visible');

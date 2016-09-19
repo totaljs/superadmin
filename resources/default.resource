@@ -1,7 +1,9 @@
 error-port           : The port uses another application.
 error-url-exists     : URL exists in database.
+error-url-noexist    : URL not exist in database
 error-app-404        : Application doesn't exist.
 error-app-linker     : You can change only protocol in the URL address.
+error-app-master-404 : The master application doesn't exist.
 
 // views/index.html, public/templates/applications.html
 T65203672            : Close

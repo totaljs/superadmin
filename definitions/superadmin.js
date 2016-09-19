@@ -14,6 +14,15 @@ const REG_FINDVERSION = /[0-9\.]+/;
 
 SuperAdmin.server = {};
 
+var user;
+try {
+	var tmp = Fs.readFileSync('/www/superadmin/user.guid', 'utf8').split('\n')[0].split(':');
+	if(tmp.length === 3)
+		user = {user: tmp[0], id: parseInt(tmp[1]), group: parseInt(tmp[2])};
+} catch (err) {}
+
+SuperAdmin.run_as_user = user || {user: 'root', id:0, group:0};
+
 String.prototype.superadmin_url = function() {
 	return this.replace(REG_PROTOCOL, '').replace(/\//g, '');
 };
@@ -45,14 +54,14 @@ String.prototype.superadmin_redirect = function() {
 	return this.substring(0, 8) + end;
 };
 
-String.prototype.superadmin_linker = function() {
+String.prototype.superadmin_linker = function(path) {
 	var url = this.replace(REG_PROTOCOL, '').replace(/\//g, '');
 	var arr = url.split('.');
 	arr.reverse();
 	var tmp = arr[1];
 	arr[1] = arr[0];
 	arr[0] = tmp;
-	return arr.join('-').replace('-', '_');
+	return arr.join('-').replace('-', '_') + (path ? path.replace(/\//g, '--').replace(/--$/g, '') : '');
 };
 
 SuperAdmin.nginx = 0;
@@ -347,7 +356,9 @@ SuperAdmin.run = function(port, callback) {
 				Spawn('node', ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200', filename, app.port], {
 					stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
 					cwd: Path.join(CONFIG('directory-www'), linker),
-					detached: true
+					detached: true,
+					uid: SuperAdmin.run_as_user.id,
+					gid: SuperAdmin.run_as_user.group
 				}).unref();
 				setTimeout(() => callback(), app.delay || 100);
 			});
@@ -361,6 +372,11 @@ SuperAdmin.restart = function(port, callback) {
 	return SuperAdmin.kill(port, function() {
 		SuperAdmin.run(port, callback);
 	});
+};
+
+SuperAdmin.npminstall = function(app, callback) {
+	Exec('bash {0} {1}'.format(F.path.databases('npminstall.sh'), Path.join(CONFIG('directory-www'), app.linker)), (err) => callback());
+	return SuperAdmin;
 };
 
 /**
@@ -551,7 +567,7 @@ SuperAdmin.load = function(callback) {
 		// Resets PID
 		APPLICATIONS.forEach(function(item) {
 			item.pid = 0;
-			item.linker = item.url.superadmin_linker();
+			item.linker = item.url.superadmin_linker(item.path);
 			if (!item.priority)
 				item.priority = 0;
 			if (!item.delay)

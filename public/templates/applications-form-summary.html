@@ -1,0 +1,141 @@
+<div data-component="form" data-title="@(Summary)" data-component-path="common.form" data-if="value === 'applications-summary'" data-width="700px" data-autocenter="true">
+	<div class="padding" data-component="template" data-component-path="applications.summary">
+		<script type="text/html">
+		{{ if cpu.length }}
+		<h2><i class="fa fa-calculator"></i>@(CPU consumption)</h2>
+		<table class="table table-bordered table-small">
+			<tbody>
+				{{ foreach m in cpu }}
+				<tr>
+					<td class="col-xs-9"><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+					<td class="col-xs-3 right b black active">{{ m.value }}</td>
+				</tr>
+				{{ end }}
+			</tbody>
+		</table>
+		{{ fi }}
+		<h2><i class="fa fa-server"></i>@(Memory consumption)</h2>
+		<table class="table table-bordered table-small">
+			<tbody>
+				{{ foreach m in memory }}
+				<tr>
+					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+					<td class="col-xs-3 right b black active">{{ m.value }}</td>
+				</tr>
+				{{ end }}
+			</tbody>
+		</table>
+		<h2><i class="fa fa-hdd-o"></i>@(HDD consumption)</h2>
+		<table class="table table-bordered table-small">
+			<tbody>
+				{{ foreach m in hdd }}
+				<tr>
+					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+					<td class="col-xs-3 right b black active">{{ m.value }}</td>
+				</tr>
+				{{ end }}
+			</tbody>
+		</table>
+		<h2><i class="fa fa-folder-o"></i>@(Open files)</h2>
+		<table class="table table-bordered table-small">
+			<tbody>
+				{{ foreach m in openfiles }}
+				<tr>
+					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+					<td class="col-xs-3 right b black active">{{ m.value }}x</td>
+				</tr>
+				{{ end }}
+			</tbody>
+		</table>
+		<h2><i class="fa fa-globe"></i>@(Open connections)</h2>
+		<table class="table table-bordered table-small nmb">
+			<tbody>
+				{{ foreach m in connections }}
+				<tr>
+					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+					<td class="col-xs-3 right b black active">{{ m.value }}x</td>
+				</tr>
+				{{ end }}
+			</tbody>
+		</table>
+		</script>
+	</div>
+	<div class="ui-form-buttons center">
+		<button name="cancel" style="width:200px">@(Close)</button>
+	</div>
+</div>
+
+<script>
+
+	function applications_summary_find(max, type, desc) {
+
+		var output = [];
+
+		applications.info.forEach(function(item) {
+
+			var obj = {};
+			var app = applications.grid.findItem('port', item.port);
+			obj.url = app.url;
+
+			switch (type) {
+				case 0: // cpu
+					obj.sorting = item.cpu.replace(/\%/g, '').trim().parseFloat();
+					obj.value = item.cpu;
+
+					if (!obj.sorting)
+						return;
+
+					break;
+
+				case 1: // memory
+					obj.sorting = item.memory.replace(/MB/g, '').trim().parseFloat();
+					obj.value = item.memory;
+					break;
+
+				case 2: // hdd
+					obj.sorting = item.hdd.replace(/G|K|M/g, '').trim().parseFloat();
+
+					if (item.hdd.indexOf('G') !== -1)
+						obj.sorting *= 1000;
+					else if (item.hdd.indexOf('K') !== -1)
+						obj.sorting = obj.sorting / 1000;
+
+					obj.value = item.hdd;
+					break;
+
+				case 3: // openfiles
+					obj.sorting = item.openfiles;
+					obj.value = item.openfiles;
+					break;
+
+				case 4: // connections
+					obj.sorting = item.connections;
+					obj.value = item.connections;
+					break;
+
+			}
+
+			output.push(obj);
+		});
+
+		output.sort(function(a, b) {
+			if (desc)
+				return a.sorting > b.sorting ? -1 : a.sorting === b.sorting ? 0 : 1;
+			return a.sorting > b.sorting ? 1 : a.sorting === b.sorting ? 0 : -1;
+		});
+
+		return output.take(max);
+	}
+
+	function applications_summary_refresh() {
+		SETTER('loading', 'show');
+		SETTER('loading', 'hide', 1200);
+		var output = {};
+		output.cpu = applications_summary_find(5, 0, true);
+		output.memory = applications_summary_find(5, 1, true);
+		output.hdd = applications_summary_find(5, 2, true);
+		output.openfiles = applications_summary_find(5, 3, true);
+		output.connections = applications_summary_find(5, 4, true);
+		SET('applications.summary', output);
+	}
+</script>

@@ -7,6 +7,7 @@ NEWSCHEMA('Application').make(function(schema) {
 
 	schema.define('id',         'UID');
 	schema.define('url',        'Url', true);
+	schema.define('path',       'String(100)');
 	schema.define('category',   'String(50)');
 	schema.define('redirect',   '[String]');
 	schema.define('allow',      '[String]');
@@ -23,6 +24,8 @@ NEWSCHEMA('Application').make(function(schema) {
 	schema.define('ddos',        Number);                   // Maximum count of request per second
 	schema.define('size',        Number);                   // Maximum size of request body (upload size)
 	schema.define('debug',       Boolean);                  // Enables debug mode
+	schema.define('subprocess',  Boolean);
+	schema.define('npm',         Boolean);                  // Performs NPM install
 
 	schema.setQuery(function(error, options, callback) {
 		callback(APPLICATIONS);
@@ -32,7 +35,7 @@ NEWSCHEMA('Application').make(function(schema) {
 
 		var plain = model.$plain();
 
-		plain.linker = model.linker = model.url.superadmin_linker();
+		plain.linker = model.linker = model.url.superadmin_linker(model.path);
 
 		if (!model.id) {
 			plain.id = model.id = UID();
@@ -114,9 +117,19 @@ NEWSCHEMA('Application').make(function(schema) {
 
 	// Checks port number
 	schema.addWorkflow('check', function(error, model, options, callback) {
-		var item = APPLICATIONS.findItem('url', model.url);
-		if (item && item.id !== model.id)
-			error.push('error-url-exists');
+
+		var item;
+
+		if (model.subprocess) {
+			item = APPLICATIONS.findItem(n => n.url === model.url && !n.subprocesse);
+			if (!item)
+				error.push('error-url-noexist');
+		} else {
+			item = APPLICATIONS.findItem('url', model.url);
+			if (item && item.id !== model.id)
+				error.push('error-url-exists');
+		}
+
 		callback();
 	});
 
@@ -151,13 +164,22 @@ NEWSCHEMA('Application').make(function(schema) {
 		SuperAdmin.kill(app.port, function() {
 			var linker = app.linker;
 			var directory = Path.join(CONFIG('directory-www'), linker);
+
 			Exec('rm -r ' + directory, function(err) {
 				callback(SUCCESS(true));
 				APPLICATIONS.splice(index, 1);
 				SuperAdmin.save();
 
+				if (app.subprocess) {
+					var master = APPLICATIONS.findItem(n => n.url === app.url && !n.subprocess);
+					master && schema.workflow('nginx', master, NOOP);
+				}
+
+				// Removes app directory
+				Exec('rm ' + directory, NOOP);
+
 				// Removes nginx config
-				F.unlink([Path.join(CONFIG('directory-nginx'), linker + '.conf')], NOOP);
+				!app.subprocess && F.unlink([Path.join(CONFIG('directory-nginx'), linker + '.conf')], NOOP);
 			});
 		});
 	});
@@ -165,11 +187,35 @@ NEWSCHEMA('Application').make(function(schema) {
 	// Creates nginx configuration
 	schema.addWorkflow('nginx', function(error, model, options, callback) {
 
+		if (model.subprocess) {
+
+			var item = APPLICATIONS.findItem(n => n.url === model.url && !n.subprocess);
+			if (!item) {
+				error.push('error-app-master-404-404');
+				return callback();
+			}
+
+			// Reconfigure main application NGINX settings
+			schema.workflow('nginx', item, function(err, response) {
+
+				if (err) {
+					error.push(err);
+					return callback();
+				}
+
+				if (model.$repository('restart'))
+					return run(model, () => callback(SUCCESS(true)));
+				return callback(SUCCESS(true));
+			});
+
+			return;
+		}
+
 		var ssl = model.url.startsWith('https', true);
 		var url = model.url.superadmin_url();
 
 		if (!model.linker)
-			model.linker = model.url.superadmin_linker();
+			model.linker = model.url.superadmin_linker(model.path);
 
 		var filename = Path.join(CONFIG('directory-nginx'), model.linker + '.conf');
 		var data = {};
@@ -184,6 +230,16 @@ NEWSCHEMA('Application').make(function(schema) {
 		data.version = SuperAdmin.nginx;
 		data.redirect = [];
 		data.size = model.size || 1;
+		data.subprocesses = [];
+
+		// load all subprocesses
+
+		for (var i = 0, length = APPLICATIONS.length; i < length; i++) {
+			var item = APPLICATIONS[i];
+			if (!item.subprocess || item.url !== model.url)
+				continue;
+			data.subprocesses.push(item);
+		}
 
 		// Prepares redirect
 		model.redirect.forEach(url => data.redirect.push(url.superadmin_nginxredirect()));
@@ -241,7 +297,16 @@ NEWSCHEMA('Application').make(function(schema) {
 });
 
 function run(model, callback) {
-	SuperAdmin.makescripts(model, function() {
+
+	if (model.npm) {
+		return SuperAdmin.npminstall(model, function() {
+			SuperAdmin.makescripts(model, function() {
+				SuperAdmin.restart(model.port, () => callback());
+			});
+		});
+	}
+
+	return SuperAdmin.makescripts(model, function() {
 		SuperAdmin.restart(model.port, () => callback());
 	});
 }

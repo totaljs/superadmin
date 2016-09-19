@@ -1,0 +1,127 @@
+<div data-component="form" data-title="@(Edit subprocess)" data-component-path="common.form" data-if="value === 'applications-subprocess'" data-width="900px" data-component-id="applications.subprocess" data-autocenter="false">
+	<div class="padding">
+
+		<div data-component="visible" data-component-path="applications.subprocess.id" data-if="!value" class="hidden">
+			<div class="silver">@(When you add the subprocess then you have to upload it as <b>package</b> via <i class="fa fa-cloud-upload"></i> button in application's grid. The cluster doesn't work in <b>debug mode</b>.)</div>
+			<br />
+		</div>
+
+		<div class="row">
+			<div class="col-md-10">
+				<div data-component="disable" data-component-path="applications.subprocess.id" data-if="value ? true : false">
+					<div data-component="dropdown" data-component-path="applications.subprocess.url" data-required="true" data-component-value="''" data-empty="" data-source="applicationssubprocess">@(Choose existing application)</div>
+					<br />
+					<div data-component="textbox" data-component-path="applications.subprocess.path" data-required="true" data-placeholder="/eshop/" data-component-value="''">@(Path)</div>
+				</div>
+				<br />
+				<div data-component="checkbox" data-component-path="applications.subprocess.debug" class="inline b mr5 black">@(Enables debug mode)</div>
+				<div class="inline middle mr15"><span class="badge badge-red">@(debug)</span></div>
+				<div data-component="checkbox" data-component-path="applications.subprocess.npm" class="inline mr5">@(Performs NPM install)</div>
+				<div class="inline middle"><span class="badge badge-blue">package.json</span></div>
+			</div>
+			<div class="col-md-2">
+				<div data-component="textbox" data-component-path="applications.subprocess.port" data-required="true" data-component-value="''" data-align="center" data-maxlength="4">@(Port)</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="padding bg-smoke npb" style="padding-top:30px">
+		<div class="row">
+			<div class="col-md-12 m">
+				<div data-component="textarea" data-component-path="applications.subprocess.notes" data-placeholder="@(e.g. Processes data)" data-component-value="''" data-height="50px">@(Notes)</div>
+			</div>
+		</div>
+		<br />
+	</div>
+	<div class="padding npb">
+		<div class="row">
+			<div class="col-md-10 m">
+				<div data-component="range" data-component-path="applications.subprocess.cluster" data-component-type="number" data-min="1" data-max="50" data-component-value="1">@(Thread count)</div>
+				<div class="help"><i class="fa fa-warning"></i>@(The application must be optimized for the cluster. The cluster mode is enabled when the thread count is greater than <b>one thread</b>.)</div>
+			</div>
+			<div class="col-md-2 center m">
+				<div data-component="" data-component-path="applications.subprocess.cluster" style="font-size:40px"></div>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="padding npb">
+		<div class="row">
+			<div class="col-md-10 m">
+				<div data-component="range" data-component-path="applications.subprocess.ddos" data-component-type="number" data-min="10" data-max="100" data-component-value="15">@(Maximum count of request per second from a single IP)</div>
+				<div class="help"><i class="fa fa-warning"></i>@(This settings is a prevention for DDOS attacks. Nginx responds via 503 error for other requests.)</div>
+			</div>
+			<div class="col-md-2 center m">
+				<div data-component="" data-component-path="applications.subprocess.ddos" style="font-size:40px"></div>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="padding npb">
+		<div class="row">
+			<div class="col-md-3 m">
+				<div data-component="textbox" data-component-path="applications.subprocess.size" data-component-type="number" data-maxlength="5" data-align="center" data-icon="fa-cloud-upload" data-placeholder="e.g. 5" data-increment="true">@(Maximum upload size (MB))</div>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="padding">
+		<div data-component="textboxlist" data-component-path="applications.subprocess.allow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-globe" data-component-value="[]">@(Allowed IP addresses)</div>
+		<div data-component="textboxlist" data-component-path="applications.subprocess.disallow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-ban" data-component-value="[]">@(Blocked IP addresses)</div>
+	</div>
+	<div data-component="error" data-component-path="applications.subprocess.response"></div>
+	<div class="ui-form-buttons">
+		<div data-component="validation" data-component-path="applications.subprocess">
+			<button name="submit">@(SUBMIT)</button>
+		</div>
+		<button name="cancel">@(Cancel)</button>
+	</div>
+</div>
+
+<script>
+
+	var applicationssubprocess = [];
+
+	function applications_subprocess_refresh() {
+
+		var arr = [];
+
+		applications.grid.forEach(function(item) {
+			if (item.subprocess)
+				return;
+			arr.push(item.url);
+		});
+
+		arr.sort();
+		SET('applicationssubprocess', arr);
+
+		if (applications.id)
+			return;
+
+		SET('applications.subprocess', { path: '', cluster: 1, port: 'auto', ddos: 20, debug: false, allow: [], disallow: [], size: 5, subprocess: true }, true);
+	}
+
+	ON('#applications.subprocess', function(component) {
+		component.submit = function(hide) {
+			var loading = FIND('loading');
+			loading.show();
+			AJAX('POST /api/apps/', applications.subprocess, function(response) {
+
+				if (isError(arguments))
+					return;
+
+				loading.hide(500);
+
+				// Error handling
+				SET('applications.form.response', response);
+				if (response instanceof Array)
+					return;
+
+				hide();
+				setTimeout(applications_refresh, 100);
+				success();
+			});
+		};
+	});
+
+</script>
