@@ -6,6 +6,9 @@ error-app-linker     : You can change only protocol in the URL address.
 error-app-master-404 : The master application doesn't exist.
 error-template       : Template can't be downloaded.
 
+// Total.js translation file
+// Created: 2016-09-27 23:36
+
 // public/index.html
 T1656375912          : Thanks, you have been added.
 T-1222226627         : Join our mailing list
@@ -52,7 +55,6 @@ T689187469           : The application must be optimized for the cluster. The cl
 
 // public/templates/applications-form-subprocess.html, public/templates/applications-form.html
 T-2045843904         : Enables debug mode
-T166698872           : Performs NPM install
 T2493601             : Port
 T75456161            : Notes
 T-1922394215         : Thread count
@@ -65,6 +67,9 @@ T629622205           : Blocked IP addresses
 
 // public/templates/applications-form-subprocess.html, public/templates/applications-form.html, public/templates/applications.html
 T95458899            : debug
+
+// public/templates/applications-form-subprocess.html, public/templates/applications-form-upload.html, public/templates/applications-form.html
+T166698872           : Performs NPM install
 
 // public/templates/applications-form-summary.html, public/templates/applications.html
 T-192987258          : Summary
@@ -79,9 +84,10 @@ T868774209           : Open files
 // public/templates/applications-form-upload.html
 T-1288495918         : Upload a new application
 T573789458           : <b>SuperAdmin</b> supports uploading packages. Is easy to create the package, just install Total.js as a global module, then open your application directory in the terminal and type <code>$ tpm create myapp.package</code>.
+T1719798526          : Select template
 T-336101236          : Browse device
 T700976883           : Filename:
-T-93730649           : Removes all files
+T512277563           : Removes all files in application directory
 T-1217032675         : When is this option checked then SuperAdmin removes all <i class="fa fa-trash nmr"></i> files before unpacking package.
 T376907615           : Are you sure you want to unpack uploaded package?
 
@@ -204,4 +210,7 @@ T-277725174          : Are you sure you want to create a backup of the whole ser
 T-290260840          : Are you sure you want to restart all applications?
 T-1486485092         : Are you sure you want to reconfigure all applications?
 T-370695949          : Are you sure you want to stop all applications?
+T-1539876835         : <b class="red">The certificate is expired</b> for domain <a href="{0}" target="_blank">{0}</a>, you have to renew it.
+T-2092289507         : <b>The certificate will expire</b> for domain <a href="{0}" target="_blank">{0}</a> in short time, you have to renew it.
 T-830629437          : OFFLINE
+T1198536340          : The application <a href="{0}" target="_blank">{0}</a> <b class="red">contains errors</b>.
