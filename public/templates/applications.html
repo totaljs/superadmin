@@ -768,6 +768,7 @@
 		var template_category = '<div class="category" data-category="{0}"><span>{1}x</span><i class="fa fa-folder-o"></i>{0}</div>';
 		var REG_CLEANURL = /^(http|https)\:\/\//g;
 		var template_monitor;
+		var infotimeout;
 
 		self.readonly();
 
@@ -789,12 +790,16 @@
 
 			!isMOBILE && self.element.on('mouseenter mouseleave', '.td-name', function(e) {
 				var info = FIND('info');
+				clearTimeout(infotimeout);
 
 				if (e.type === 'mouseenter' && this.getAttribute('data-monitor')) {
 					var data = applications.monitor[$(this).parent().attr('data-id')];
 					if (data) {
-						data.req = applications_app_reqstats(data.reqstats);
-						info.show('left', this, template_monitor(data));
+						var el = this;
+						infotimeout = setTimeout(function() {
+							data.req = applications_app_reqstats(data.reqstats);
+							info.show('left', el, template_monitor(data));
+						}, 600);
 						return;
 					}
 				}
