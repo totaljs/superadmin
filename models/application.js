@@ -65,7 +65,6 @@ NEWSCHEMA('Application').make(function(schema) {
 		}
 
 		SuperAdmin.save();
-
 		model.renew && model.$push('workflow', 'renew');
 		callback(SUCCESS(true));
 	});
@@ -188,6 +187,13 @@ NEWSCHEMA('Application').make(function(schema) {
 		var url = model.url.superadmin_url();
 		SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err) {
 			SuperAdmin.reload(function(err) {
+
+				var app = APPLICATIONS.findItem('id', model.id);
+				if (app) {
+					app.cache_sslexpire = null;
+					app.appinfo = 0;
+				}
+
 				err && error.push('nginx', err.toString());
 				callback(SUCCESS(true));
 			});

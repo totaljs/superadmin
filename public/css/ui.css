@@ -73,7 +73,6 @@ button { outline: 0; }
 .ui-dropdowncheckbox-values span { margin-left: 5px; vertical-align: middle; }
 .ui-dropdowncheckbox-invalid { border-color: #E7B8B8 !important; background-color: #FFF3F3 !important; }
 
-.ui-textboxtags * { box-sizing: border-box; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; }
 .ui-textboxtags { border: 2px solid #E0E0E0; padding: 4px 5px; border-radius: 2px; position: relative; display: block; width: 100%; background-color: white; }
 .ui-textboxtags-label { margin-bottom: 5px; font-size: 12px; color: gray; text-align: left; }
 .ui-textboxtags-label .fa { width: 14px; }
@@ -143,7 +142,7 @@ button { outline: 0; }
 .ui-confirm-visible { opacity: 1; }
 .ui-confirm-visible .ui-confirm-body { -webkit-transform: scale(1); transform: scale(1); }
 
-.ui-loading { position: fixed; width: 100%; height: 100%; background-color: rgba(255,255,255,0.8); background-image: url(../img/preloader.gif); background-repeat: no-repeat; background-position: 50% 50%; left: 0; top: 0; z-index: 100; }
+.ui-loading { position: fixed; width: 100%; height: 100%; background-color: rgba(255,255,255,0.8); background-image: url(../img/preloader.gif); background-repeat: no-repeat; background-position: 50% 50%; left: 0; top: 0; z-index: 110; }
 
 .ui-pagination { height: 60px; border-top: 2px solid #F0F0F0; padding-top: 20px; margin-top: 20px; }
 .ui-pagination nav { border: 1px solid #E0E0E0; position: relative; display: inline-block; border-radius: 3px; }
@@ -153,15 +152,16 @@ button { outline: 0; }
 .ui-pagination .selected { background-color: #F0F0F0; }
 .ui-pagination div { float: right; font-size: 11px; color: #A0A0A0; padding-top: 8px; }
 
-@media(max-width: 767px) {
-    .ui-pagination { height: 100px; text-align: center; }
-    .ui-pagination nav { display: inline-block; }
-    .ui-pagination div { float: none; margin-bottom: 10px; }
-    .ui-confirm button { display: block; margin: 10px 0 0; display: block; width: 100%; }
-    .ui-form-container-padding { padding: 0 20px; }
-}
+.ui-notification-container { position: fixed; right: 0; top: 0; width: 280px; z-index: 100; padding: 0 20px 0 0; }
+.ui-notification { background-color: white; box-shadow: 0 3px 20px rgba(0,0,0,0.2); border-radius: 4px; border: 1px solid #D0D0D0; border-left-width: 5px; border-left-color: black; font-size: 12px; padding: 15px 15px 15px 10px; margin-top: 20px; position: relative; display: block; transition: 0.5s all; }
+.ui-notification > i { position: absolute; right: 12px; top: 10px; color: #DB2724; font-size: 14px; cursor: pointer; }
+.ui-notification > i:active { top: 11px; }
+.ui-notification > i:hover { color: #DB2724; }
+.ui-notification-icon { float: left; font-size: 11px; color: #AAB2BD; margin-right: 5px; }
+.ui-notification-message { margin: 1px 0 0 10px; color: gray; max-height: 150px; line-height: 16px; }
+.ui-notification-datetime { font-size: 11px; color: #A0A0A0; margin-bottom: 4px; }
+.ui-notification-hide { opacity: 0; transform: scale(0.5); margin-top: -100px; }
 
-.ui-textbox-container * { box-sizing: border-box; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; }
 .ui-textbox { border: 2px solid #E0E0E0; padding: 5px 2px 5px 5px; border-radius: 2px; position: relative; width: 100%; background-color: white; display: table; }
 .ui-textbox input { display: table-cell; border: 0; outline: 0; font: normal 14px Arial; color: black; width: 100%; background-color: white; padding: 0; }
 .ui-textbox input:disabled { color: gray; }
@@ -274,3 +274,11 @@ label span { vertical-align: middle; }
 .ui-info-visible { opacity: 1; transform: translate(0px,0px); }
 .ui-info-body { background-color: white; padding: 15px; }
 
+@media(max-width: 767px) {
+    .ui-notification-container { width: auto; left: 0; padding-left: 20px; }
+    .ui-pagination { height: 100px; text-align: center; }
+    .ui-pagination nav { display: inline-block; }
+    .ui-pagination div { float: none; margin-bottom: 10px; }
+    .ui-confirm button { display: block; margin: 10px 0 0; display: block; width: 100%; }
+    .ui-form-container-padding { padding: 0 20px; }
+}

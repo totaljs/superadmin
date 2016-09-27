@@ -134,6 +134,8 @@
 	ON('#applications.form', function(component) {
 		component.submit = function(hide) {
 			var loading = FIND('loading');
+			var port = applications.id ? applications.form.port : 0;
+
 			loading.show();
 			AJAX('POST /api/apps/', applications.form, function(response) {
 
@@ -149,6 +151,10 @@
 
 				hide();
 				setTimeout(applications_refresh, 100);
+
+				if (port)
+					delete applications.sslexpire[port];
+
 				success();
 			});
 		};
