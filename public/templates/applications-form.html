@@ -34,6 +34,9 @@
 					<div data-component="textbox" data-component-path="applications.form.ssl_cer" data-placeholder="@(auto configure)">@(SSL certificate)</div>
 				</div>
 			</div>
+			<div data-component="visible" data-component-path="applications.form.ssl_key" data-if="!value && applications.form.id">
+				<div data-component="checkbox" data-component-path="applications.form.renew" class="red b">@(Renew the certificate)</div>
+			</div>
 		</div>
 	</div>
 	<div class="padding bg-smoke npb" style="padding-top:30px">
@@ -128,8 +131,15 @@
 
 	ON('#applications.form', function(component) {
 		component.submit = function(hide) {
+<<<<<<< HEAD
 			SETTER('loading', 'show');
 			applications.waiting = true;
+=======
+			var loading = FIND('loading');
+			var port = applications.id ? applications.form.port : 0;
+
+			loading.show();
+>>>>>>> master
 			AJAX('POST /api/apps/', applications.form, function(response) {
 
 				applications.waiting = false;
@@ -146,6 +156,10 @@
 
 				hide();
 				setTimeout(applications_refresh, 100);
+
+				if (port)
+					delete applications.sslexpire[port];
+
 				success();
 
 				if (applications.id)

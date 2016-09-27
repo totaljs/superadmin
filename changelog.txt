@@ -1,0 +1,6 @@
+======= 4.0.0
+
+- renew Let's encrypt certificates
+- watching SSL expirations
+- improve UI
+- update debug.js version

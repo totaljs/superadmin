@@ -436,10 +436,13 @@
 	applications.stats = {};
 	applications.waiting = false;
 	applications.id = null;          // contains current application (when the user click on some button in the grid)
+	applications.sslexpire = {};
 
 	$(document).on('click', '.application-button', function(e) {
 		var button = $(this);
 		var id = button.parent().attr('data-id');
+		var app = applications.grid.findItem('id', id);
+
 		applications.id = id;
 
 		switch (this.name) {
@@ -448,6 +451,10 @@
 					if (index)
 						return;
 					SETTER('loading', 'show');
+
+					if (app)
+						delete applications.sslexpire[app.port];
+
 					AJAX('DELETE /api/apps/{0}/remove/'.format(id), function(response) {
 						setTimeout(applications_refresh, 100);
 						success();
@@ -517,6 +524,7 @@
 						return;
 					SETTER('loading', 'show');
 					applications.waiting = true;
+					applications.sslexpire = {};
 					AJAX('GET /api/apps/restart/', function(response) {
 						applications.waiting = false;
 						applications_info();
@@ -531,6 +539,7 @@
 						return;
 					SETTER('loading', 'show');
 					applications.waiting = true;
+					applications.sslexpire = {};
 					AJAX('GET /api/apps/reconfigure/', function(response) {
 						applications.waiting = false;
 						applications_info();
@@ -670,9 +679,48 @@
 			applications.timeout_info = setTimeout(applications_info, timeout);
 
 			var sum = 0;
+			var now = Date.now();
+			var has = false;
 
 			response.forEach(function(item) {
 				sum += item.memory.replace(/\sMB/g, '').parseFloat();
+
+				if (!item.sslexpire || applications.sslexpire[item.port])
+					return;
+
+				item.sslexpire = item.sslexpire.parseDate();
+
+				var diff = item.sslexpire.getTime() - now;
+				var app = applications.grid.findItem('port', item.port);
+
+				applications.sslexpire[item.port] = { type: 1, id: app.id };
+
+				if (diff < 0) {
+					has = true;
+					applications.sslexpire[item.port].type = 2;
+					SETTER('notifications', 'append', 'fa-warning', '@(<b class="red">The certificate is expired</b> for domain <a href="{0}" target="_blank">{0}</a>, you have to renew it.)'.format(app.url), item.sslexpire, function() {
+						applications_edit(app.id, -1);
+					}, '#D53F39');
+				} else if (diff < 172800) {
+					has = true;
+					applications.sslexpire[item.port].type = 3;
+					SETTER('notifications', 'append', 'fa-clock-o', '@(<b>The certificate will expire</b> for domain <a href="{0}" target="_blank">{0}</a> in short time, you have to renew it.)'.format(app.url), item.sslexpire, function() {
+						applications_edit(app.id, -1);
+					}, '#E9573F');
+				}
+			});
+
+			if (has)
+				SETTER('audio', 'play', '/error.mp3');
+
+			var elements = FIND('applications').element.find('.tr');
+
+			Object.keys(applications.sslexpire).forEach(function(key) {
+				var obj = applications.sslexpire[key];
+				if (obj.type === 1)
+					return;
+				var tr = elements.filter('[data-id="{0}"]'.format(obj.id));
+				tr.find('.ssl').toggleClass('ssl-expired', obj.type === 2).toggleClass('ssl-expire', obj.type === 3);
 			});
 
 			SET('applications.stats.memory', sum);

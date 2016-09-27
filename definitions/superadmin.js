@@ -76,6 +76,7 @@ SuperAdmin.appinfo = function(pid, callback) {
 	var arr = [];
 	var output = {};
 	var app = APPLICATIONS.findItem('pid', pid);
+
 	if (app) {
 		if (app.appinfo === undefined)
 			app.appinfo = 0;
@@ -140,6 +141,32 @@ SuperAdmin.appinfo = function(pid, callback) {
 		 		output.hdd = match.toString().trim();
 		 		app.cache_hdd = output.hdd;
 		 	}
+		 	next();
+		});
+	});
+
+	// Get SSL expiration
+	arr.push(function(next) {
+
+		if (!app || app.appinfo % 10 !== 0 || app.url.startsWith('http://')) {
+			if (app)
+				output.sslexpire = app.cache_sslexpire;
+			return next();
+		}
+
+		app.cache_sslexpire = null;
+		var name = app.url.superadmin_url();
+
+		Exec('cat {0} | openssl x509 -noout -enddate'.format(app.ssl_cer ? app.ssl_cer : Path.join(CONFIG('directory-ssl'), name, name + '.cer')), function(err, response) {
+
+			if (err)
+				return next();
+
+			var index = response.indexOf('=');
+			if (index === -1)
+				return next();
+
+			output.sslexpire = app.cache_sslexpire = new Date(Date.parse(response.substring(index + 1).trim()));
 		 	next();
 		});
 	});
@@ -398,21 +425,22 @@ SuperAdmin.kill = function(port, callback) {
  * @param {String} url URL address without protocol
  * @param {Function(err)} callback
  */
-SuperAdmin.ssl = function(url, generate, callback) {
+SuperAdmin.ssl = function(url, generate, callback, renew) {
 
 	if (!generate)
 		return callback();
 
 	// Checks whether the SSL exists
 	F.path.exists(Path.join(CONFIG('directory-ssl'), url, 'ca.cer'), function(e) {
-		if (e)
+		if (e && !renew)
 			return callback();
 		SuperAdmin.reload(function(err) {
 			if (err)
 				return callback(err);
-			Exec('/root/.acme.sh/acme.sh --certhome {0} --issue -d {1} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme')), (err) => callback(err));
+			Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue'), (err) => callback(err));
 		});
 	});
+
 	return SuperAdmin;
 };
 

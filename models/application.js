@@ -26,6 +26,7 @@ NEWSCHEMA('Application').make(function(schema) {
 	schema.define('debug',       Boolean);                  // Enables debug mode
 	schema.define('subprocess',  Boolean);
 	schema.define('npm',         Boolean);                  // Performs NPM install
+	schema.define('renew',       Boolean);                  // Performs renew
 
 	schema.setQuery(function(error, options, callback) {
 		callback(APPLICATIONS);
@@ -36,6 +37,7 @@ NEWSCHEMA('Application').make(function(schema) {
 		var plain = model.$plain();
 
 		plain.linker = model.linker = model.url.superadmin_linker(model.path);
+		plain.renew = undefined;
 
 		if (!model.id) {
 			plain.id = model.id = UID();
@@ -63,7 +65,12 @@ NEWSCHEMA('Application').make(function(schema) {
 		}
 
 		SuperAdmin.save();
+<<<<<<< HEAD
 		callback(SUCCESS(true, model.id));
+=======
+		model.renew && model.$push('workflow', 'renew');
+		callback(SUCCESS(true));
+>>>>>>> master
 	});
 
 	schema.setGet(function(error, model, id, callback) {
@@ -178,6 +185,23 @@ NEWSCHEMA('Application').make(function(schema) {
 				!app.subprocess && F.unlink([Path.join(CONFIG('directory-nginx'), linker + '.conf')], NOOP);
 			});
 		});
+	});
+
+	schema.addWorkflow('renew', function(error, model, options, callback) {
+		var url = model.url.superadmin_url();
+		SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err) {
+			SuperAdmin.reload(function(err) {
+
+				var app = APPLICATIONS.findItem('id', model.id);
+				if (app) {
+					app.cache_sslexpire = null;
+					app.appinfo = 0;
+				}
+
+				err && error.push('nginx', err.toString());
+				callback(SUCCESS(true));
+			});
+		}, true);
 	});
 
 	// Creates nginx configuration

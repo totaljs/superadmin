@@ -15,8 +15,9 @@ __IMPORTANT__
 __VERY IMPORTANT__: SuperAdmin must be run as `root`
 
 __To install SuperAdmin run commands bellow__
-- run `sudo wget https://raw.githubusercontent.com/totaljs/superadmin/master/install.sh`
-- run `sudo bash install.sh`
+- run `$ sudo wget https://raw.githubusercontent.com/totaljs/superadmin/master/install.sh`
+- run `$ sudo bash install.sh`
+- run `$ cd superadmin` and `$ bash run.sh`
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `/www/superadmin/config`)
 
 ---
