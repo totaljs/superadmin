@@ -12,20 +12,11 @@ COMPONENT('click', function() {
 	};
 
 	self.make = function() {
-
 		self.element.on('click', self.click);
-
 		var enter = self.attr('data-enter');
-		if (!enter)
-			return;
-
-		$(enter).on('keydown', 'input', function(e) {
-			if (e.keyCode !== 13)
-				return;
-			setTimeout(function() {
-				if (self.element.get(0).disabled)
-					return;
-				self.click();
+		enter && $(enter).on('keydown', 'input', function(e) {
+			e.keyCode === 13 && setTimeout(function() {
+				!self.element.get(0).disabled && self.click();
 			}, 100);
 		});
 	};
