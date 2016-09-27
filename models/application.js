@@ -191,7 +191,7 @@ NEWSCHEMA('Application').make(function(schema) {
 				var app = APPLICATIONS.findItem('id', model.id);
 				if (app) {
 					app.cache_sslexpire = null;
-					app.appinfo = 0;
+					app.appinfo = undefined;
 				}
 
 				err && error.push('nginx', err.toString());
