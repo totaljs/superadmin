@@ -161,23 +161,34 @@ COMPONENT('message', function() {
 		$(window).on('keyup', function(e) {
 			if (!visible)
 				return;
-			if (e.keyCode === 27)
-				self.hide();
+			e.keyCode === 27 && self.hide();
 		});
 	};
 
-	self.warning = function(message, icon) {
+	self.warning = function(message, icon, fn) {
+		if (typeof(icon) === 'function') {
+			fn = icon;
+			icon = undefined;
+		}
+		self.callback = fn;
 		self.content('ui-message-warning', message, icon || 'fa-warning');
 	};
 
-	self.success = function(message, icon) {
+	self.success = function(message, icon, fn) {
+
+		if (typeof(icon) === 'function') {
+			fn = icon;
+			icon = undefined;
+		}
+
+		self.callback = fn;
 		self.content('ui-message-success', message, icon || 'fa-check-circle');
 	};
 
 	self.hide = function() {
+		self.callback && self.callback();
 		self.element.removeClass('ui-message-visible');
-		if (timer)
-			clearTimeout(timer);
+		timer && clearTimeout(timer);
 		timer = setTimeout(function() {
 			visible = false;
 			self.element.addClass('hidden');
@@ -185,13 +196,8 @@ COMPONENT('message', function() {
 	};
 
 	self.content = function(cls, text, icon) {
-
-		if (!is)
-			self.html('<div><div class="ui-message-body"><span class="fa fa-warning"></span><div class="ui-center"></div></div><button>' + (self.attr('data-button') || 'Close') + '</button></div>');
-
-		if (timer)
-			clearTimeout(timer);
-
+		!is && self.html('<div><div class="ui-message-body"><span class="fa fa-warning"></span><div class="ui-center"></div></div><button>' + (self.attr('data-button') || 'Close') + '</button></div>');
+		timer && clearTimeout(timer);
 		visible = true;
 		self.element.find('.ui-message-body').removeClass().addClass('ui-message-body ' + cls);
 		self.element.find('.fa').removeClass().addClass('fa ' + icon);
@@ -263,6 +269,10 @@ COMPONENT('checkbox', function() {
 	};
 });
 
+/**
+ * Dropdown
+ * @version 3.0.0
+ */
 COMPONENT('dropdown', function() {
 
 	var self = this;
@@ -283,8 +293,11 @@ COMPONENT('dropdown', function() {
 
 		EXEC('$calendar.hide');
 
-		if (self.type === 'currency' || self.type === 'number')
-			return value > 0;
+		switch (self.type) {
+			case 'currency':
+			case 'number':
+				return value > 0;
+		}
 
 		return value.length > 0;
 	};
@@ -1268,10 +1281,6 @@ jC.formatter(function(path, value, type) {
 	return value.format(2);
 });
 
-/**
- * Tagger
- * @version 1.0.0
- */
 COMPONENT('tagger', function() {
 
 	var self = this;
@@ -1308,15 +1317,15 @@ COMPONENT('tagger', function() {
 			var before = this.getAttribute('data-before');
 			var after = this.getAttribute('data-after');
 			var val = name ? GET(name, value) : value;
-			var key;
 			var cache = this.$tagger;
+			var key;
 
 			if (format) {
 				key = 'format';
-				if (!cache[key])
-					format = cache[key] = self.arrow(format);
-				else
+				if (cache[key])
 					format = cache[key];
+				else
+					format = cache[key] = self.arrow(format);
 			}
 
 			var typeval = typeof(val);
@@ -1345,16 +1354,16 @@ COMPONENT('tagger', function() {
 
 			if (visible) {
 				key = 'visible';
-				if (!cache[key])
-					visible = cache[key] = self.arrow(visible);
-				else
+				if (cache[key])
 					visible = cache[key];
+				else
+					visible = cache[key] = self.arrow(visible);
 				var is = visible(val);
 				$(this).toggleClass('hidden', !is);
 				return;
 			}
 
-			val = val === null || val === undefined ? '' : val.toString();
+			val = val == null ? '' : val.toString();
 
 			if (val && !format)
 				val = Ta.helpers.encode(val);
@@ -1368,6 +1377,7 @@ COMPONENT('tagger', function() {
 			if (this.innerHTML !== cache.def)
 				this.innerHTML = cache.def;
 		});
+
 		self.element.removeClass('transparent hidden');
 	};
 });
