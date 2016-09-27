@@ -1,7 +1,7 @@
 {
   "name": "SuperAdmin",
   "description": "SuperAdmin can manage your Linux server for you. It creates NGINX conf files for your apps build on Total.js framework and runs them for you.",
-  "version": "0.0.1",
+  "version": "4.0.0",
   "dependencies": {
     "total.js": "latest"
   },
