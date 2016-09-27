@@ -65,12 +65,8 @@ NEWSCHEMA('Application').make(function(schema) {
 		}
 
 		SuperAdmin.save();
-<<<<<<< HEAD
-		callback(SUCCESS(true, model.id));
-=======
 		model.renew && model.$push('workflow', 'renew');
-		callback(SUCCESS(true));
->>>>>>> master
+		callback(SUCCESS(true, model.id));
 	});
 
 	schema.setGet(function(error, model, id, callback) {
