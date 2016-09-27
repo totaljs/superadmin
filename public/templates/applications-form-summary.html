@@ -48,7 +48,7 @@
 			</tbody>
 		</table>
 		<h2><i class="fa fa-globe"></i>@(Open connections)</h2>
-		<table class="table table-bordered table-small nmb">
+		<table class="table table-bordered table-small">
 			<tbody>
 				{{ foreach m in connections }}
 				<tr>
@@ -58,6 +58,18 @@
 				{{ end }}
 			</tbody>
 		</table>
+		<h2><i class="fa fa-globe"></i>@(SSL expirations)</h2>
+		<table class="table table-bordered table-small nmb">
+			<tbody>
+				{{ foreach m in sslexpire }}
+				<tr>
+					<td class="col-xs-9"><span class="badge badge-green mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+					<td class="col-xs-3 right b black active">{{ m.value }}</td>
+				</tr>
+				{{ end }}
+			</tbody>
+		</table>
+
 		</script>
 	</div>
 	<div class="ui-form-buttons center">
@@ -113,6 +125,17 @@
 					obj.value = item.connections;
 					break;
 
+				case 5: // ssl expire
+
+					if (!item.sslexpire)
+						return;
+
+					var days = Math.ceil((item.sslexpire - Date.now()) / 86400000);
+
+					obj.sorting = days;
+					obj.value = days.pluralize(@('# days', '# day', '# days', '# days'));
+					break;
+
 			}
 
 			output.push(obj);
@@ -136,6 +159,7 @@
 		output.hdd = applications_summary_find(5, 2, true);
 		output.openfiles = applications_summary_find(5, 3, true);
 		output.connections = applications_summary_find(5, 4, true);
+		output.sslexpire = applications_summary_find(5, 5, false);
 		SET('applications.summary', output);
 	}
 </script>
