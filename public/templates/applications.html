@@ -614,7 +614,7 @@
 				SET('applications.subprocess', $.extend({ $index: index }, response), true);
 				SET('common.form', 'applications-subprocess');
 			} else {
-				SET('applications.form', $.extend({ $index: index }, response), true);
+				SET('applications.form', $.extend({ $index: index, sslexpire: applications.sslexpire[response.port] }, response), true);
 				SET('common.form', 'applications');
 			}
 		});
@@ -698,7 +698,7 @@
 				var diff = item.sslexpire.getTime() - now;
 				var app = applications.grid.findItem('port', item.port);
 
-				applications.sslexpire[item.port] = { type: 1, id: app.id };
+				applications.sslexpire[item.port] = { type: 1, id: app.id, expire: item.sslexpire };
 
 				if (diff < 0) {
 					has = true;

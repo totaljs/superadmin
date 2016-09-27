@@ -6,9 +6,6 @@ error-app-linker     : You can change only protocol in the URL address.
 error-app-master-404 : The master application doesn't exist.
 error-template       : Template can't be downloaded.
 
-// Total.js translation file
-// Created: 2016-09-27 23:36
-
 // public/index.html
 T1656375912          : Thanks, you have been added.
 T-1222226627         : Join our mailing list
@@ -106,6 +103,9 @@ T-70298187           : auto configure
 T-1199139285         : SSL key
 T-1769624221         : SSL certificate
 T127527093           : Renew the certificate
+T1401039966          : The certificate expires:
+T-1172057030         : yyyy-MM-dd HH:mm
+T1487910342          : '# days', '# day', '# days', '# days', 'expired'
 T353637705           : Categorization
 T-697912365          : Existing category
 T-1030766925         : e.g. E-commerce

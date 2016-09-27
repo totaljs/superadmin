@@ -37,6 +37,13 @@
 			<div data-component="visible" data-component-path="applications.form.ssl_key" data-if="!value && applications.form.id">
 				<div data-component="checkbox" data-component-path="applications.form.renew" class="red b">@(Renew the certificate)</div>
 			</div>
+			<div data-component="visible" data-component-path="applications.form.sslexpire" data-if="value && value.expire">
+				<div data-component="template" data-component-path="applications.form.sslexpire" class="help nmt">
+					<script type="text/html">
+						@(The certificate expires:) <b class="badge badge-silver">{{ expire | format('@(yyyy-MM-dd HH:mm)')}}</b> {{ expire | expiredays(@('# days', '# day', '# days', '# days', 'expired')) }}
+					</script>
+				</div>
+			</div>
 		</div>
 	</div>
 	<div class="padding bg-smoke npb" style="padding-top:30px">
@@ -166,6 +173,11 @@
 				applications.id && SET('common.form', 'applications-upload', 1000);
 			});
 		};
+	});
+
+	Tangular.register('expiredays', function(value, zero, one, two, many, expired) {
+		var diff = value.getTime() - Date.now();
+		return diff >= 0 ? '(' + Math.ceil(diff / 86400000).pluralize(zero, one, two, many) + ')' : '<b class="red">{0}</b>'.format(expired);
 	});
 
 </script>
