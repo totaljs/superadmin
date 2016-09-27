@@ -115,8 +115,10 @@
 				setTimeout(applications_refresh, 100);
 				success();
 
-				if (applications.id)
+				if (applications.id) {
+					delete applications.merrors[applications.id];
 					return;
+				}
 
 				applications.id = response.value;
 				applications.id && SET('common.form', 'applications-upload', 1000);

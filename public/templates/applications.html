@@ -437,6 +437,7 @@
 	applications.waiting = false;
 	applications.id = null;          // contains current application (when the user click on some button in the grid)
 	applications.sslexpire = {};
+	applications.merrors = {};
 
 	$(document).on('click', '.application-button', function(e) {
 		var button = $(this);
@@ -452,8 +453,10 @@
 						return;
 					SETTER('loading', 'show');
 
-					if (app)
+					if (app) {
 						delete applications.sslexpire[app.port];
+						delete applications.merrors[app.id];
+					}
 
 					AJAX('DELETE /api/apps/{0}/remove/'.format(id), function(response) {
 						setTimeout(applications_refresh, 100);
@@ -463,6 +466,7 @@
 				return;
 			case 'restart':
 				SETTER('loading', 'show');
+				delete applications.merrors[id];
 				AJAX('GET /api/apps/{0}/restart/'.format(id), function(response) {
 					button.closest('tr').removeClass('error');
 					applications_info();
@@ -525,6 +529,7 @@
 					SETTER('loading', 'show');
 					applications.waiting = true;
 					applications.sslexpire = {};
+					applications.merrors = {};
 					AJAX('GET /api/apps/restart/', function(response) {
 						applications.waiting = false;
 						applications_info();
@@ -710,9 +715,7 @@
 				}
 			});
 
-			if (has)
-				SETTER('audio', 'play', '/error.mp3');
-
+			has && SETTER('audio', 'play', '/error.mp3');
 			var elements = FIND('applications').element.find('.tr');
 
 			Object.keys(applications.sslexpire).forEach(function(key) {
@@ -969,6 +972,7 @@
 			var previous_m = dt.add('-1 month').format('yyyy-MM');
 			var current_y = dt.format('yyyy');
 			var previous_y = dt.add('-1 year').format('yyyy');
+			var has = false;
 
 			values.req_year_current = 0;
 			values.req_year_previous = 0;
@@ -980,8 +984,21 @@
 
 				values.count++;
 
-				if (item.errors)
+				if (item.errors) {
 					values.errors++;
+
+					if (!applications.merrors[key]) {
+						applications.merrors[key] = true;
+						has = true;
+						(function(key) {
+							var app = applications.grid.findItem('id', key);
+							app && SETTER('notifications', 'append', 'fa-bug', '@(The application <a href="{0}" target="_blank">{0}</a> <b class="red">contains errors</b>.)'.format(app.url), new Date(), function() {
+								applications.id = key;
+								SET('common.form', 'applications-logs');
+							}, '#D53F39');
+						})(key);
+					}
+				}
 
 				if (item.webcounter) {
 					values.online += item.webcounter.online;
@@ -1004,6 +1021,8 @@
 						values.req_month_previous += value;
 				});
 			});
+
+			has && SETTER('audio', 'play', '/error.mp3');
 
 			// update stats
 			self.find('[data-key]').each(function() {

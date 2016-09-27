@@ -80,6 +80,12 @@
 					if (response instanceof Array)
 						return;
 
+					var app = applications.grid.findItem('id', applications.id);
+					if (app) {
+						delete applications.merrors[app.id];
+						delete applications.sslexpire[app.port];
+					}
+
 					hide();
 					success();
 				});
