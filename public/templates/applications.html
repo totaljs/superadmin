@@ -695,18 +695,17 @@
 
 				item.sslexpire = item.sslexpire.parseDate();
 
-				var diff = item.sslexpire.getTime() - now;
+				var diff = (item.sslexpire.getTime() - now) / 1000;
 				var app = applications.grid.findItem('port', item.port);
 
 				applications.sslexpire[item.port] = { type: 1, id: app.id, expire: item.sslexpire };
-
 				if (diff < 0) {
 					has = true;
 					applications.sslexpire[item.port].type = 2;
 					SETTER('notifications', 'append', 'fa-warning', '@(<b class="red">The certificate is expired</b> for domain <a href="{0}" target="_blank">{0}</a>, you have to renew it.)'.format(app.url), item.sslexpire, function() {
 						applications_edit(app.id, -1);
 					}, '#D53F39');
-				} else if (diff < 172800) {
+				} else if (diff <= 259200) {
 					has = true;
 					applications.sslexpire[item.port].type = 3;
 					SETTER('notifications', 'append', 'fa-clock-o', '@(<b>The certificate will expire</b> for domain <a href="{0}" target="_blank">{0}</a> in short time, you have to renew it.)'.format(app.url), item.sslexpire, function() {
