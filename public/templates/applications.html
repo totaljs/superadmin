@@ -690,10 +690,11 @@
 			response.forEach(function(item) {
 				sum += item.memory.replace(/\sMB/g, '').parseFloat();
 
+				if (item.sslexpire)
+					item.sslexpire = item.sslexpire.parseDate();
+
 				if (!item.sslexpire || applications.sslexpire[item.port])
 					return;
-
-				item.sslexpire = item.sslexpire.parseDate();
 
 				var diff = (item.sslexpire.getTime() - now) / 1000;
 				var app = applications.grid.findItem('port', item.port);
