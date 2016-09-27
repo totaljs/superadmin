@@ -26,6 +26,7 @@ NEWSCHEMA('Application').make(function(schema) {
 	schema.define('debug',       Boolean);                  // Enables debug mode
 	schema.define('subprocess',  Boolean);
 	schema.define('npm',         Boolean);                  // Performs NPM install
+	schema.define('renew',       Boolean);                  // Performs renew
 
 	schema.setQuery(function(error, options, callback) {
 		callback(APPLICATIONS);
@@ -36,6 +37,7 @@ NEWSCHEMA('Application').make(function(schema) {
 		var plain = model.$plain();
 
 		plain.linker = model.linker = model.url.superadmin_linker(model.path);
+		plain.renew = undefined;
 
 		if (!model.id) {
 			plain.id = model.id = UID();
@@ -63,13 +65,14 @@ NEWSCHEMA('Application').make(function(schema) {
 		}
 
 		SuperAdmin.save();
+
+		model.renew && model.$push('workflow', 'renew');
 		callback(SUCCESS(true));
 	});
 
 	schema.setGet(function(error, model, id, callback) {
 		var item = APPLICATIONS.findItem('id', id);
-		if (!item)
-			error.push('error-app-404');
+		!item && error.push('error-app-404');
 		callback(item);
 	});
 
@@ -122,12 +125,10 @@ NEWSCHEMA('Application').make(function(schema) {
 
 		if (model.subprocess) {
 			item = APPLICATIONS.findItem(n => n.url === model.url && !n.subprocesse);
-			if (!item)
-				error.push('error-url-noexist');
+			!item && error.push('error-url-noexist');
 		} else {
 			item = APPLICATIONS.findItem('url', model.url);
-			if (item && item.id !== model.id)
-				error.push('error-url-exists');
+			item && item.id !== model.id && error.push('error-url-exists');
 		}
 
 		callback();
@@ -136,8 +137,7 @@ NEWSCHEMA('Application').make(function(schema) {
 	// Checks port number
 	schema.addWorkflow('port', function(error, model, options, callback) {
 		if (model.port) {
-			if (port_check(APPLICATIONS, model.id, model.port))
-				error.push('error-port');
+			port_check(APPLICATIONS, model.id, model.port) && error.push('error-port');
 		} else
 			model.port = port_create(APPLICATIONS);
 		callback(SUCCESS(true));
@@ -182,6 +182,16 @@ NEWSCHEMA('Application').make(function(schema) {
 				!app.subprocess && F.unlink([Path.join(CONFIG('directory-nginx'), linker + '.conf')], NOOP);
 			});
 		});
+	});
+
+	schema.addWorkflow('renew', function(error, model, options, callback) {
+		var url = model.url.superadmin_url();
+		SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err) {
+			SuperAdmin.reload(function(err) {
+				err && error.push('nginx', err.toString());
+				callback(SUCCESS(true));
+			});
+		}, true);
 	});
 
 	// Creates nginx configuration

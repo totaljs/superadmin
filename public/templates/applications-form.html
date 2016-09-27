@@ -34,6 +34,9 @@
 					<div data-component="textbox" data-component-path="applications.form.ssl_cer" data-placeholder="@(auto configure)">@(SSL certificate)</div>
 				</div>
 			</div>
+			<div data-component="visible" data-component-path="applications.form.ssl_key" data-if="!value && applications.form.id">
+				<div data-component="checkbox" data-component-path="applications.form.renew" class="red b">@(Renew the certificate)</div>
+			</div>
 		</div>
 	</div>
 	<div class="padding bg-smoke npb" style="padding-top:30px">

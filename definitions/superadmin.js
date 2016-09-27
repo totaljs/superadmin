@@ -398,19 +398,19 @@ SuperAdmin.kill = function(port, callback) {
  * @param {String} url URL address without protocol
  * @param {Function(err)} callback
  */
-SuperAdmin.ssl = function(url, generate, callback) {
+SuperAdmin.ssl = function(url, generate, callback, renew) {
 
 	if (!generate)
 		return callback();
 
 	// Checks whether the SSL exists
 	F.path.exists(Path.join(CONFIG('directory-ssl'), url, 'ca.cer'), function(e) {
-		if (e)
+		if (e && !renew)
 			return callback();
 		SuperAdmin.reload(function(err) {
 			if (err)
 				return callback(err);
-			Exec('/root/.acme.sh/acme.sh --certhome {0} --issue -d {1} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme')), (err) => callback(err));
+			Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue'), (err) => callback(err));
 		});
 	});
 	return SuperAdmin;
