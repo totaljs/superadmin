@@ -4,9 +4,7 @@
 
 # Installation
 
-__License__: [MIT](license.txt). 
-
-__SuperAdmin__ needs latest Total.js from NPM `+v2.0.2`. 
+__SuperAdmin__ (v4.0.0) needs latest Total.js from NPM `+v2.1.0`. __License__: [MIT](license.txt).
 
 __IMPORTANT__
 - SuperAdmin is running on port 9999 which can be changed in `run.sh` script in `/www/superadmin/run.sh`
