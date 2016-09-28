@@ -77,6 +77,7 @@ T249796867           : CPU consumption
 T142384924           : Memory consumption
 T1662241347          : HDD consumption
 T868774209           : Open files
+T1120679267          : SSL expiration
 
 // public/templates/applications-form-upload.html
 T-1288495918         : Upload a new application
