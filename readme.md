@@ -9,8 +9,7 @@ __SuperAdmin__ (v4.0.0) needs latest Total.js from NPM `+v2.1.0`. __License__: [
 __IMPORTANT__
 - SuperAdmin is running on port 9999 which can be changed in `run.sh` script in `/www/superadmin/run.sh`
 - SuperAdmin is auto-generating port numbers for new applications starting from `8000`. So for 100 apps you need to make sure ports `8000-8099` are free.
-
-__VERY IMPORTANT__: SuperAdmin must be run as `root`
+- SuperAdmin __must be run__ as `root`
 
 __Install requirements:__
 - `curl`
