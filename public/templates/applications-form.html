@@ -189,4 +189,11 @@
 		return diff >= 0 ? '(' + Math.ceil(diff / 86400000).pluralize(zero, one, two, many) + ')' : '<b class="red">{0}</b>'.format(expired);
 	});
 
+	WATCH('applications.form.url', function(path, value) {
+		if (!value)
+			return;
+		var index = value.indexOf('/', 10);
+		index !== -1 && SET('applications.form.url', value.substring(0, index));
+	});
+
 </script>
