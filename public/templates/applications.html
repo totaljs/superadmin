@@ -610,6 +610,9 @@
 				return;
 			}
 
+			if (response.memory === 0)
+				response.memory = undefined;
+
 			if (response.subprocess) {
 				SET('applications.subprocess', $.extend({ $index: index }, response), true);
 				SET('common.form', 'applications-subprocess');
@@ -918,7 +921,7 @@
 		var arr = value.split('-');
 		if (arr.length === 1)
 			return arr[0];
-		return '<span class="time">{0}</span> {1}'.format(arr[0].parseInt().pluralize('# days', '# day', '# days', '# days'), arr[1]);
+		return '<span class="time">{0}</span>'.format(arr[0].parseInt().pluralize('# days', '# day', '# days', '# days'));
 	});
 
 	Tangular.register('application-round', function(value) {

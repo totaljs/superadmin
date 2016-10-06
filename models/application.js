@@ -18,6 +18,7 @@ NEWSCHEMA('Application').make(function(schema) {
 	schema.define('notes',      'String');
 	schema.define('nginx',      'String');                  // Additional NGINX settings (lua)
 	schema.define('delay',       Number);                   // Delay after start
+	schema.define('memory',       Number);                  // Memory limit
 	schema.define('priority',    Number);                   // Start priority
 	schema.define('port',        Number);
 	schema.define('cluster',     Number);                   // Thread count
@@ -185,6 +186,16 @@ NEWSCHEMA('Application').make(function(schema) {
 
 	schema.addWorkflow('renew', function(error, model, options, callback) {
 		var url = model.url.superadmin_url();
+		var second;
+
+		if (url.startsWith('www.'))
+			second = url.substring(4);
+		else if (url.count('.') === 1)
+			second = 'www.' + url;
+
+		if (second && APPLICATIONS.findItem('url', 'https://' + second))
+			second = undefined;
+
 		SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err) {
 			SuperAdmin.reload(function(err) {
 
@@ -197,7 +208,7 @@ NEWSCHEMA('Application').make(function(schema) {
 				err && error.push('nginx', err.toString());
 				callback(SUCCESS(true));
 			});
-		}, true);
+		}, true, second);
 	});
 
 	// Creates nginx configuration
@@ -263,6 +274,14 @@ NEWSCHEMA('Application').make(function(schema) {
 		data.ssl_cer = model.ssl_cer || (CONFIG('directory-ssl') + url + '/fullchain.cer');
 		data.ssl_key = model.ssl_key || (CONFIG('directory-ssl') + url + '/' + url + '.key');
 
+		if (url.startsWith('www.'))
+			data.second = url.substring(4);
+		else if (url.count('.') === 1)
+			data.second = 'www.' + url;
+
+		if (data.second && APPLICATIONS.findItem('url', 'https://' + data.second))
+			data.second = undefined;
+
 		Fs.readFile(F.path.databases('website.conf'), function(err, response) {
 			response = response.toString('utf8');
 			Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
@@ -306,7 +325,7 @@ NEWSCHEMA('Application').make(function(schema) {
 							});
 						});
 					});
-				});
+				}, undefined, data.second);
 			});
 		});
 	});

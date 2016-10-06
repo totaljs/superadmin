@@ -63,26 +63,35 @@
 		</div>
 		<br />
 	</div>
-	<div class="padding npb">
+	<div class="padding npb mt10">
+
 		<div class="row">
-			<div class="col-md-10 m">
-				<div data-component="range" data-component-path="applications.form.cluster" data-component-type="number" data-min="1" data-max="50" data-component-value="1">@(Thread count)</div>
+			<div class="col-md-3 m">
+				<div data-component="textbox" data-component-path="applications.form.cluster" data-component-type="number" data-maxlength="4" data-align="center" data-component-value="1" data-increment="true">@(Cluster)</div>
+			</div>
+			<div class="col-md-9 m">
+				<br class="hidden-sm hidden-xs" />
 				<div class="help"><i class="fa fa-warning"></i>@(The application must be optimized for the cluster. The cluster mode is enabled when the thread count is greater than <b>one thread</b>. The cluster doesn't work in <b>debug mode</b>.)</div>
 			</div>
-			<div class="col-md-2 center m">
-				<div data-component="" data-component-path="applications.form.cluster" style="font-size:40px"></div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-3 m">
+				<div data-component="textbox" data-component-path="applications.form.ddos" data-component-type="number" data-maxlength="4" data-align="center" data-increment="true">@(DDOS protection)</div>
+			</div>
+			<div class="col-md-9 m">
+				<br class="hidden-sm hidden-xs" />
+				<div class="help"><i class="fa fa-warning"></i>@(This settings is a prevention for DDOS attacks. Nginx tracks all request according to the binary IP address and when the requests exceed a limit then the Nginx responds via 503 error for other requests.)</div>
 			</div>
 		</div>
-	</div>
-	<hr />
-	<div class="padding npb">
+
 		<div class="row">
-			<div class="col-md-10 m">
-				<div data-component="range" data-component-path="applications.form.ddos" data-component-type="number" data-min="10" data-max="100" data-component-value="15">@(Maximum count of request per second from a single IP)</div>
-				<div class="help"><i class="fa fa-warning"></i>@(This settings is a prevention for DDOS attacks. Nginx responds via 503 error for other requests.)</div>
+			<div class="col-md-3 m">
+				<div data-component="textbox" data-component-path="applications.form.memory" data-component-type="number" data-maxlength="4" data-align="center" data-increment="true" data-placeholder="@(auto)" data-component-value="null">@(Memory limit)</div>
 			</div>
-			<div class="col-md-2 center m">
-				<div data-component="" data-component-path="applications.form.ddos" style="font-size:40px"></div>
+			<div class="col-md-9 m">
+				<br class="hidden-sm hidden-xs" />
+				<div class="help"><i class="fa fa-warning"></i>@(This property can increase the maximum size of memory for this application. The value has to be in <code>MB</code> and default value is <code>1000 MB</code> for 64-bit systems and <code>512 MB</code> for 32-bit systems.)</div>
 			</div>
 		</div>
 	</div>

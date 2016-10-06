@@ -4,3 +4,4 @@
 - watching SSL expiration
 - improve UI
 - update debug.js version
+- add memory limit

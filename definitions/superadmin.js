@@ -380,7 +380,14 @@ SuperAdmin.run = function(port, callback) {
 			F.path.exists(filename, function(e) {
 				if (!e)
 					return;
-				Spawn('node', ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200', filename, app.port], {
+
+				var options = ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200'];
+
+				app.memory && options.push('--max_old_space_size=' + app.memory);
+				options.push(filename);
+				options.push(app.port);
+
+				Spawn('node', options, {
 					stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
 					cwd: Path.join(CONFIG('directory-www'), linker),
 					detached: true,
@@ -425,19 +432,34 @@ SuperAdmin.kill = function(port, callback) {
  * @param {String} url URL address without protocol
  * @param {Function(err)} callback
  */
-SuperAdmin.ssl = function(url, generate, callback, renew) {
+SuperAdmin.ssl = function(url, generate, callback, renew, second) {
 
 	if (!generate)
 		return callback();
 
 	// Checks whether the SSL exists
 	F.path.exists(Path.join(CONFIG('directory-ssl'), url, 'ca.cer'), function(e) {
+
 		if (e && !renew)
 			return callback();
+
 		SuperAdmin.reload(function(err) {
 			if (err)
 				return callback(err);
-			Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue'), (err) => callback(err));
+
+			var fallback = function(callback) {
+				Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue'), (err) => callback(err));
+			};
+
+			if (!second)
+				return fallback(callback);
+
+			Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -d {4} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue', second), function(err) {
+				if (err)
+					fallback(callback);
+				else
+					callback(err);
+			});
 		});
 	});
 
