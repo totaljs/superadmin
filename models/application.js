@@ -282,6 +282,11 @@ NEWSCHEMA('Application').make(function(schema) {
 		if (data.second && APPLICATIONS.findItem('url', 'https://' + data.second))
 			data.second = undefined;
 
+		if (data.second) {
+			data.second_cer = CONFIG('directory-ssl') + data.second + '/fullchain.cer';
+			data.second_key = CONFIG('directory-ssl') + data.second + '/' + data.second + '.key';
+		}
+
 		Fs.readFile(F.path.databases('website.conf'), function(err, response) {
 			response = response.toString('utf8');
 			Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
