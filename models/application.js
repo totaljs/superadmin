@@ -283,8 +283,13 @@ NEWSCHEMA('Application').make(function(schema) {
 			data.second = undefined;
 
 		if (data.second) {
-			data.second_cer = CONFIG('directory-ssl') + data.second + '/fullchain.cer';
-			data.second_key = CONFIG('directory-ssl') + data.second + '/' + data.second + '.key';
+			if (model.ssl_cer) {
+				// 3rd-party certificate
+				data.second = undefined;
+			} else {
+				data.second_cer = CONFIG('directory-ssl') + data.second + '/fullchain.cer';
+				data.second_key = CONFIG('directory-ssl') + data.second + '/' + data.second + '.key';
+			}
 		}
 
 		Fs.readFile(F.path.databases('website.conf'), function(err, response) {
