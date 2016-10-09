@@ -918,6 +918,8 @@
 	});
 
 	Tangular.register('application-uptime', function(value) {
+		if (value == null)
+			return '';
 		var arr = value.split('-');
 		if (arr.length === 1)
 			return arr[0];
@@ -925,6 +927,8 @@
 	});
 
 	Tangular.register('application-round', function(value) {
+		if (value == null)
+			return '';
 		var m = value.match(/[0-9\.]+/g);
 		if (!m)
 			return value;
@@ -932,6 +936,9 @@
 	});
 
 	Tangular.register('application-progress', function(value, type, max) {
+
+		if (value == null)
+			return '';
 
 		if (this.cluster > 1)
 			max *= this.cluster;
