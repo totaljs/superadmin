@@ -185,7 +185,7 @@ SuperAdmin.sysinfo = function(callback) {
 		SuperAdmin.server.index++;
 
 	arr.push(function(next) {
-		Exec('free -m', function(err, response) {
+		Exec('free -t -m', function(err, response) {
 			if (err)
 				return next();
 			var memory = response.split('\n')[1].match(/\d+/g);
