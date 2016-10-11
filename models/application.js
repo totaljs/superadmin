@@ -309,7 +309,7 @@ NEWSCHEMA('Application').make(function(schema) {
 					return;
 				}
 
-				SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err) {
+				SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err, second_problem) {
 
 					if (err) {
 						error.push('ssl', err);
@@ -319,6 +319,10 @@ NEWSCHEMA('Application').make(function(schema) {
 
 					Fs.readFile(F.path.databases('website-ssl.conf'), function(err, response) {
 						response = response.toString('utf8');
+
+						if (second_problem)
+							data.second = undefined;
+
 						data.redirect = model.redirect;
 						Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
 							SuperAdmin.reload(function(err) {

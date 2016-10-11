@@ -438,32 +438,43 @@ SuperAdmin.ssl = function(url, generate, callback, renew, second) {
 		return callback();
 
 	// Checks whether the SSL exists
-	F.path.exists(Path.join(CONFIG('directory-ssl'), url, 'ca.cer'), function(e) {
+	SuperAdmin.sslexists(url, second, function(e1, e2) {
 
-		if (e && !renew)
-			return callback();
+		if (e1 && !renew)
+			return callback(null, e2 ? false : true);
 
 		SuperAdmin.reload(function(err) {
-			if (err)
-				return callback(err);
 
-			var fallback = function(callback) {
-				Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue'), (err) => callback(err));
+			if (err)
+				return callback(err, true);
+
+			var fallback = function(callback, problem_second) {
+				Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue'), (err) => callback(err, problem_second));
 			};
 
 			if (!second)
-				return fallback(callback);
+				return fallback(callback, false);
 
 			Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -d {4} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue', second), function(err) {
 				if (err)
-					fallback(callback);
+					fallback(callback, true);
 				else
-					callback(err);
+					callback(err, false);
 			});
 		});
 	});
 
 	return SuperAdmin;
+};
+
+SuperAdmin.sslexists = function(url, second, callback) {
+	F.path.exists(Path.join(CONFIG('directory-ssl'), url, 'ca.cer'), function(e1) {
+		if (!second)
+			return callback(e1);
+		F.path.exists(Path.join(CONFIG('directory-ssl'), second, 'ca.cer'), function(e2) {
+			callback(e1, e2);
+		});
+	});
 };
 
 SuperAdmin.versions = function(callback) {
