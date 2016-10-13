@@ -437,6 +437,7 @@
 	applications.waiting = false;
 	applications.id = null;          // contains current application (when the user click on some button in the grid)
 	applications.sslexpire = {};
+	applications.merrors = {};
 
 	$(document).on('click', '.application-button', function(e) {
 		var button = $(this);
@@ -452,8 +453,10 @@
 						return;
 					SETTER('loading', 'show');
 
-					if (app)
+					if (app) {
 						delete applications.sslexpire[app.port];
+						delete applications.merrors[app.id];
+					}
 
 					AJAX('DELETE /api/apps/{0}/remove/'.format(id), function(response) {
 						setTimeout(applications_refresh, 100);
@@ -463,6 +466,7 @@
 				return;
 			case 'restart':
 				SETTER('loading', 'show');
+				delete applications.merrors[id];
 				AJAX('GET /api/apps/{0}/restart/'.format(id), function(response) {
 					button.closest('tr').removeClass('error');
 					applications_info();
@@ -525,6 +529,7 @@
 					SETTER('loading', 'show');
 					applications.waiting = true;
 					applications.sslexpire = {};
+					applications.merrors = {};
 					AJAX('GET /api/apps/restart/', function(response) {
 						applications.waiting = false;
 						applications_info();
@@ -605,11 +610,14 @@
 				return;
 			}
 
+			if (response.memory === 0)
+				response.memory = undefined;
+
 			if (response.subprocess) {
 				SET('applications.subprocess', $.extend({ $index: index }, response), true);
 				SET('common.form', 'applications-subprocess');
 			} else {
-				SET('applications.form', $.extend({ $index: index }, response), true);
+				SET('applications.form', $.extend({ $index: index, sslexpire: applications.sslexpire[response.port] }, response), true);
 				SET('common.form', 'applications');
 			}
 		});
@@ -685,23 +693,23 @@
 			response.forEach(function(item) {
 				sum += item.memory.replace(/\sMB/g, '').parseFloat();
 
+				if (item.sslexpire)
+					item.sslexpire = item.sslexpire.parseDate();
+
 				if (!item.sslexpire || applications.sslexpire[item.port])
 					return;
 
-				item.sslexpire = item.sslexpire.parseDate();
-
-				var diff = item.sslexpire.getTime() - now;
+				var diff = (item.sslexpire.getTime() - now) / 1000;
 				var app = applications.grid.findItem('port', item.port);
 
-				applications.sslexpire[item.port] = { type: 1, id: app.id };
-
+				applications.sslexpire[item.port] = { type: 1, id: app.id, expire: item.sslexpire };
 				if (diff < 0) {
 					has = true;
 					applications.sslexpire[item.port].type = 2;
 					SETTER('notifications', 'append', 'fa-warning', '@(<b class="red">The certificate is expired</b> for domain <a href="{0}" target="_blank">{0}</a>, you have to renew it.)'.format(app.url), item.sslexpire, function() {
 						applications_edit(app.id, -1);
 					}, '#D53F39');
-				} else if (diff < 172800) {
+				} else if (diff <= 259200) {
 					has = true;
 					applications.sslexpire[item.port].type = 3;
 					SETTER('notifications', 'append', 'fa-clock-o', '@(<b>The certificate will expire</b> for domain <a href="{0}" target="_blank">{0}</a> in short time, you have to renew it.)'.format(app.url), item.sslexpire, function() {
@@ -710,9 +718,7 @@
 				}
 			});
 
-			if (has)
-				SETTER('audio', 'play', '/error.mp3');
-
+			has && SETTER('audio', 'play', '/error.mp3');
 			var elements = FIND('applications').element.find('.tr');
 
 			Object.keys(applications.sslexpire).forEach(function(key) {
@@ -768,6 +774,7 @@
 		var template_category = '<div class="category" data-category="{0}"><span>{1}x</span><i class="fa fa-folder-o"></i>{0}</div>';
 		var REG_CLEANURL = /^(http|https)\:\/\//g;
 		var template_monitor;
+		var infotimeout;
 
 		self.readonly();
 
@@ -789,12 +796,16 @@
 
 			!isMOBILE && self.element.on('mouseenter mouseleave', '.td-name', function(e) {
 				var info = FIND('info');
+				clearTimeout(infotimeout);
 
 				if (e.type === 'mouseenter' && this.getAttribute('data-monitor')) {
 					var data = applications.monitor[$(this).parent().attr('data-id')];
 					if (data) {
-						data.req = applications_app_reqstats(data.reqstats);
-						info.show('left', this, template_monitor(data));
+						var el = this;
+						infotimeout = setTimeout(function() {
+							data.req = applications_app_reqstats(data.reqstats);
+							info.show('left', el, template_monitor(data));
+						}, 600);
 						return;
 					}
 				}
@@ -907,13 +918,17 @@
 	});
 
 	Tangular.register('application-uptime', function(value) {
+		if (value == null)
+			return '';
 		var arr = value.split('-');
 		if (arr.length === 1)
 			return arr[0];
-		return '<span class="time">{0}</span> {1}'.format(arr[0].parseInt().pluralize('# days', '# day', '# days', '# days'), arr[1]);
+		return '<span class="time">{0}</span>'.format(arr[0].parseInt().pluralize('# days', '# day', '# days', '# days'));
 	});
 
 	Tangular.register('application-round', function(value) {
+		if (value == null)
+			return '';
 		var m = value.match(/[0-9\.]+/g);
 		if (!m)
 			return value;
@@ -921,6 +936,9 @@
 	});
 
 	Tangular.register('application-progress', function(value, type, max) {
+
+		if (value == null)
+			return '';
 
 		if (this.cluster > 1)
 			max *= this.cluster;
@@ -964,6 +982,7 @@
 			var previous_m = dt.add('-1 month').format('yyyy-MM');
 			var current_y = dt.format('yyyy');
 			var previous_y = dt.add('-1 year').format('yyyy');
+			var has = false;
 
 			values.req_year_current = 0;
 			values.req_year_previous = 0;
@@ -975,8 +994,21 @@
 
 				values.count++;
 
-				if (item.errors)
+				if (item.errors) {
 					values.errors++;
+
+					if (!applications.merrors[key]) {
+						applications.merrors[key] = true;
+						has = true;
+						(function(key) {
+							var app = applications.grid.findItem('id', key);
+							app && SETTER('notifications', 'append', 'fa-bug', '@(The application <a href="{0}" target="_blank">{0}</a> <b class="red">contains errors</b>.)'.format(app.url), new Date(), function() {
+								applications.id = key;
+								SET('common.form', 'applications-logs');
+							}, '#D53F39');
+						})(key);
+					}
+				}
 
 				if (item.webcounter) {
 					values.online += item.webcounter.online;
@@ -999,6 +1031,8 @@
 						values.req_month_previous += value;
 				});
 			});
+
+			has && SETTER('audio', 'play', '/error.mp3');
 
 			// update stats
 			self.find('[data-key]').each(function() {

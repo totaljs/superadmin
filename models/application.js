@@ -18,6 +18,7 @@ NEWSCHEMA('Application').make(function(schema) {
 	schema.define('notes',      'String');
 	schema.define('nginx',      'String');                  // Additional NGINX settings (lua)
 	schema.define('delay',       Number);                   // Delay after start
+	schema.define('memory',       Number);                  // Memory limit
 	schema.define('priority',    Number);                   // Start priority
 	schema.define('port',        Number);
 	schema.define('cluster',     Number);                   // Thread count
@@ -66,7 +67,7 @@ NEWSCHEMA('Application').make(function(schema) {
 
 		SuperAdmin.save();
 		model.renew && model.$push('workflow', 'renew');
-		callback(SUCCESS(true));
+		callback(SUCCESS(true, model.id));
 	});
 
 	schema.setGet(function(error, model, id, callback) {
@@ -185,19 +186,29 @@ NEWSCHEMA('Application').make(function(schema) {
 
 	schema.addWorkflow('renew', function(error, model, options, callback) {
 		var url = model.url.superadmin_url();
+		var second;
+
+		if (url.startsWith('www.'))
+			second = url.substring(4);
+		else if (url.count('.') === 1)
+			second = 'www.' + url;
+
+		if (second && APPLICATIONS.findItem('url', 'https://' + second))
+			second = undefined;
+
 		SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err) {
 			SuperAdmin.reload(function(err) {
 
 				var app = APPLICATIONS.findItem('id', model.id);
 				if (app) {
 					app.cache_sslexpire = null;
-					app.appinfo = 0;
+					app.appinfo = undefined;
 				}
 
 				err && error.push('nginx', err.toString());
 				callback(SUCCESS(true));
 			});
-		}, true);
+		}, true, second);
 	});
 
 	// Creates nginx configuration
@@ -263,6 +274,24 @@ NEWSCHEMA('Application').make(function(schema) {
 		data.ssl_cer = model.ssl_cer || (CONFIG('directory-ssl') + url + '/fullchain.cer');
 		data.ssl_key = model.ssl_key || (CONFIG('directory-ssl') + url + '/' + url + '.key');
 
+		if (url.startsWith('www.'))
+			data.second = url.substring(4);
+		else if (url.count('.') === 1)
+			data.second = 'www.' + url;
+
+		if (data.second && APPLICATIONS.findItem('url', 'https://' + data.second))
+			data.second = undefined;
+
+		if (data.second) {
+			if (model.ssl_cer) {
+				// 3rd-party certificate
+				data.second = undefined;
+			} else {
+				data.second_cer = CONFIG('directory-ssl') + data.second + '/fullchain.cer';
+				data.second_key = CONFIG('directory-ssl') + data.second + '/' + data.second + '.key';
+			}
+		}
+
 		Fs.readFile(F.path.databases('website.conf'), function(err, response) {
 			response = response.toString('utf8');
 			Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
@@ -280,7 +309,7 @@ NEWSCHEMA('Application').make(function(schema) {
 					return;
 				}
 
-				SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err) {
+				SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err, second_problem) {
 
 					if (err) {
 						error.push('ssl', err);
@@ -290,6 +319,10 @@ NEWSCHEMA('Application').make(function(schema) {
 
 					Fs.readFile(F.path.databases('website-ssl.conf'), function(err, response) {
 						response = response.toString('utf8');
+
+						if (second_problem)
+							data.second = undefined;
+
 						data.redirect = model.redirect;
 						Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
 							SuperAdmin.reload(function(err) {
@@ -306,7 +339,7 @@ NEWSCHEMA('Application').make(function(schema) {
 							});
 						});
 					});
-				});
+				}, undefined, data.second);
 			});
 		});
 	});
@@ -340,7 +373,5 @@ function port_create(arr) {
 
 function port_check(arr, id, number) {
 	var item = arr.findItem('port', number);
-	if (item)
-		return item.id !== id;
-	return false;
+	return item ? item.id !== id : false;
 }

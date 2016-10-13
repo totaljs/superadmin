@@ -84,7 +84,7 @@ button { outline: 0; }
 .ui-textboxtags-values li .fa { font-size: 12px; color: red; margin-left: 5px; cursor: pointer; }
 .ui-textboxtags input { background-color: transparent; font-size: 12px; color: black; width: auto; position: relative; display: inline-block; border: 0; width: 99px; outline: 0; margin: 2px; padding: 5px 0; }
 
-.ui-fileupload { border: 2px solid #E0E0E0; padding: 6px 8px; border-radius: 2px; position: relative; display: block; width: 100%; background-color: white; }
+.ui-fileupload { border: 2px solid #E0E0E0; padding: 5px 8px 4px; border-radius: 2px; position: relative; display: block; width: 100%; background-color: white; }
 .ui-fileupload input[type="text"] { border: 0; width: 100%; outline: 0; font: normal 14px Arial; color: black; }
 .ui-fileupload-input { position: absolute; width: 100%; height: 30px; border: 1px solid #E0E0E0; margin: -5px 0 0 -7px; opacity: 0; cursor: pointer; font-weight: bold; }
 .ui-fileupload-label { margin-bottom: 6px; font-size: 12px; }
@@ -132,7 +132,7 @@ button { outline: 0; }
 .ui-calendar-header-prev { float: left; }
 .ui-calendar-header-next { float: right; }
 
-.ui-confirm { background-color: rgba(255,255,255,0.9); position: fixed; left: 0; right: 0; bottom: 0; top: 0; z-index: 20; width: 100%; display: table; height: 100%; transition: 0.5s all; opacity: 0; }
+.ui-confirm { background-color: rgba(255,255,255,0.9); position: fixed; left: 0; right: 0; bottom: 0; top: 0; z-index: 100; width: 100%; display: table; height: 100%; transition: 0.5s all; opacity: 0; }
 .ui-confirm > div { display: table-cell; vertical-align: middle; text-align: center; color: white; padding: 15px; }
 .ui-confirm-body { padding: 30px; position: relative; display: inline-block; border-radius: 4px; max-width: 600px; text-align: left; transform: scale(0.5); transition: 0.3s all; color: gray; border: 1px solid #E0E0E0; background-color: white; box-shadow: 0 0 30px rgba(0,0,0,0.1); }
 .ui-confirm-click { transform: scale(1.07) !important; }
@@ -154,13 +154,14 @@ button { outline: 0; }
 
 .ui-notification-container { position: fixed; right: 0; top: 0; width: 280px; z-index: 100; padding: 0 20px 0 0; }
 .ui-notification { background-color: white; box-shadow: 0 3px 20px rgba(0,0,0,0.2); border-radius: 4px; border: 1px solid #D0D0D0; border-left-width: 5px; border-left-color: black; font-size: 12px; padding: 15px 15px 15px 10px; margin-top: 20px; position: relative; display: block; transition: 0.5s all; }
+.ui-notification a { color: #404040; }
 .ui-notification > i { position: absolute; right: 12px; top: 10px; color: #DB2724; font-size: 14px; cursor: pointer; }
 .ui-notification > i:active { top: 11px; }
 .ui-notification > i:hover { color: #DB2724; }
 .ui-notification-icon { float: left; font-size: 11px; color: #AAB2BD; margin-right: 5px; }
 .ui-notification-message { margin: 1px 0 0 10px; color: gray; max-height: 150px; line-height: 16px; }
 .ui-notification-datetime { font-size: 11px; color: #A0A0A0; margin-bottom: 4px; }
-.ui-notification-hide { opacity: 0; transform: scale(0.5); margin-top: -100px; }
+.ui-notification-hide { opacity: 0; margin-top: -100px; }
 
 .ui-textbox { border: 2px solid #E0E0E0; padding: 5px 2px 5px 5px; border-radius: 2px; position: relative; width: 100%; background-color: white; display: table; }
 .ui-textbox input { display: table-cell; border: 0; outline: 0; font: normal 14px Arial; color: black; width: 100%; background-color: white; padding: 0; }

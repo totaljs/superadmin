@@ -18,10 +18,10 @@ var user;
 try {
 	var tmp = Fs.readFileSync('/www/superadmin/user.guid', 'utf8').split('\n')[0].split(':');
 	if(tmp.length === 3)
-		user = {user: tmp[0], id: parseInt(tmp[1]), group: parseInt(tmp[2])};
+		user = { user: tmp[0], id: parseInt(tmp[1]), group: parseInt(tmp[2]) };
 } catch (err) {}
 
-SuperAdmin.run_as_user = user || {user: 'root', id:0, group:0};
+SuperAdmin.run_as_user = user || { user: 'root', id: 0, group: 0 };
 
 String.prototype.superadmin_url = function() {
 	return this.replace(REG_PROTOCOL, '').replace(/\//g, '');
@@ -185,7 +185,7 @@ SuperAdmin.sysinfo = function(callback) {
 		SuperAdmin.server.index++;
 
 	arr.push(function(next) {
-		Exec('free -m', function(err, response) {
+		Exec('free -t -m', function(err, response) {
 			if (err)
 				return next();
 			var memory = response.split('\n')[1].match(/\d+/g);
@@ -380,7 +380,14 @@ SuperAdmin.run = function(port, callback) {
 			F.path.exists(filename, function(e) {
 				if (!e)
 					return;
-				Spawn('node', ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200', filename, app.port], {
+
+				var options = ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200'];
+
+				app.memory && options.push('--max_old_space_size=' + app.memory);
+				options.push(filename);
+				options.push(app.port);
+
+				Spawn('node', options, {
 					stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
 					cwd: Path.join(CONFIG('directory-www'), linker),
 					detached: true,
@@ -402,7 +409,7 @@ SuperAdmin.restart = function(port, callback) {
 };
 
 SuperAdmin.npminstall = function(app, callback) {
-	Exec('bash {0} {1}'.format(F.path.databases('npminstall.sh'), Path.join(CONFIG('directory-www'), app.linker)), (err) => callback());
+	Exec('bash {0} {1}'.format(F.path.databases('npminstall.sh'), Path.join(CONFIG('directory-www'), app.linker)), (err) => callback(err));
 	return SuperAdmin;
 };
 
@@ -425,23 +432,49 @@ SuperAdmin.kill = function(port, callback) {
  * @param {String} url URL address without protocol
  * @param {Function(err)} callback
  */
-SuperAdmin.ssl = function(url, generate, callback, renew) {
+SuperAdmin.ssl = function(url, generate, callback, renew, second) {
 
 	if (!generate)
 		return callback();
 
 	// Checks whether the SSL exists
-	F.path.exists(Path.join(CONFIG('directory-ssl'), url, 'ca.cer'), function(e) {
-		if (e && !renew)
-			return callback();
+	SuperAdmin.sslexists(url, second, function(e1, e2) {
+
+		if (e1 && !renew)
+			return callback(null, e2 ? false : true);
+
 		SuperAdmin.reload(function(err) {
+
 			if (err)
-				return callback(err);
-			Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue'), (err) => callback(err));
+				return callback(err, true);
+
+			var fallback = function(callback, problem_second) {
+				Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue'), (err) => callback(err, problem_second));
+			};
+
+			if (!second)
+				return fallback(callback, false);
+
+			Exec('/root/.acme.sh/acme.sh --certhome {0} --{3} -d {1} -d {4} -w {2}'.format(CONFIG('directory-ssl'), url, CONFIG('directory-acme'), renew ? 'renew --force' : 'issue', second), function(err) {
+				if (err)
+					fallback(callback, true);
+				else
+					callback(err, false);
+			});
 		});
 	});
 
 	return SuperAdmin;
+};
+
+SuperAdmin.sslexists = function(url, second, callback) {
+	F.path.exists(Path.join(CONFIG('directory-ssl'), url, 'ca.cer'), function(e1) {
+		if (!second)
+			return callback(e1);
+		F.path.exists(Path.join(CONFIG('directory-ssl'), second, 'ca.cer'), function(e2) {
+			callback(e1, e2);
+		});
+	});
 };
 
 SuperAdmin.versions = function(callback) {

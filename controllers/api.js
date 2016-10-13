@@ -18,6 +18,7 @@ exports.install = function() {
 	F.route('/api/apps/unpack/',       json_apps_unpack,      ['authorize', 'post', '*Package', 120000]);
 	F.route('/api/apps/backup/',       json_apps_backup,      ['authorize', 500000]);
 	F.route('/api/apps/monitor/',      json_apps_monitor,     ['authorize', 60000]);
+	F.route('/api/templates/',         json_templates,        ['authorize']);
 };
 
 function json_query() {
@@ -32,7 +33,7 @@ function json_save() {
 
 function json_apps_save() {
 	var self = this;
-	self.$async(self.callback(), 1).$workflow('check').$workflow('port').$save().$workflow('directory').$workflow('nginx');
+	self.$async(self.callback(), 2).$workflow('check').$workflow('port').$save().$workflow('directory').$workflow('nginx');
 }
 
 function json_apps_info() {
@@ -239,4 +240,19 @@ function json_apps_monitor() {
 		});
 	}, () => self.json(output));
 
+}
+
+function json_templates() {
+	var self = this;
+	var url = CONFIG('superadmin-templates');
+
+	if (!url.isURL())
+		return self.json(EMPTYARRAY);
+
+	U.request(url, ['get', 'dnscache'], function(err, response) {
+		if (response.isJSON())
+			self.content(response, U.getContentType('json'));
+		else
+			self.json(EMPTYARRAY);
+	});
 }

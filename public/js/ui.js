@@ -12,20 +12,11 @@ COMPONENT('click', function() {
 	};
 
 	self.make = function() {
-
 		self.element.on('click', self.click);
-
 		var enter = self.attr('data-enter');
-		if (!enter)
-			return;
-
-		$(enter).on('keydown', 'input', function(e) {
-			if (e.keyCode !== 13)
-				return;
-			setTimeout(function() {
-				if (self.element.get(0).disabled)
-					return;
-				self.click();
+		enter && $(enter).on('keydown', 'input', function(e) {
+			e.keyCode === 13 && setTimeout(function() {
+				!self.element.get(0).disabled && self.click();
 			}, 100);
 		});
 	};
@@ -929,7 +920,7 @@ COMPONENT('form', function() {
 		var el = self.element.find('input,select,textarea');
 		el.length > 0 && el.eq(0).focus();
 		window.$$form_level++;
-		self.element.css('z-index', window.$$form_level * 10);
+		self.element.css('z-index', window.$$form_level * 5);
 		self.element.animate({ scrollTop: 0 }, 0, function() {
 			setTimeout(function() {
 				self.element.find('.ui-form').addClass('ui-form-animate');
@@ -1549,6 +1540,7 @@ COMPONENT('info', function() {
 COMPONENT('notifications', function() {
 	var self = this;
 	var autoclosing;
+	var system = false;
 
 	self.singleton();
 	self.readonly();
@@ -1580,6 +1572,13 @@ COMPONENT('notifications', function() {
 			obj.callback();
 			self.close(id);
 		});
+
+		if (self.attr('data-native') === 'true' && window.Notification) {
+			system = window.Notification.permission === 'granted';
+			!system && window.Notification.requestPermission(function (permission) {
+				system = permission === 'granted';
+			});
+		}
 	};
 
 	self.close = function(id) {
@@ -1587,6 +1586,13 @@ COMPONENT('notifications', function() {
 		if (!obj)
 			return;
 		obj.callback = null;
+
+		if (obj.system) {
+			obj.system.onclick = null;
+			obj.system.close();
+			obj.system = null;
+		}
+
 		delete self.items[id];
 		var item = self.find('div[data-id="{0}"]'.format(id));
 		item.addClass('ui-notification-hide');
@@ -1606,9 +1612,30 @@ COMPONENT('notifications', function() {
 		}
 
 		var obj = { id: Math.floor(Math.random() * 100000), icon: icon || 'fa-info-circle', message: message, date: date || new Date(), callback: callback, color: color || 'black' };
+		var focus = document.hasFocus();
+
 		self.items[obj.id] = obj;
-		self.element.append(self.template(obj));
+
+		if (!system || focus)
+			self.element.append(self.template(obj));
+
 		self.autoclose();
+
+		if (!system || focus)
+			return;
+
+		obj.system = new window.Notification(message.replace(/(<([^>]+)>)/ig, ''));
+		obj.system.onclick = function() {
+
+			if (obj.callback) {
+				obj.callback();
+				obj.callback = null;
+			}
+
+			obj.system.close();
+			obj.system.onclick = null;
+			obj.system = null;
+		};
 	};
 
 	self.autoclose = function() {

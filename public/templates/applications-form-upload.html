@@ -1,29 +1,38 @@
-<div data-component="form" data-title="@(Upload a new application)" data-component-path="common.form" data-if="value === 'applications-upload'" data-width="600px" data-component-id="applications.upload" data-autocenter="true">
-	<div class="padding">
+<div data-component="form" data-title="@(Upload a new application)" data-component-path="common.form" data-if="value === 'applications-upload'" data-width="700px" data-component-id="applications.upload">
+	<div class="padding npb">
+		<h2 class="black nmb"><i class="fa fa-globe mr5"></i><b data-component="" data-component-path="applications.upload.name"></b></h2>
+		<div class="help mt10">@(<b>SuperAdmin</b> supports uploading packages. Is easy to create the package, just install Total.js as a global module, then open your application directory in the terminal and type <code>$ tpm create myapp.package</code>.)</div>
+	</div>
+	<hr />
+	<div class="padding npt">
 		<div class="row">
-			<div class="col-md-12">
-				<h2 class="black nmb"><i class="fa fa-globe mr5"></i><b data-component="" data-component-path="applications.upload.name"></b></h2>
-				<div class="help mt10">@(<b>SuperAdmin</b> supports uploading packages. Is easy to create the package, just install Total.js as a global module, then open your application directory in the terminal and type <code>$ tpm create myapp.package</code>.)</div>
-				<br />
-				<div data-component="fileupload" data-component-id="applications.package" data-component-path="applications.upload.filename" data-icon="fa fa-search" data-placeholder="myapplication.package" data-required="true" data-url="/api/apps/upload/" data-singlefile="true">@(Browse device)</div>
-				<div data-component="template" data-component-path="applications.upload">
-					<script type="text/html">
-						{{ if filename }}
-						<div class="fs11 mt10"><i class="fa fa-file mr5"></i><b>@(Filename:)</b> {{ filename }}</div>
-						<hr style="margin:10px 0 0" />
-						{{ fi }}
-					</script>
-				</div>
-				<br />
-				<div data-component="checkbox" class="b" data-component-path="applications.upload.remove">@(Removes all files)</div>
-				<div class="help">@(When is this option checked then SuperAdmin removes all <i class="fa fa-trash nmr"></i> files before unpacking package.)</div>
+			<div class="col-md-6">
+				<div data-component="dropdown" data-component-id="applications.template" data-component-path="applications.upload.template" data-icon="fa fa-globe" data-source="applications.templates" data-source-value="url" data-empty="">@(Select template)</div>
+			</div>
+			<div class="col-md-6">
+				<div data-component="fileupload" data-component-id="applications.package" data-component-path="applications.upload.filename" data-icon="fa fa-search" data-placeholder="myapplication.package" data-url="/api/apps/upload/" data-singlefile="true">@(Browse device)</div>
 			</div>
 		</div>
+		<div data-component="template" data-component-path="applications.upload">
+			<script type="text/html">
+				{{ if filename }}
+				<div class="fs11 mt10"><i class="fa fa-file mr5"></i><b>@(Filename:)</b> {{ filename }}</div>
+				<hr style="margin:10px 0 0" />
+				{{ fi }}
+			</script>
+		</div>
+		<br />
+		<div>
+			<div data-component="checkbox" data-component-path="applications.upload.npm" class="inline mr5">@(Performs NPM install)</div>
+			<div class="inline middle"><span class="badge badge-blue">package.json</span></div>
+		</div>
+		<div data-component="checkbox" class="b red" data-component-path="applications.upload.remove">@(Removes all files in application directory)</div>
+		<div class="help">@(When is this option checked then SuperAdmin removes all <i class="fa fa-trash nmr"></i> files before unpacking package.)</div>
 	</div>
 
 	<div data-component="error" data-component-path="applications.upload.response"></div>
 	<div class="ui-form-buttons">
-		<div data-component="validation" data-component-path="applications.upload" data-if="applications.upload.filename ? true : false">
+		<div data-component="validation" data-component-path="applications.upload" data-if="applications.upload.filename || applications.upload.template ? true : false">
 			<button name="submit">@(SUBMIT)</button>
 		</div>
 		<button name="cancel">@(Cancel)</button>
@@ -33,22 +42,33 @@
 <script>
 
 	applications.upload = {};
+	applications.templates = EMPTYARRAY;
 
 	function applications_upload_refresh() {
 		var id = applications.id;
 		FIND('#applications.package').custom(id);
 		SET('applications.upload', { id: id, filename: '', remove: false, name: applications.grid.findItem('id', id).url });
+		AJAXCACHE('GET /api/templates/', null, 'applications.templates', '3 minutes');
 	}
+
+	WATCH('applications.upload.template', function(path, value) {
+		if (value) {
+			SET('applications.upload.remove', true);
+			SET('applications.upload.npm', true);
+		}
+	});
 
 	ON('#applications.upload', function(component) {
 		component.submit = function(hide) {
-
 			FIND('confirm').confirm('@(Are you sure you want to unpack uploaded package?)', ['@(Yes)', '@(Cancel)'], function(index) {
 				if (index)
 					return;
 				var loading = FIND('loading');
 				loading.show();
+				applications.waiting = true;
 				AJAX('POST /api/apps/unpack/', applications.upload, function(response) {
+
+					applications.waiting = false;
 
 					if (isError(arguments))
 						return;
@@ -59,6 +79,12 @@
 					SET('applications.upload.response', response);
 					if (response instanceof Array)
 						return;
+
+					var app = applications.grid.findItem('id', applications.id);
+					if (app) {
+						delete applications.merrors[app.id];
+						delete applications.sslexpire[app.port];
+					}
 
 					hide();
 					success();
