@@ -49,6 +49,20 @@ __To install SuperAdmin run commands bellow:__
 
 All data are stored in `/superadmin/databases/` directory. Applications are stored in `application.json`.
 
+---
+
+## Nice to know
+
+Bash script `ssl.sh` can create or renew certificate manually:
+
+```bash
+# CREATE:
+$ bash ssl.sh superadmin.mydomain.com
+
+# RENEW:
+$ bash ssl.sh superadmin.mydomain.com --renew
+```
+
 ## Contributors
 
 - Peter Širka (author) <petersirka@gmail.com>
