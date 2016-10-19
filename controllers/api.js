@@ -19,6 +19,7 @@ exports.install = function() {
 	F.route('/api/apps/backup/',       json_apps_backup,      ['authorize', 500000]);
 	F.route('/api/apps/monitor/',      json_apps_monitor,     ['authorize', 60000]);
 	F.route('/api/templates/',         json_templates,        ['authorize']);
+	F.route('/api/login/',             json_login,            ['unauthorize', 'post', '*Login']);
 };
 
 function json_query() {
@@ -255,4 +256,9 @@ function json_templates() {
 		else
 			self.json(EMPTYARRAY);
 	});
+}
+
+function json_login() {
+	var self = this;
+	self.$workflow('exec', self, self.callback());
 }

@@ -30,7 +30,7 @@
 			<div data-component="textbox" data-component-path="user.name" class="m" data-maxlength="80" data-required="true" data-placeholder="@(Enter your login name)" data-autofocus="true">@(Login name)</div>
 			<div data-component="textbox" data-component-path="user.password" data-component-type="password" data-required="true" class="m" data-maxlength="30" data-placeholder="@(Enter your password)">@(Password)</div>
 			<div class="row">
-				<div data-component="error" data-component-path="user.error"></div>
+				<div data-component="error" data-component-path="user.response"></div>
 			</div>
 			<div data-component="validation" data-component-path="user">
 				<button class="button button-small b" data-component="click" data-component-path="doLogin" data-enter=".enter"><span class="fa fa-lock"></span> @(Sign in)</button>
@@ -52,14 +52,14 @@
 		});
 
 		function doLogin() {
-			if (!$.components.valid('user.*'))
+			if (!jC.valid('user.*') || BLOCKED('login', 2000))
 				return;
-			var id = HASH(user.name + ':' + user.password);
-			var dt = new Date();
-			dt.setDate(dt.getDate() + 7);
-			document.cookie = '__sa=' + (id.toString()) + '; expires=' + dt.toUTCString() + '; path=/';
 			SETTER('loading', 'show');
-			location.reload(true);
+			AJAX('POST /api/login/', user, function(response) {
+				SET('user.response', response);
+				response.success && location.reload(true);
+				SETTER('loading', 'hide', 1000);
+			});
 		}
 	</script>
 

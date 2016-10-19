@@ -1,6 +1,7 @@
 name                      : MyServer
 version                   : 5.0.0
 author                    : Totaljs.com Ltd
+cookie                    : __sa
 
 superadmin                : admin:admin
 superadmin-templates      : https://modules.totaljs.com/superadmin.json
