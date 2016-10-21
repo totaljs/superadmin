@@ -5,11 +5,11 @@ exports.install = function() {
 	F.route('/api/apps/',              json_apps_save,        ['authorize', 'post', '*Application', 50000]);
 	F.route('/api/apps/info/',         json_apps_info,        ['authorize', '*Application', 20000]);
 	F.route('/api/stats/',             json_stats,            [20000]);
+	F.route('/api/apps/analyzator/',   json_analyzator,       ['authorize', '*Application', 20000]);
 	F.route('/api/apps/{id}/',         json_read,             ['authorize', '*Application']);
 	F.route('/api/apps/{id}/restart/', json_apps_restart,     ['authorize', '*Application', 20000]);
 	F.route('/api/apps/{id}/stop/',    json_apps_stop,        ['authorize', '*Application', 20000]);
 	F.route('/api/apps/{id}/remove/',  json_apps_remove,      ['authorize', 'delete', '*Application', 20000]);
-	F.route('/api/apps/{id}/logs/',    json_apps_logs,        ['authorize', '*Application']);
 	F.route('/api/apps/{id}/pack/',    file_apps_pack,        ['authorize', '*Application']);
 	F.route('/api/apps/restart/',      json_apps_restart,     ['authorize', '*Application', 50000]);
 	F.route('/api/apps/stop/',         json_apps_stop,        ['authorize', '*Application', 50000]);
@@ -20,6 +20,7 @@ exports.install = function() {
 	F.route('/api/apps/monitor/',      json_apps_monitor,     ['authorize', 60000]);
 	F.route('/api/templates/',         json_templates,        ['authorize']);
 	F.route('/api/login/',             json_login,            ['unauthorize', 'post', '*Login']);
+	F.route('/logs/{id}/',             json_apps_logs,        ['authorize', '*Application']);
 };
 
 function json_query() {
@@ -121,7 +122,12 @@ function json_apps_stop(id) {
 
 function json_apps_logs(id) {
 	var self = this;
-	self.$workflow('logs', id, self.callback());
+	self.$workflow('logs', id, function(err, response) {
+		if (err)
+			self.invalid().push(err);
+		else
+			self.plain(response);
+	});
 }
 
 function json_apps_reconfigure() {
@@ -261,4 +267,9 @@ function json_templates() {
 function json_login() {
 	var self = this;
 	self.$workflow('exec', self, self.callback());
+}
+
+function json_analyzator() {
+	var self = this;
+	self.$workflow('analyzator', self, self.callback());
 }

@@ -211,6 +211,44 @@ NEWSCHEMA('Application').make(function(schema) {
 		}, true, second);
 	});
 
+	// Analyzes logs
+	schema.addWorkflow('analyzator', function(error, model, controller, callback) {
+
+		var output = [];
+		var search = controller.query.q ? [controller.query.q.toLowerCase()] : ['======= ', 'obsolete'];
+		var length = search.length;
+
+		APPLICATIONS.wait(function(item, next) {
+
+			if (item.stopped)
+				return next();
+
+			var type = 0;
+			var filename = item.debug ? Path.join(CONFIG('directory-www'), item.linker, 'logs', 'debug.log') : Path.join(CONFIG('directory-console'), item.linker + '.log');
+			var stream = Fs.createReadStream(filename);
+
+			stream.on('data', function(chunk) {
+
+				if (type)
+					return;
+
+				chunk = chunk.toString('utf8').toLowerCase();
+				for (var i = 0; i < length; i++) {
+					if (chunk.indexOf(search[i]) !== -1) {
+						type = search[i].startsWith('===') ? 'error' : search[i];
+						break;
+					}
+				}
+			});
+
+			CLEANUP(stream, function() {
+				type && output.push({ id: item.id, type: type });
+				next();
+			});
+
+		}, () => callback(output), 2);
+	});
+
 	// Creates nginx configuration
 	schema.addWorkflow('nginx', function(error, model, options, callback) {
 

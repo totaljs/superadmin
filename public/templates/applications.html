@@ -4,10 +4,11 @@
 			<div class="col-md-4 m">
 				<div data-component="textboxsearch" data-component-path="applications.filter.search" data-placeholder="@(Type a word)">@(Search applications)</div>
 			</div>
-			<div class="col-md-4 col-md-offset-4 m">
+			<div class="col-md-5 col-md-offset-3 m">
 				<div class="operations">
 					<button class="operation-button" name="add" title="@(Add application)"><i class="fa fa-plus-circle"></i></button>
 					<button class="operation-button" name="addsubprocess" title="@(Add subprocess)"><i class="fa fa-plug"></i></button>
+					<button class="operation-button" name="analyzator" title="@(Logs analyzator)"><i class="fa fa-bug"></i></button>
 					<button class="operation-button" name="summary" title="@(Summary)"><i class="fa fa-bar-chart"></i></button>
 					<button class="operation-button" name="restart" title="@(Restart all)"><i class="fa fa-refresh"></i></button>
 					<button class="operation-button" name="stop" title="@(Stop all)"><i class="fa fa-stop-circle"></i></button>
@@ -63,7 +64,7 @@
 						<td class="atd"><div data-component="application-appinfo" data-port="{{ port }}" data-monitor="{{ monitor }}" data-component-path="applications.info"></div></td>
 						<td class="atd hidden-xs td-port"><span class="badge badge-silver">{{ port }}</span></td>
 						<td class="atd td-buttons" data-id="{{ id }}">
-							<button class="application-button" name="logs" title="@(Show logs)"><i class="fa fa-search"></i></button>
+							<a href="/logs/{{ id }}/" target="_blank" title="@(Show logs)"><i class="fa fa-search"></i></a>
 							<button class="application-button" name="restart" title="@(Restart)"><i class="fa fa-refresh"></i></button>
 							<button class="application-button" name="stop" title="@(Stop)"><i class="fa fa-stop-circle"></i></button>
 							<button class="application-button" name="upload" title="@(Upload package)"><i class="fa fa-cloud-upload"></i></button>
@@ -214,6 +215,7 @@
 </div>
 <br />
 
+<div data-url="/templates/applications-form-analyzator.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-analyzator'" data-reload="applications_analyzator_refresh"></div>
 <div data-url="/templates/applications-form-summary.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-summary'" data-reload="applications_summary_refresh"></div>
 <div data-url="/templates/applications-form-logs.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-logs'" data-reload="applications_logs_refresh"></div>
 <div data-url="/templates/applications-form-backup.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-backup'"></div>
@@ -501,6 +503,10 @@
 
 			case 'summary':
 				SET('common.form', 'applications-summary', 100);
+				break;
+
+			case 'analyzator':
+				SET('common.form', 'applications-analyzator', 100);
 				break;
 
 			case 'backup':
@@ -1086,6 +1092,13 @@
 		});
 
 		return values;
+	}
+
+	if (!CACHE('analyzator')) {
+		CACHE('analyzator', '1', '4 days');
+		SETTER('notifications', 'append', 'fa-bug', '@(More than 3 days you don\'t have launched <b>Logs analyzator</b>. Run it now.)', function() {
+			SET('common.form', 'applications-analyzator');
+		});
 	}
 
 </script>
