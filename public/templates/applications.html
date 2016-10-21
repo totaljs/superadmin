@@ -1008,10 +1008,7 @@
 						has = true;
 						(function(key) {
 							var app = applications.grid.findItem('id', key);
-							app && SETTER('notifications', 'append', 'fa-bug', '@(The application <a href="{0}" target="_blank">{0}</a> <b class="red">contains errors</b>.)'.format(app.url), new Date(), function() {
-								applications.id = key;
-								SET('common.form', 'applications-logs');
-							}, '#D53F39');
+							app && SETTER('notifications', 'append', 'fa-bug', '@(The application {1} <b class="red">contains errors</b> - <a href="/logs/{0}/" target="_blank">show logs</a>.)'.format(app.id, app.url), new Date(), null, '#D53F39');
 						})(key);
 					}
 				}
