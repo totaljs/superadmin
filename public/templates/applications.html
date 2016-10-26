@@ -174,6 +174,23 @@
 					</div>
 				</div>
 
+				<div data-name="couchdb" data-visible="n => n" class="hidden">
+					<br />
+					<div class="caption"><i class="fa fa-database green"></i>@(CouchDB)</div>
+					<div class="stats mt10">
+						<div>@(CPU)</div>
+						<div data-name="couchdb.cpu">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Memory)</div>
+						<div data-name="couchdb.memory">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Version)</div>
+						<div data-name="version_couchdb" data-before="v">...</div>
+					</div>
+				</div>
+
 				<div data-name="redis" data-visible="n => n" class="hidden">
 					<br />
 					<div class="caption"><i class="fa fa-database green"></i>@(Redis)</div>

@@ -299,6 +299,34 @@ SuperAdmin.sysinfo = function(callback) {
 	arr.push(function(next) {
 		if (SuperAdmin.server.index % 3 !== 0)
 			return next();
+		Exec('ps aux | grep "couchdb" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
+			if (err)
+				return next();
+			var pid = response.trim();
+			if (!pid)
+				return next();
+			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid.split('\n').join(',')), function(err, response) {
+				SuperAdmin.server.couchdb = {};
+				SuperAdmin.server.couchdb.cpu = 0;
+				SuperAdmin.server.couchdb.memory = 0;
+				response.split('\n').forEach(function(line, index) {
+					line = line.trim();
+					if (!index || !line)
+						return;
+					line = line.replace(REG_EMPTY, ' ').split(' ');
+					SuperAdmin.server.couchdb.cpu += line[0].parseFloat();
+					SuperAdmin.server.couchdb.memory += (line[1].parseInt() / 1024);
+				});
+				SuperAdmin.server.couchdb.cpu = SuperAdmin.server.couchdb.cpu.format(1) + ' %';
+				SuperAdmin.server.couchdb.memory = SuperAdmin.server.couchdb.memory.format(0) + ' MB';
+				next();
+			});
+		});
+	});
+
+	arr.push(function(next) {
+		if (SuperAdmin.server.index % 3 !== 0)
+			return next();
 		Exec('ps aux | grep "redis" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
 			if (err)
 				return next();
@@ -560,6 +588,17 @@ SuperAdmin.versions = function(callback) {
 			var version = stdout.match(REG_FINDVERSION);
 			if (version)
 		 		SuperAdmin.server.version_mysql = version.toString();
+			next();
+		});
+	});
+
+	arr.push(function(next) {
+		Exec('couchdb -V', function(err, stdout, stderr) {
+			if (err)
+				return next();
+			var version = stdout.match(REG_FINDVERSION);
+			if (version)
+		 		SuperAdmin.server.version_couchdb = version.toString();
 			next();
 		});
 	});
