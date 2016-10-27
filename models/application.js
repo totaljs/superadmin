@@ -313,21 +313,23 @@ NEWSCHEMA('Application').make(function(schema) {
 		data.ssl_cer = model.ssl_cer || (CONFIG('directory-ssl') + url + '/fullchain.cer');
 		data.ssl_key = model.ssl_key || (CONFIG('directory-ssl') + url + '/' + url + '.key');
 
-		if (url.startsWith('www.'))
-			data.second = url.substring(4);
-		else if (url.count('.') === 1)
-			data.second = 'www.' + url;
+		if (data.ssl) {
+			if (url.startsWith('www.'))
+				data.second = url.substring(4);
+			else if (url.count('.') === 1)
+				data.second = 'www.' + url;
 
-		if (data.second && APPLICATIONS.findItem('url', 'https://' + data.second))
-			data.second = undefined;
-
-		if (data.second) {
-			if (model.ssl_cer) {
-				// 3rd-party certificate
+			if (data.second && APPLICATIONS.findItem('url', 'https://' + data.second))
 				data.second = undefined;
-			} else {
-				data.second_cer = CONFIG('directory-ssl') + data.second + '/fullchain.cer';
-				data.second_key = CONFIG('directory-ssl') + data.second + '/' + data.second + '.key';
+
+			if (data.second) {
+				if (model.ssl_cer) {
+					// 3rd-party certificate
+					data.second = undefined;
+				} else {
+					data.second_cer = CONFIG('directory-ssl') + data.second + '/fullchain.cer';
+					data.second_key = CONFIG('directory-ssl') + data.second + '/' + data.second + '.key';
+				}
 			}
 		}
 
