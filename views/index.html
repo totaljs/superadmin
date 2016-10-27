@@ -13,7 +13,7 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="#A0A0A0" />
 	<meta name="apple-mobile-web-app-title" content="@{config.name}" />
 	<link rel="apple-touch-icon" href="/icon.png" />
-	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700&subset=latin,latin-ext" />
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.20.2/codemirror.min.css" />
 	@{import('head', 'default.css', 'favicon.ico')}
@@ -24,12 +24,12 @@
 <body>
 
 	<div id="success"><span class="fa fa-check-circle"></span></div>
-	<div data-component="message" data-button="@(Close)"></div>
-	<div data-component="loading" class="ui-loading"></div>
-	<div data-component="audio"></div>
-	<div data-component="notifications" data-native="true"></div>
-	<div data-component="confirm"></div>
-	<div data-component="info"></div>
+	<div data-jc="message" data-button="@(Close)"></div>
+	<div data-jc="loading" class="ui-loading"></div>
+	<div data-jc="audio"></div>
+	<div data-jc="notifications" data-native="true"></div>
+	<div data-jc="confirm"></div>
+	<div data-jc="info"></div>
 
 	<header>
 		<div class="mainmenu">
@@ -43,10 +43,10 @@
 	</header>
 
 	<div id="body">
-		<div data-component="page" data-component-path="common.page" data-if="applications" data-template="/templates/applications.html" data-init="applications_init"></div>
+		<div data-jc="page" data-jc-path="common.page" data-if="applications" data-template="/templates/applications.html" data-init="applications_init"></div>
 	</div>
 
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.20.2/codemirror.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.20.2/mode/nginx/nginx.min.js"></script>
 

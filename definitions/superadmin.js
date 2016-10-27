@@ -404,7 +404,7 @@ SuperAdmin.run = function(port, callback) {
 
 	F.unlink([log], function() {
 		fn(function() {
-			filename = Path.join(CONFIG('directory-www'), linker, filename);
+			filename = Path.join(CONFIG('directory-www'), linker, app.startscript || filename);
 			F.path.exists(filename, function(e) {
 				if (!e)
 					return;

@@ -1,6 +1,9 @@
 ======= 5.0.0
 
-- logs analyzator
+- add logs analyzator
+- add custom start scripts
+- add CouchDB consumption
+- improve UI
 
 ======= 4.0.0
 

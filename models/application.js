@@ -5,29 +5,30 @@ const Spawn = require('child_process').spawn;
 
 NEWSCHEMA('Application').make(function(schema) {
 
-	schema.define('id',         'UID');
-	schema.define('url',        'Url', true);
-	schema.define('path',       'String(100)');
-	schema.define('category',   'String(50)');
-	schema.define('redirect',   '[String]');
-	schema.define('allow',      '[String]');
-	schema.define('disallow',   '[String]');
-	schema.define('monitor',    'String(50)');              // URL to monitoring
-	schema.define('ssl_key',    'String');
-	schema.define('ssl_cer',    'String');
-	schema.define('notes',      'String');
-	schema.define('nginx',      'String');                  // Additional NGINX settings (lua)
-	schema.define('delay',       Number);                   // Delay after start
-	schema.define('memory',       Number);                  // Memory limit
-	schema.define('priority',    Number);                   // Start priority
-	schema.define('port',        Number);
-	schema.define('cluster',     Number);                   // Thread count
-	schema.define('ddos',        Number);                   // Maximum count of request per second
-	schema.define('size',        Number);                   // Maximum size of request body (upload size)
-	schema.define('debug',       Boolean);                  // Enables debug mode
-	schema.define('subprocess',  Boolean);
-	schema.define('npm',         Boolean);                  // Performs NPM install
-	schema.define('renew',       Boolean);                  // Performs renew
+	schema.define('id',            'UID');
+	schema.define('url',           'Url', true);
+	schema.define('path',          'String(100)');
+	schema.define('category',      'String(50)');
+	schema.define('redirect',      '[String]');
+	schema.define('allow',         '[String]');
+	schema.define('disallow',      '[String]');
+	schema.define('monitor',       'String(50)');              // URL to monitoring
+	schema.define('ssl_key',       'String');
+	schema.define('ssl_cer',       'String');
+	schema.define('notes',         'String');
+	schema.define('startscript',   'String');                  // A start script
+	schema.define('nginx',         'String');                  // Additional NGINX settings (lua)
+	schema.define('delay',          Number);                   // Delay after start
+	schema.define('memory',         Number);                   // Memory limit
+	schema.define('priority',       Number);                   // Start priority
+	schema.define('port',           Number);
+	schema.define('cluster',        Number);                   // Thread count
+	schema.define('ddos',           Number);                   // Maximum count of request per second
+	schema.define('size',           Number);                   // Maximum size of request body (upload size)
+	schema.define('debug',          Boolean);                  // Enables debug mode
+	schema.define('subprocess',     Boolean);
+	schema.define('npm',            Boolean);                  // Performs NPM install
+	schema.define('renew',          Boolean);                  // Performs renew
 
 	schema.setQuery(function(error, options, callback) {
 		callback(APPLICATIONS);
@@ -215,7 +216,7 @@ NEWSCHEMA('Application').make(function(schema) {
 	schema.addWorkflow('analyzator', function(error, model, controller, callback) {
 
 		var output = [];
-		var search = controller.query.q ? [controller.query.q.toLowerCase()] : ['======= ', 'obsolete'];
+		var search = controller.query.q ? [controller.query.q.toLowerCase()] : ['======= ', 'obsolete', 'error'];
 		var length = search.length;
 
 		APPLICATIONS.wait(function(item, next) {

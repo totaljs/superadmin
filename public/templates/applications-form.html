@@ -1,44 +1,44 @@
-<div data-component="form" data-title="@(Edit application)" data-component-path="common.form" data-if="value === 'applications'" data-width="900px" data-component-id="applications.form" data-autocenter="false">
+<div data-component="form" data-title="@(Edit application)" data-jc-path="common.form" data-if="value === 'applications'" data-width="900px" data-component-id="applications.form" data-autocenter="false">
 	<div class="padding">
 
-		<div data-component="visible" data-component-path="applications.form.id" data-if="!value" class="hidden">
+		<div data-component="visible" data-jc-path="applications.form.id" data-if="!value" class="hidden">
 			<div class="silver">@(When you add the application then you have to upload it as <b>package</b> via <i class="fa fa-cloud-upload"></i> button in application's grid.)</div>
 			<br />
 		</div>
 
 		<div class="row">
 			<div class="col-md-10">
-				<div data-component="textbox" data-component-path="applications.form.url" data-required="true" data-placeholder="https://www.totaljs.com" data-component-value="''" data-component-type="url">@(URL address)</div>
+				<div data-jc="textbox" data-jc-path="applications.form.url" data-required="true" data-placeholder="https://www.totaljs.com" data-jc-value="''" data-jc-type="url">@(URL address)</div>
 				<div class="help"><i class="fa fa-info-circle"></i>@(The URL address must contain the protocol <code>http</code> or <code>https</code>.)</div>
 			</div>
 			<div class="col-md-2">
-				<div data-component="textbox" data-component-path="applications.form.port" data-required="true" data-component-value="''" data-align="center" data-maxlength="4">@(Port)</div>
+				<div data-jc="textbox" data-jc-path="applications.form.port" data-required="true" data-jc-value="''" data-align="center" data-maxlength="4">@(Port)</div>
 			</div>
 		</div>
 		<hr />
-		<div data-component="checkbox" data-component-path="applications.form.debug" class="inline b mr5 black">@(Enables debug mode)</div>
+		<div data-component="checkbox" data-jc-path="applications.form.debug" class="inline b mr5 black">@(Enables debug mode)</div>
 		<div class="inline middle mr15"><span class="badge badge-red">@(debug)</span></div>
-		<div data-component="checkbox" data-component-path="applications.form.npm" class="inline mr5">@(Performs NPM install)</div>
+		<div data-component="checkbox" data-jc-path="applications.form.npm" class="inline mr5">@(Performs NPM install)</div>
 		<div class="inline middle"><span class="badge badge-blue">package.json</span></div>
 	</div>
-	<div data-component="visible" data-component-path="applications.form.url" data-if="value && value.substring(0, 8) === 'https://'" class="hidden">
+	<div data-component="visible" data-jc-path="applications.form.url" data-if="value && value.substring(0, 8) === 'https://'" class="hidden">
 		<div class="padding bg-smoke" style="border-bottom:1px solid #E0E0E0">
 			<div><span class="badge badge-green mr5">@(security)</span><b>@(SSL configuration)</b></div>
 			<div class="help nmt">@(Type a path if you want to prevent <b>auto configure</b>.)</div>
 			<br />
 			<div class="row">
 				<div class="col-md-6 m">
-					<div data-component="textbox" data-component-path="applications.form.ssl_key" data-placeholder="@(auto configure)" data-icon="fa-key">@(SSL key)</div>
+					<div data-jc="textbox" data-jc-path="applications.form.ssl_key" data-placeholder="@(auto configure)" data-icon="fa-key">@(SSL key)</div>
 				</div>
 				<div class="col-md-6 m">
-					<div data-component="textbox" data-component-path="applications.form.ssl_cer" data-placeholder="@(auto configure)">@(SSL certificate)</div>
+					<div data-jc="textbox" data-jc-path="applications.form.ssl_cer" data-placeholder="@(auto configure)">@(SSL certificate)</div>
 				</div>
 			</div>
-			<div data-component="visible" data-component-path="applications.form.ssl_key" data-if="!value && applications.form.id">
-				<div data-component="checkbox" data-component-path="applications.form.renew" class="red b">@(Renew the certificate)</div>
+			<div data-component="visible" data-jc-path="applications.form.ssl_key" data-if="!value && applications.form.id">
+				<div data-component="checkbox" data-jc-path="applications.form.renew" class="red b">@(Renew the certificate)</div>
 			</div>
-			<div data-component="visible" data-component-path="applications.form.sslexpire" data-if="value && value.expire">
-				<div data-component="template" data-component-path="applications.form.sslexpire" class="help nmt">
+			<div data-component="visible" data-jc-path="applications.form.sslexpire" data-if="value && value.expire">
+				<div data-component="template" data-jc-path="applications.form.sslexpire" class="help nmt">
 					<script type="text/html">
 						@(The certificate expires:) <b class="badge badge-silver">{{ expire | format('@(yyyy-MM-dd HH:mm)')}}</b> {{ expire | expiredays(@('# days', '# day', '# days', '# days', 'expired')) }}
 					</script>
@@ -50,15 +50,15 @@
 		<h2><i class="fa fa-folder"></i>@(Categorization)</h2>
 		<div class="row">
 			<div class="col-md-6 m">
-				<div data-component="dropdown" data-component-path="applications.form.category" data-source="applications.categories" data-empty="" data-source-value="name">@(Existing category)</div>
+				<div data-component="dropdown" data-jc-path="applications.form.category" data-source="applications.categories" data-empty="" data-source-value="name">@(Existing category)</div>
 			</div>
 			<div class="col-md-6 m">
-				<div data-component="textbox" data-component-path="applications.form.category" data-required="true" data-placeholder="@(e.g. E-commerce)">@(Category)</div>
+				<div data-jc="textbox" data-jc-path="applications.form.category" data-required="true" data-placeholder="@(e.g. E-commerce)">@(Category)</div>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-md-12 m">
-				<div data-component="textarea" data-component-path="applications.form.notes" data-placeholder="@(e.g. Hosting ends january 2029)" data-component-value="''" data-height="50px">@(Notes)</div>
+				<div data-component="textarea" data-jc-path="applications.form.notes" data-placeholder="@(e.g. Hosting ends january 2029)" data-jc-value="''" data-height="50px">@(Notes)</div>
 			</div>
 		</div>
 		<br />
@@ -67,7 +67,7 @@
 
 		<div class="row">
 			<div class="col-md-3 m">
-				<div data-component="textbox" data-component-path="applications.form.cluster" data-component-type="number" data-maxlength="4" data-align="center" data-component-value="1" data-increment="true">@(Cluster)</div>
+				<div data-jc="textbox" data-jc-path="applications.form.cluster" data-jc-type="number" data-maxlength="4" data-align="center" data-jc-value="1" data-increment="true">@(Cluster)</div>
 			</div>
 			<div class="col-md-9 m">
 				<br class="hidden-sm hidden-xs" />
@@ -77,7 +77,7 @@
 
 		<div class="row">
 			<div class="col-md-3 m">
-				<div data-component="textbox" data-component-path="applications.form.ddos" data-component-type="number" data-maxlength="4" data-align="center" data-increment="true">@(DDOS protection)</div>
+				<div data-jc="textbox" data-jc-path="applications.form.ddos" data-jc-type="number" data-maxlength="4" data-align="center" data-increment="true">@(DDOS protection)</div>
 			</div>
 			<div class="col-md-9 m">
 				<br class="hidden-sm hidden-xs" />
@@ -87,7 +87,7 @@
 
 		<div class="row">
 			<div class="col-md-3 m">
-				<div data-component="textbox" data-component-path="applications.form.memory" data-component-type="number" data-maxlength="4" data-align="center" data-increment="true" data-placeholder="@(auto)" data-component-value="null">@(Memory limit)</div>
+				<div data-jc="textbox" data-jc-path="applications.form.memory" data-jc-type="number" data-maxlength="4" data-align="center" data-increment="true" data-placeholder="@(auto)" data-jc-value="null">@(Memory limit)</div>
 			</div>
 			<div class="col-md-9 m">
 				<br class="hidden-sm hidden-xs" />
@@ -99,40 +99,44 @@
 	<div class="padding npb">
 		<div class="row">
 			<div class="col-md-3 m">
-				<div data-component="textbox" data-component-path="applications.form.priority" data-component-type="number" data-maxlength="3" data-align="center" data-increment="true">@(Process priority)</div>
+				<div data-jc="textbox" data-jc-path="applications.form.priority" data-jc-type="number" data-maxlength="3" data-align="center" data-increment="true">@(Process priority)</div>
 				<div class="help">@(Process with highest priority is executed as first.)</div>
 			</div>
 			<div class="col-md-3 m">
-				<div data-component="textbox" data-component-path="applications.form.delay" data-component-type="number" data-maxlength="5" data-align="center" data-increment="true">@(Delay (ms))</div>
+				<div data-jc="textbox" data-jc-path="applications.form.delay" data-jc-type="number" data-maxlength="5" data-align="center" data-increment="true">@(Delay (ms))</div>
 				<div class="help">@(Delay before executing the process. Other requests will wait.)</div>
 			</div>
 			<div class="col-md-3 m">
-				<div data-component="textbox" data-component-path="applications.form.size" data-component-type="number" data-maxlength="5" data-align="center" data-icon="fa-cloud-upload" data-placeholder="e.g. 5" data-increment="true">@(Maximum upload size (MB))</div>
+				<div data-jc="textbox" data-jc-path="applications.form.size" data-jc-type="number" data-maxlength="5" data-align="center" data-icon="fa-cloud-upload" data-placeholder="e.g. 5" data-increment="true">@(Maximum upload size (MB))</div>
 			</div>
 		</div>
 		<hr />
 		<br />
 		<div class="row">
 			<div class="col-md-6 m">
-				<div data-component="textbox" data-component-path="applications.form.monitor" data-maxlength="200" data-placeholder="/$monitor/" data-icon="fa-desktop">@(Relative URL address for monitoring)</div>
+				<div data-jc="textbox" data-jc-path="applications.form.monitor" data-maxlength="200" data-placeholder="/$monitor/" data-icon="fa-desktop">@(Relative URL address for monitoring)</div>
 				<div class="help">@(If you use Total.js <b>monitor</b> module then add its relative URL address.)</div>
+			</div>
+			<div class="col-md-6 m">
+				<div data-jc="textbox" data-jc-path="applications.form.startscript" data-maxlength="50" data-placeholder="index.js" data-icon="fa-hourglass-start">@(Custom start script)</div>
+				<div class="help">@(We do not recommend to use a custom start script. Script can't have name <code>debug.js</code> or <code>release.js</code>.)</div>
 			</div>
 		</div>
 	</div>
 	<hr />
 	<div class="padding">
-		<div data-component="textboxlist" data-component-path="applications.form.redirect" class="m" data-maxlength="50" data-placeholder="@(e.g. www.totaljs.com and press enter)" data-icon="fa-arrow-left" data-component-value="[]">@(Redirects)</div>
-		<div data-component="textboxlist" data-component-path="applications.form.allow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-globe" data-component-value="[]">@(Allowed IP addresses)</div>
-		<div data-component="textboxlist" data-component-path="applications.form.disallow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-ban" data-component-value="[]">@(Blocked IP addresses)</div>
+		<div data-component="textboxlist" data-jc-path="applications.form.redirect" class="m" data-maxlength="50" data-placeholder="@(e.g. www.totaljs.com and press enter)" data-icon="fa-arrow-left" data-jc-value="[]">@(Redirects)</div>
+		<div data-component="textboxlist" data-jc-path="applications.form.allow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-globe" data-jc-value="[]">@(Allowed IP addresses)</div>
+		<div data-component="textboxlist" data-jc-path="applications.form.disallow" class="m" data-maxlength="50" data-placeholder="@(e.g. 129.34.33.33 and press enter)" data-icon="fa-ban" data-jc-value="[]">@(Blocked IP addresses)</div>
 	</div>
 	<hr class="nmt" />
 	<div class="padding">
-		<div data-component="codemirror" data-component-path="applications.form.nginx" data-icon="fa-code" data-height="200px" data-type="nginx" class="ui-textarea-code">@(Custom NGINX configuration)</div>
+		<div data-component="codemirror" data-jc-path="applications.form.nginx" data-icon="fa-code" data-height="200px" data-type="nginx" class="ui-textarea-code">@(Custom NGINX configuration)</div>
 		<br />
 	</div>
-	<div data-component="error" data-component-path="applications.form.response"></div>
+	<div data-component="error" data-jc-path="applications.form.response"></div>
 	<div class="ui-form-buttons">
-		<div data-component="validation" data-component-path="applications.form">
+		<div data-component="validation" data-jc-path="applications.form">
 			<button name="submit">@(SUBMIT)</button>
 		</div>
 		<button name="cancel">@(Cancel)</button>

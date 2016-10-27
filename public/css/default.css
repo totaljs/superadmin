@@ -100,6 +100,15 @@ canvas { display: block; }
 .mainmenu-button { font-size: 25px; margin-top: 4px; color: gray; float: right; }
 .mainmenu-visible { display: block; }
 
+.analyzator tr>td:first-child { padding-left: 0; }
+.analyzator tr>td:last-child { padding-right: 0; }
+
+.analyzator .td-buttons { text-align: right; }
+.analyzator .td-buttons a { outline: 0; background-color: #F0F0F0; border: 0; font-size: 12px; width: 24px; height: 20px; padding: 2px 0 0; color: silver; position: relative; display: inline-block; text-align: center; border-left: 1px solid #E0E0E0; }
+.analyzator .td-buttons a:hover { color: black; background-color: #E0E0E0; }
+.analyzator .td-buttons a:last-child { color: #E9573F; border-radius: 0 4px 4px 0; }
+.analyzator .td-buttons a:first-child { border-radius: 4px 0 0 4px; border-left: 0; }
+
 .applications .items { border: 1px solid #F0F0F0; padding: 6px; margin-bottom: 20px; border-radius: 4px; background-color: white; box-shadow: 0 3px 10px #F9F9F9; }
 .applications .items > table { width: 100%; }
 .applications .items > table td { border-top: 1px solid #F0F0F0; padding: 0; font-size: 12px; }

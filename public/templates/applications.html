@@ -2,7 +2,7 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-md-4 m">
-				<div data-component="textboxsearch" data-component-path="applications.filter.search" data-placeholder="@(Type a word)">@(Search applications)</div>
+				<div data-jc="textboxsearch" data-jc-path="applications.filter.search" data-placeholder="@(Type a word)">@(Search applications)</div>
 			</div>
 			<div class="col-md-5 col-md-offset-3 m">
 				<div class="operations">
@@ -20,7 +20,7 @@
 	</div>
 </div>
 
-<div class="monitoring hidden" data-component="monitoring" data-component-path="applications.monitor">
+<div class="monitoring hidden" data-jc="monitoring" data-jc-path="applications.monitor">
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-3">
@@ -56,12 +56,12 @@
 <div class="container">
 	<div class="row">
 		<div class="col-lg-10 col-md-9">
-			<div data-component="applications" data-component-path="applications.grid">
+			<div data-jc="applications" data-jc-path="applications.grid">
 				<script type="text/html">
 					<tr data-search="{{ url }}" class="tr{{ if subprocess }} tr-subprocess{{ fi }}{{ if $.last }} tr-subprocess-last{{ fi }}" data-id="{{ id }}" data-category="{{ category }}">
 						<td class="atd first td-name" data-monitor="{{ monitor }}"><a href="{{ url }}{{ path }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}{{ path }}{{ if monitor }}<i class="fa fa-desktop fs10 ml5 silver"></i>{{ fi }}{{ if cluster > 1 }}<span class="badge badge-silver cluster">{{ cluster }}</span>{{ fi }}</a></td>
 						<td class="atd hidden-xs td-mode">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
-						<td class="atd"><div data-component="application-appinfo" data-port="{{ port }}" data-monitor="{{ monitor }}" data-component-path="applications.info"></div></td>
+						<td class="atd"><div data-jc="application-appinfo" data-port="{{ port }}" data-monitor="{{ monitor }}" data-jc-path="applications.info"></div></td>
 						<td class="atd hidden-xs td-port"><span class="badge badge-silver">{{ port }}</span></td>
 						<td class="atd td-buttons" data-id="{{ id }}">
 							<a href="/logs/{{ id }}/" target="_blank" title="@(Show logs)"><i class="fa fa-search"></i></a>
@@ -78,7 +78,7 @@
 		</div>
 		<div class="col-lg-2 col-md-3">
 			<div style="height:6px" class="visible-lg visible-md"></div>
-			<div data-component="tagger" data-component-path="applications.stats">
+			<div data-jc="tagger" data-jc-path="applications.stats">
 				<div class="caption"><i class="fa fa-server"></i>@(Memory)</div>
 				<div class="stats">
 					<div>@(Total)</div>
@@ -232,13 +232,13 @@
 </div>
 <br />
 
-<div data-url="/templates/applications-form-analyzator.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-analyzator'" data-reload="applications_analyzator_refresh"></div>
-<div data-url="/templates/applications-form-summary.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-summary'" data-reload="applications_summary_refresh"></div>
-<div data-url="/templates/applications-form-logs.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-logs'" data-reload="applications_logs_refresh"></div>
-<div data-url="/templates/applications-form-backup.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-backup'"></div>
-<div data-url="/templates/applications-form-upload.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-upload'" data-reload="applications_upload_refresh"></div>
-<div data-url="/templates/applications-form-subprocess.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-subprocess'" data-reload="applications_subprocess_refresh"></div>
-<div data-url="/templates/applications-form.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications'" data-reload="applications_form_refresh"></div>
+<div data-url="/templates/applications-form-analyzator.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-analyzator'" data-reload="applications_analyzator_refresh"></div>
+<div data-url="/templates/applications-form-summary.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-summary'" data-reload="applications_summary_refresh"></div>
+<div data-url="/templates/applications-form-logs.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-logs'" data-reload="applications_logs_refresh"></div>
+<div data-url="/templates/applications-form-backup.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-backup'"></div>
+<div data-url="/templates/applications-form-upload.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-upload'" data-reload="applications_upload_refresh"></div>
+<div data-url="/templates/applications-form-subprocess.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-subprocess'" data-reload="applications_subprocess_refresh"></div>
+<div data-url="/templates/applications-form.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications'" data-reload="applications_form_refresh"></div>
 
 <script type="text/html" id="template-monitoring">
 	<table class="keyvalue-table">
@@ -484,13 +484,7 @@
 				});
 				return;
 			case 'restart':
-				SETTER('loading', 'show');
-				delete applications.merrors[id];
-				AJAX('GET /api/apps/{0}/restart/'.format(id), function(response) {
-					button.closest('tr').removeClass('error');
-					applications_info();
-					success();
-				});
+				applications_restart(id);
 				return;
 			case 'stop':
 				SETTER('loading', 'show');
@@ -514,6 +508,17 @@
 				return;
 		}
 	});
+
+	function applications_restart(id, callback) {
+		delete applications.merrors[id];
+		SETTER('loading', 'show');
+		AJAX('GET /api/apps/{0}/restart/'.format(id), function(response) {
+			applications_info();
+			$('tr[data-id="{0}"]'.format(id)).removeClass('error');
+			success();
+			callback && callback();
+		});
+	}
 
 	$(document).on('click', '.operation-button', function() {
 		switch (this.name) {
@@ -814,7 +819,7 @@
 			var html = element.html();
 			element.remove();
 			self.template = Tangular.compile(html);
-			recompile = html.indexOf('data-component="') !== -1;
+			recompile = html.indexOf('data-jc="') !== -1;
 			self.element.addClass('applications');
 
 			!isMOBILE && self.element.on('mouseenter mouseleave', '.td-name', function(e) {
