@@ -23,8 +23,8 @@ if [ "$userConsent" == "y" ]; then
     read -p "HTTPS ? (y/n) : " httpsEn
 
     #User Input
-    read -p "Domain (eg, domain.tk): " domain
-    read -p "Subdomain (eg, superadmin): " subdomain
+    read -p "Domain without protocol (e.g. domain.tk): " domain
+    read -p "Subdomain without protocol (e.g. superadmin): " subdomain
 
     if [ "$httpsEn" == "y" ]; then
         read -p "Country Name (2 letter code) (eg, IN): " certC
