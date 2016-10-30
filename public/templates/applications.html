@@ -826,7 +826,7 @@
 				var info = FIND('info');
 				clearTimeout(infotimeout);
 
-				if (e.type === 'mouseenter' && this.getAttribute('data-monitor')) {
+				if (applications.monitor && e.type === 'mouseenter' && this.getAttribute('data-monitor')) {
 					var data = applications.monitor[$(this).parent().attr('data-id')];
 					if (data) {
 						var el = this;
