@@ -229,6 +229,7 @@ canvas { display: block; }
 	.applications .ttd-connections { width: 25%; text-align: center !important; }
 	.applications .ttd-cpu { width: 25%; text-align: right; }
 	.applications .ttd-hdd { width: 25%; color: #AAB2BD; }
+	.monitoring .key { width: 200px; }
 }
 
 .stats { font-size: 11px; height: 18px; }
