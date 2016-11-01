@@ -655,7 +655,9 @@ SuperAdmin.reload = function(callback) {
 
 SuperAdmin.save = function(callback) {
 	APPLICATIONS.quicksort('priority', false);
-	Fs.writeFile(F.path.databases('applications.json'), JSON.stringify(APPLICATIONS), callback);
+	var data = JSON.stringify(APPLICATIONS);
+	Fs.writeFile(F.path.databases('applications.json'), data, callback);
+	NOSQL('backup').insert({ datebackup: F.datetime, base64: new Buffer(data).toString('base64') });
 	return SuperAdmin;
 };
 

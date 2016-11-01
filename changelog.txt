@@ -3,6 +3,7 @@
 - add logs analyzator
 - add custom start scripts
 - add CouchDB consumption
+- add backuping of `applications.json`
 - improve UI
 
 ======= 4.0.0
