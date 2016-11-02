@@ -152,8 +152,8 @@ canvas { display: block; }
 .tr-subprocess .td-name { font-size: 11px !important; padding-left: 20px !important; background-image: url(../img/line-continue.png); background-repeat: no-repeat; background-position: 0 -1px; }
 .tr-subprocess-last .td-name { background-image: url(../img/line.png) !important; }
 
-.operations { margin: 5px 0 0 0; padding: 0;}
-.operations button { outline: 0; color: #989FA9; background-color: white; border: 0; font-size: 16px; width: 12.5%; height: 44px; margin: 0; padding: 0; border-top: 1px solid #E0E0E0; border-bottom: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0; }
+.operations { margin: 5px 0 0 0; padding: 0; }
+.operations button { outline: 0; color: #989FA9; background-color: white; border: 0; font-size: 16px; width: 16.6%; height: 44px; margin: 0; padding: 0; border-top: 1px solid #E0E0E0; border-bottom: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0; }
 .operations button:hover { color: black; background-color: #E0E0E0; }
 .operations button:first-child { border-radius: 4px 0 0 4px; border-left: 1px solid #E0E0E0; }
 .operations button:last-child { border-radius: 0 4px 4px 0; }
@@ -229,7 +229,6 @@ canvas { display: block; }
 	.applications .ttd-connections { width: 25%; text-align: center !important; }
 	.applications .ttd-cpu { width: 25%; text-align: right; }
 	.applications .ttd-hdd { width: 25%; color: #AAB2BD; }
-	.monitoring .key { width: 200px; }
 }
 
 .stats { font-size: 11px; height: 18px; }
