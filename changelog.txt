@@ -4,6 +4,11 @@
 - add custom start scripts
 - add CouchDB consumption
 - add backuping of `applications.json`
+- add logging
+- app does not use `service nginx` command
+- add server last logins preview
+- add nginx config test preview
+- add SuperAdmin logs preview
 - improve UI
 
 ======= 4.0.0

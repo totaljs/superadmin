@@ -4,16 +4,18 @@
 			<div class="col-md-4 m">
 				<div data-jc="textboxsearch" data-jc-path="applications.filter.search" data-placeholder="@(Type a word)">@(Search applications)</div>
 			</div>
-			<div class="col-md-5 col-md-offset-3 m">
+			<div class="col-md-4 center hidden-sm hidden-xs">
+				@(Your IP address:)
+				<div data-jc="" data-jc-path="su.ip" class="black b" style="font-size:24px"></div>
+			</div>
+			<div class="col-md-4 m">
 				<div class="operations">
 					<button class="operation-button" name="add" title="@(Add application)"><i class="fa fa-plus-circle"></i></button>
 					<button class="operation-button" name="addsubprocess" title="@(Add subprocess)"><i class="fa fa-plug"></i></button>
 					<button class="operation-button" name="analyzator" title="@(Logs analyzator)"><i class="fa fa-bug"></i></button>
 					<button class="operation-button" name="summary" title="@(Summary)"><i class="fa fa-bar-chart"></i></button>
 					<button class="operation-button" name="restart" title="@(Restart all)"><i class="fa fa-refresh"></i></button>
-					<button class="operation-button" name="stop" title="@(Stop all)"><i class="fa fa-stop-circle"></i></button>
-					<button class="operation-button" name="reconfigure" title="@(Reconfigure all)"><i class="fa fa-retweet"></i></button>
-					<button class="operation-button" name="backup" title="@(Backup the server)"><i class="fa fa-cloud-download"></i></button>
+					<button class="operation-button" name="options" title="@(Options)"><i class="fa fa-server"></i></button>
 				</div>
 			</div>
 		</div>
@@ -238,6 +240,7 @@
 <div data-url="/templates/applications-form-backup.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-backup'"></div>
 <div data-url="/templates/applications-form-upload.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-upload'" data-reload="applications_upload_refresh"></div>
 <div data-url="/templates/applications-form-subprocess.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-subprocess'" data-reload="applications_subprocess_refresh"></div>
+<div data-url="/templates/applications-stdout.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-stdout'"></div>
 <div data-url="/templates/applications-form.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications'" data-reload="applications_form_refresh"></div>
 
 <script type="text/html" id="template-monitoring">
@@ -531,23 +534,78 @@
 				SET('common.form', 'applications-analyzator', 100);
 				break;
 
-			case 'backup':
-				FIND('confirm').confirm('@(Are you sure you want to create a backup of the whole server?)', ['@(Yes)', '@(Cancel)'], function(index) {
-					if (index)
-						return;
-					SETTER('loading', 'show');
-					SETTER('loading', 'hide', 1000);
-					SET('common.form', 'applications-backup');
-					location.href = '/api/apps/backup/';
-				});
-				return;
-
 			case 'add':
 				applications_new();
 				break;
 
 			case 'addsubprocess':
 				applications_newsubprocess();
+				break;
+
+			case 'options':
+				FIND('contextmenu').show('right', this, [{ name: '@(Reconfigure all)', icon: 'fa-retweet', value: 'reconfigure' }, { name: 'Backup server', icon: 'fa-cloud-download', value: 'backup' }, { name: '@(Nginx test)', icon: 'fa-flask', value: 'nginx' }, { name: '@(SuperAdmin logs)', icon: 'fa-file-text-o', value: 'logs' }, { name: '@(Server logins)', icon: 'fa-lock', value: 'last' }, { name: '@(Stop all)', icon: 'fa-stop', value: 'stop' }], function(value) {
+
+					if (value === 'backup') {
+						FIND('confirm').confirm('@(Are you sure you want to create a backup of the whole server?)', ['@(Yes)', '@(Cancel)'], function(index) {
+							if (index)
+								return;
+							SETTER('loading', 'show');
+							SETTER('loading', 'hide', 1000);
+							SET('common.form', 'applications-backup');
+							location.href = '/api/apps/backup/';
+						});
+						return;
+					}
+
+					if (value === 'reconfigure') {
+						FIND('confirm').confirm('@(Are you sure you want to reconfigure all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
+							if (index)
+								return;
+							SETTER('loading', 'show');
+							applications.waiting = true;
+							applications.sslexpire = {};
+							AJAX('GET /api/apps/reconfigure/', function(response) {
+								applications.waiting = false;
+								applications_info();
+								success();
+							});
+						});
+						return;
+					}
+
+					if (value === 'stop') {
+						FIND('confirm').confirm('@(Are you sure you want to stop all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
+							if (index)
+								return;
+							SETTER('loading', 'show');
+							applications.waiting = true;
+							AJAX('GET /api/apps/stop/', function(response) {
+								applications.waiting = false;
+								applications_info();
+								success();
+							});
+						});
+						return;
+					}
+
+					if (value === 'stop') {
+						FIND('confirm').confirm('@(Are you sure you want to stop all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
+							if (index)
+								return;
+							SETTER('loading', 'show');
+							applications.waiting = true;
+							AJAX('GET /api/apps/stop/', function(response) {
+								applications.waiting = false;
+								applications_info();
+								success();
+							});
+						});
+						return;
+					}
+
+					AJAX('GET /api/{0}/'.format(value), 'applications.stdout.lines');
+					SET('common.form', 'applications-stdout');
+				}, -5);
 				break;
 
 			case 'restart':
@@ -559,35 +617,6 @@
 					applications.sslexpire = {};
 					applications.merrors = {};
 					AJAX('GET /api/apps/restart/', function(response) {
-						applications.waiting = false;
-						applications_info();
-						success();
-					});
-				});
-				break;
-
-			case 'reconfigure':
-				FIND('confirm').confirm('@(Are you sure you want to reconfigure all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
-					if (index)
-						return;
-					SETTER('loading', 'show');
-					applications.waiting = true;
-					applications.sslexpire = {};
-					AJAX('GET /api/apps/reconfigure/', function(response) {
-						applications.waiting = false;
-						applications_info();
-						success();
-					});
-				});
-				break;
-
-			case 'stop':
-				FIND('confirm').confirm('@(Are you sure you want to stop all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
-					if (index)
-						return;
-					SETTER('loading', 'show');
-					applications.waiting = true;
-					AJAX('GET /api/apps/stop/', function(response) {
 						applications.waiting = false;
 						applications_info();
 						success();
@@ -826,7 +855,7 @@
 				var info = FIND('info');
 				clearTimeout(infotimeout);
 
-				if (applications.monitor && e.type === 'mouseenter' && this.getAttribute('data-monitor')) {
+				if (e.type === 'mouseenter' && this.getAttribute('data-monitor')) {
 					var data = applications.monitor[$(this).parent().attr('data-id')];
 					if (data) {
 						var el = this;
@@ -881,6 +910,7 @@
 
 				var builder = [];
 				var items = categories[name];
+				var memory = 0;
 
 				items.sort(function(a, b) {
 					var an = a.url.replace(REG_CLEANURL, '').substring(0, 15).toLowerCase();
@@ -895,6 +925,7 @@
 						return;
 					var length = sub.length - 1;
 					sub.forEach(function(item, index) {
+						memory += item.memory.parseFloat();
 						builder.push(self.template(item, { last: index === length }));
 					});
 				});

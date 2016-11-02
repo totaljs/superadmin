@@ -1,4 +1,5 @@
 const Path = require('path');
+const Exec = require('child_process').exec;
 
 exports.install = function() {
 	F.route('/api/apps/',              json_query,            ['authorize', '*Application']);
@@ -19,22 +20,39 @@ exports.install = function() {
 	F.route('/api/apps/backup/',       json_apps_backup,      ['authorize', 500000]);
 	F.route('/api/apps/monitor/',      json_apps_monitor,     ['authorize', 60000]);
 	F.route('/api/templates/',         json_templates,        ['authorize']);
+	F.route('/api/logs/',              json_logs,             ['authorize']);
+	F.route('/api/last/',              json_last,             ['authorize']);
+	F.route('/api/nginx/',             json_nginx,            ['authorize']);
 	F.route('/api/login/',             json_login,            ['unauthorize', 'post', '*Login']);
 	F.route('/logs/{id}/',             json_apps_logs,        ['authorize', '*Application']);
 };
+
+function json_logs() {
+	var self = this;
+	SuperAdmin.logger('system: SuperAdmin logs', self);
+	Exec('tail -n 50 ' + F.path.logs('logger.log'), self.callback());
+}
+
+function json_last() {
+	var self = this;
+	SuperAdmin.logger('system: Server last', self);
+	Exec('last', self.callback());
+}
+
+function json_nginx() {
+	var self = this;
+	SuperAdmin.logger('system: Nginx config test', self);
+	Exec('nginx -t', (e, r, m) => self.json(m));
+}
 
 function json_query() {
 	var self = this;
 	self.$query(self.query, self.callback());
 }
 
-function json_save() {
-	var self = this;
-	self.$save(self.callback());
-}
-
 function json_apps_save() {
 	var self = this;
+	SuperAdmin.logger('save: {0}', self, self.body.id);
 	self.$async(self.callback(), 2).$workflow('check').$workflow('port').$save().$workflow('directory').$workflow('nginx');
 }
 
@@ -45,11 +63,13 @@ function json_apps_info() {
 
 function json_read(id) {
 	var self = this;
+	SuperAdmin.logger('read: {0}', self, id);
 	self.$read(id, self.callback());
 }
 
 function json_apps_remove(id) {
 	var self = this;
+	SuperAdmin.logger('remove: {0}', self, id);
 	self.$remove(id, self.callback());
 }
 
@@ -59,6 +79,7 @@ function json_apps_restart(id) {
 	// restarts all
 	if (!id) {
 
+		SuperAdmin.logger('restart: all', self);
 		var errors = [];
 		APPLICATIONS.wait(function(item, next) {
 
@@ -77,10 +98,11 @@ function json_apps_restart(id) {
 		return;
 	}
 
-	var app = APPLICATIONS.find('id', id);
+	var app = APPLICATIONS.findItem('id', id);
 	if (!app)
 		return self.invalid().push('error-app-404');
 
+	SuperAdmin.logger('restart: {0}', self, app);
 	SuperAdmin.restart(app.port, (err) => self.json(SUCCESS(true, err)));
 
 	if (app.stopped) {
@@ -94,6 +116,7 @@ function json_apps_stop(id) {
 
 	// stops all
 	if (!id) {
+		SuperAdmin.logger('stop: all', self);
 		var errors = [];
 		APPLICATIONS.wait(function(item, next) {
 			item.stopped = true;
@@ -112,6 +135,7 @@ function json_apps_stop(id) {
 	if (!app)
 		return self.invalid().push('error-app-404');
 
+	SuperAdmin.logger('stop: {0}', self, app);
 	SuperAdmin.kill(app.port, (err) => self.json(SUCCESS(true, err)));
 
 	if (!app.stopped) {
@@ -122,6 +146,7 @@ function json_apps_stop(id) {
 
 function json_apps_logs(id) {
 	var self = this;
+	SuperAdmin.logger('logs: {0}', self, id);
 	self.$workflow('logs', id, function(err, response) {
 		if (err)
 			self.invalid().push(err);
@@ -133,6 +158,8 @@ function json_apps_logs(id) {
 function json_apps_reconfigure() {
 	var self = this;
 	var errors = [];
+
+	SuperAdmin.logger('reconfigure: all', self);
 
 	APPLICATIONS.wait(function(item, next) {
 		item.stopped = false;
@@ -168,6 +195,8 @@ function json_apps_upload(argument) {
 	if (!app)
 		return self.json(SUCCESS(false));
 
+	SuperAdmin.logger('upload: {0}', self, app);
+
 	var file = self.files[0];
 	var filename = Path.join(CONFIG('directory-www'), app.url.superadmin_linker(app.path), app.id + '.package');
 
@@ -180,6 +209,7 @@ function json_apps_upload(argument) {
 
 function json_apps_unpack() {
 	var self = this;
+	SuperAdmin.logger('restore: {0}', self, self.body.id);
 	self.$async(self.callback(), 4).$workflow('check').$workflow('stop').$workflow('remove').$workflow('unpack').$workflow('restart');
 }
 
@@ -193,11 +223,14 @@ function file_apps_pack(id) {
 	var directory = Path.join(CONFIG('directory-www'), linker);
 	var backup = Path.join(directory, linker + '_backup.package');
 
+	SuperAdmin.logger('backup: {0}', self, app);
+
 	F.backup(backup, directory, () => self.file('~' + backup, U.getName(backup)), (filename) => filename.match(/(\/tmp\/|_backup\.package)/g) ? false : true);
 }
 
 function json_apps_backup() {
 	var self = this;
+	SuperAdmin.logger('backup: all', self);
 	SuperAdmin.backup(function(err, filename) {
 		if (err)
 			return self.invalid().push(err);
@@ -266,10 +299,12 @@ function json_templates() {
 
 function json_login() {
 	var self = this;
+	SuperAdmin.logger('login', self);
 	self.$workflow('exec', self, self.callback());
 }
 
 function json_analyzator() {
 	var self = this;
+	SuperAdmin.logger('analyzator', self);
 	self.$workflow('analyzator', self, self.callback());
 }

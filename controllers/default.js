@@ -7,6 +7,7 @@ exports.install = function() {
 
 function redirect_logoff() {
 	var self = this;
+	SuperAdmin.logger('logoff', self);
 	self.cookie('__sa', '', '-1 day');
 	self.redirect('/');
 }

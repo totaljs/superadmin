@@ -17,6 +17,7 @@ F.onAuthorize = function(req, res, flags, callback) {
 		return callback(false);
 	}
 
+	SA.ip = req.ip;
 	callback(true, SA);
 };
 
