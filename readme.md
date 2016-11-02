@@ -25,6 +25,8 @@ __SuperAdmin requirements:__
 - `cat`
 - `free`
 - `df`
+- `tail`
+- `last`
 
 __To install SuperAdmin run commands bellow:__
 - run `$ sudo wget https://raw.githubusercontent.com/totaljs/superadmin/master/install.sh`
@@ -60,6 +62,7 @@ Don't worry, it's very easy.
 - copy all directories and files from a new version of SuperAdmin to your server
 - restore your backup file `/databases/applications.json`
 - restore your credentials in `/config`
+- youv have to update `SSL generator` to latest version via `bash /www/superadmin/ssl.sh --update`
 - restart SuperAdmin `bash run.sh`
 - clear cache in your web browser
 
