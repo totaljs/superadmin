@@ -391,41 +391,47 @@ SuperAdmin.run = function(port, callback) {
 	var linker = app.linker;
 	var log = app.debug ? Path.join(CONFIG('directory-www'), linker, 'logs', 'debug.log') : Path.join(CONFIG('directory-console'), linker + '.log');
 
+	!app.debug && Exec('bash {0} {1} {2}'.format(F.path.databases('backuplogs.sh'), log, log.replace(/\.log$/, '#' + F.datetime.format('yyyyMMdd-HHmm.log'))), NOOP);
+
 	var fn = function(callback) {
 		SuperAdmin.makescripts(app, function() {
-			if (!app.debug)
-				return callback();
 			// Creates log directory
-			Exec('bash {0} {1}'.format(F.path.databases('mkdir.sh'), Path.join(CONFIG('directory-www'), linker, 'logs')), callback);
+			if (app.debug)
+				Exec('bash {0} {1}'.format(F.path.databases('mkdir.sh'), Path.join(CONFIG('directory-www'), linker, 'logs')), callback);
+			else
+				callback();
 		});
 	};
 
 	app.pid = 0;
 
-	F.unlink([log], function() {
-		fn(function() {
-			filename = Path.join(CONFIG('directory-www'), linker, app.startscript || filename);
-			F.path.exists(filename, function(e) {
-				if (!e)
-					return;
+	// Because of backuping logs
+	setTimeout(function() {
+		F.unlink([log], function() {
+			fn(function() {
+				filename = Path.join(CONFIG('directory-www'), linker, app.startscript || filename);
+				F.path.exists(filename, function(e) {
+					if (!e)
+						return;
 
-				var options = ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200'];
+					var options = ['--nouse-idle-notification', '--expose-gc', '--max_inlined_source_size=1200'];
 
-				app.memory && options.push('--max_old_space_size=' + app.memory);
-				options.push(filename);
-				options.push(app.port);
+					app.memory && options.push('--max_old_space_size=' + app.memory);
+					options.push(filename);
+					options.push(app.port);
 
-				Spawn('node', options, {
-					stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
-					cwd: Path.join(CONFIG('directory-www'), linker),
-					detached: true,
-					uid: SuperAdmin.run_as_user.id,
-					gid: SuperAdmin.run_as_user.group
-				}).unref();
-				setTimeout(() => callback(), app.delay || 100);
+					Spawn('node', options, {
+						stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
+						cwd: Path.join(CONFIG('directory-www'), linker),
+						detached: true,
+						uid: SuperAdmin.run_as_user.id,
+						gid: SuperAdmin.run_as_user.group
+					}).unref();
+					setTimeout(() => callback(), app.delay || 100);
+				});
 			});
 		});
-	});
+	}, 500);
 
 	return SuperAdmin;
 };

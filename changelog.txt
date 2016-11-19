@@ -9,6 +9,7 @@
 - add server last logins preview
 - add nginx config test preview
 - add SuperAdmin logs preview
+- add backuping of all applications logs in release mode
 - improve UI
 
 ======= 4.0.0
