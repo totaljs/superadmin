@@ -83,39 +83,40 @@
 			<div data-jc="tagger" data-jc-path="applications.stats">
 				<div class="caption"><i class="fa fa-server"></i>@(Memory)</div>
 				<div class="stats">
-					<div>@(Total)</div>
-					<div data-name="memtotal" data-format="n => n.format(0)" data-after=" MB">...</div>
+					<div><i class="fa fa-square mr5"></i>@(Total)</div>
+					<div data-name="memtotal" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
-					<div>@(Free)</div>
-					<div data-name="memfree" data-format="n => n.format(0)" data-after=" MB">...</div>
+					<div><i class="fa fa-square mr5 green"></i>@(Free)</div>
+					<div data-name="memfree" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
-					<div>@(Used)</div>
-					<div data-name="memused" data-format="n => n.format(0)" data-after=" MB">...</div>
+					<div><i class="fa fa-square mr5 red"></i>@(Used)</div>
+					<div data-name="memused" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<hr style="margin:5px 0 10px" />
 				<div class="stats">
 					<div>@(Applications)</div>
-					<div data-name="memory" data-format="n => n.format(0)" data-after=" MB">...</div>
+					<div data-name="memory" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
 					<div>@(Count)</div>
 					<div data-name="count">...</div>
 				</div>
-				<br />
+				<div data-jc="chart.memory" data-jc-path="applications.stats"></div>
+				<hr class="nmt" />
 				<div class="caption"><i class="fa fa-hdd-o"></i>@(HDD)</div>
 				<div class="stats mt10">
 					<div>@(Total)</div>
-					<div data-name="hddtotal">...</div>
+					<div data-name="hddtotal" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
 					<div>@(Free)</div>
-					<div data-name="hddfree">...</div>
+					<div data-name="hddfree" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
 					<div>@(Used)</div>
-					<div data-name="hddused">...</div>
+					<div data-name="hddused" data-format="n => n.filesize(1)">...</div>
 				</div>
 
 				<br />
@@ -123,6 +124,23 @@
 				<div class="stats">
 					<div>@(Open connections)</div>
 					<div><i class="fa fa-circle green blink fs10 mr5"></i><span data-name="connections" data-after="x">...</span></div>
+				</div>
+
+				<div data-name="nginx" data-visible="n => n" class="hidden">
+					<br />
+					<div class="caption"><i class="fa fa-server green"></i>@(Nginx)</div>
+					<div class="stats mt10">
+						<div>@(CPU)</div>
+						<div data-name="nginx.cpu">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Memory)</div>
+						<div data-name="nginx.memory" data-format="n => n.filesize(1)">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Version)</div>
+						<div data-name="version_nginx" data-before="v">...</div>
+					</div>
 				</div>
 
 				<div data-name="mongodb" data-visible="n => n" class="hidden">
@@ -134,7 +152,7 @@
 					</div>
 					<div class="stats">
 						<div>@(Memory)</div>
-						<div data-name="mongodb.memory">...</div>
+						<div data-name="mongodb.memory" data-format="n => n.filesize(1)">...</div>
 					</div>
 					<div class="stats">
 						<div>@(Version)</div>
@@ -151,7 +169,7 @@
 					</div>
 					<div class="stats">
 						<div>@(Memory)</div>
-						<div data-name="postgresql.memory">...</div>
+						<div data-name="postgresql.memory" data-format="n => n.filesize(1)">...</div>
 					</div>
 					<div class="stats">
 						<div>@(Version)</div>
@@ -168,7 +186,7 @@
 					</div>
 					<div class="stats">
 						<div>@(Memory)</div>
-						<div data-name="mysql.memory">...</div>
+						<div data-name="mysql.memory" data-format="n => n.filesize(1)">...</div>
 					</div>
 					<div class="stats">
 						<div>@(Version)</div>
@@ -185,7 +203,7 @@
 					</div>
 					<div class="stats">
 						<div>@(Memory)</div>
-						<div data-name="couchdb.memory">...</div>
+						<div data-name="couchdb.memory" data-format="n => n.filesize(1)">...</div>
 					</div>
 					<div class="stats">
 						<div>@(Version)</div>
@@ -202,7 +220,7 @@
 					</div>
 					<div class="stats">
 						<div>@(Memory)</div>
-						<div data-name="redis.memory">...</div>
+						<div data-name="redis.memory" data-format="n => n.filesize(1)">...</div>
 					</div>
 					<div class="stats">
 						<div>@(Version)</div>
@@ -216,10 +234,6 @@
 				<hr />
 				<div class="fs11 b black" data-name="version_server">...</div>
 				<div class="stats mt5">
-					<div>@(Nginx)</div>
-					<div data-name="version_nginx" data-before="v">...</div>
-				</div>
-				<div class="stats">
 					<div>@(Node.js)</div>
 					<div data-name="version_node" data-before="v">...</div>
 				</div>
@@ -751,7 +765,7 @@
 			var has = false;
 
 			response.forEach(function(item) {
-				sum += item.memory.replace(/\sMB/g, '').parseFloat();
+				sum += item.memory;
 
 				if (item.sslexpire)
 					item.sslexpire = item.sslexpire.parseDate();
@@ -902,7 +916,6 @@
 					categories[item.category] = [item];
 			});
 
-
 			var keys = Object.keys(categories);
 
 			keys.sort(function(a, b) {
@@ -952,7 +965,7 @@
 		var empty = '<div class="offline">@(OFFLINE)</div>';
 		var parent;
 
-		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg visible-xs ttd-hdd">{{ hdd }}<i class="fa fa-folder-o ml5"></i></td><td class="ttd-cpu visible-xs visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td class="ttd-memory">{{ memory | application-round }}{{ memory | application-progress(\'memory\', 500) }}</td><td class="ttd-files visible-lg">{{ openfiles }}<i class="fa fa-hdd-o ml5"></i></td><td class="ttd-connections visible-xs visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
+		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg visible-xs ttd-hdd">{{ hdd | filesize(0) }}<i class="fa fa-folder-o ml5"></i></td><td class="ttd-cpu visible-xs visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td class="ttd-memory">{{ memory | filesize(1) }}{{ memory | application-progress(\'memory\', 524288000) }}</td><td class="ttd-files visible-lg">{{ openfiles }}<i class="fa fa-hdd-o ml5"></i></td><td class="ttd-connections visible-xs visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
 
 		self.make = function() {
 			parent = self.element.closest('tr');
@@ -983,18 +996,14 @@
 		if (value == null)
 			return '';
 		var arr = value.split('-');
-		if (arr.length === 1)
-			return arr[0];
-		return '<span class="time">{0}</span>'.format(arr[0].parseInt().pluralize('# days', '# day', '# days', '# days'));
+		return arr.length === 1 ? arr[0] : '<span class="time">{0}</span>'.format(arr[0].parseInt().pluralize('# days', '# day', '# days', '# days'));
 	});
 
 	Tangular.register('application-round', function(value) {
 		if (value == null)
 			return '';
 		var m = value.match(/[0-9\.]+/g);
-		if (!m)
-			return value;
-		return Math.round(m.toString().parseFloat()) + value.replace(m, '');
+		return m ? Math.round(m.toString().parseFloat()) + value.replace(m, '') : value;
 	});
 
 	Tangular.register('application-progress', function(value, type, max) {
@@ -1005,7 +1014,7 @@
 		if (this.cluster > 1)
 			max *= this.cluster;
 
-		var current = Math.round(value.replace(/(\s|\%|MB)?/g, '').parseFloat());
+		var current = Math.round(typeof(value) === 'number' ? value : value.replace(/(\s|\%|MB)?/g, '').parseFloat());
 		var percentage = (current / max) * 100;
 		if (percentage > 100)
 			percentage = 100;
@@ -1111,6 +1120,56 @@
 			});
 
 			self.toggle('hidden', false);
+		};
+	});
+
+	COMPONENT('chart.memory', function() {
+
+		var self = this;
+		var chart;
+		var ctx;
+
+		self.readonly();
+
+		self.make = function() {
+
+			var options = {};
+			options.type = 'doughnut';
+			options.options = {};
+			options.options.layout = {};
+			options.options.layout.padding = 20;
+			options.options.cutoutPercentage = 40;
+			options.options.legend = {};
+			options.options.legend.display = false;
+			options.options.tooltips = {};
+			options.options.tooltips.bodyFontSize = 10;
+			options.options.tooltips.callbacks = {};
+			options.options.tooltips.callbacks.label = function(item, data) {
+				return ' ' + data.labels[item.index] + ' ' + data.datasets[item.datasetIndex].data[item.index].filesize(1);
+			};
+
+			options.data = {};
+			options.data.labels = ['@(Total)', '@(Used)', '@(Free)'];
+    		options.data.datasets = [
+        		{
+        			data: [0, 0, 0],
+            		backgroundColor: ["#909090", "#D63B32", "#8CC152"]
+            	}
+            ];
+
+			self.append('<canvas></canvas>');
+			ctx = self.find('canvas').get(0).getContext('2d');
+			chart = new Chart(ctx, options);
+		};
+
+		self.setter = function(value) {
+ 			if (!value || !value.memtotal)
+				return;
+			var data = chart.data.datasets[0].data;
+			data[0] = value.memtotal;
+			data[1] = value.memused;
+			data[2] = value.memfree;
+			chart.update();
 		};
 	});
 

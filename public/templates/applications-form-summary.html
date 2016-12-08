@@ -100,19 +100,13 @@
 					break;
 
 				case 1: // memory
-					obj.sorting = item.memory.replace(/MB/g, '').trim().parseFloat();
-					obj.value = item.memory;
+					obj.sorting = item.memory;
+					obj.value = item.memory.filesize(1);
 					break;
 
 				case 2: // hdd
-					obj.sorting = item.hdd.replace(/G|K|M/g, '').trim().parseFloat();
-
-					if (item.hdd.indexOf('G') !== -1)
-						obj.sorting *= 1000;
-					else if (item.hdd.indexOf('K') !== -1)
-						obj.sorting = obj.sorting / 1000;
-
-					obj.value = item.hdd;
+					obj.sorting = item.hdd;
+					obj.value = item.hdd.filesize(1);
 					break;
 
 				case 3: // openfiles

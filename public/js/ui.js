@@ -1624,7 +1624,7 @@ COMPONENT('notifications', function() {
 		if (!system || focus)
 			return;
 
-		obj.system = new window.Notification(message.replace(/(<([^>]+)>)/ig, ''));
+		obj.system = new window.Notification(message.replace(/(<([^>]+)>)/ig, ''), { icon: '/icon.png' });
 		obj.system.onclick = function() {
 
 			if (obj.callback) {

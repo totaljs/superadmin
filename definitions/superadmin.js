@@ -9,7 +9,7 @@ const SuperAdmin = global.SuperAdmin = {};
 const REG_EMPTY = /\s{2,}/g;
 const REG_PID = /\d+\s/;
 const REG_PROTOCOL = /^(http|https)\:\/\//gi;
-const REG_APPDISKSIZE = /^[\d\.\,]+[\w]\s/;
+const REG_APPDISKSIZE = /^[\d\.\,]+/;
 const REG_FINDVERSION = /[0-9\.]+/;
 
 SuperAdmin.server = {};
@@ -92,7 +92,7 @@ SuperAdmin.appinfo = function(pid, callback) {
 			var line = response.split('\n')[1];
 			line = line.trim().replace(REG_EMPTY, ' ').split(' ');
 			output.cpu = line[0] + ' %';
-			output.memory = (line[1].parseInt() / 1024).format(2) + ' MB';
+			output.memory = line[1].parseInt() * 1024; // kB to bytes
 			output.time = line[2];
 			next();
 		});
@@ -101,9 +101,8 @@ SuperAdmin.appinfo = function(pid, callback) {
 	// Get count of open files
 	arr.push(function(next) {
 		Exec('lsof -a -p {0} | wc -l'.format(pid), function(err, response) {
-			if (err)
-				return next();
-		 	output.openfiles = response.trim().parseInt();
+			if (!err)
+			 	output.openfiles = response.trim().parseInt();
 		 	next();
 		});
 	});
@@ -133,12 +132,12 @@ SuperAdmin.appinfo = function(pid, callback) {
 			return next();
 		}
 
-		Exec('du -hs {0}'.format(Path.join(CONFIG('directory-www'), app.linker)), function(err, response) {
+		Exec('du -hsb {0}'.format(Path.join(CONFIG('directory-www'), app.linker)), function(err, response) {
 			if (err)
 				return next();
 		 	var match = response.trim().match(REG_APPDISKSIZE);
 		 	if (match) {
-		 		output.hdd = match.toString().trim();
+		 		output.hdd = match.toString().trim().parseInt();
 		 		app.cache_hdd = output.hdd;
 		 	}
 		 	next();
@@ -185,7 +184,7 @@ SuperAdmin.sysinfo = function(callback) {
 		SuperAdmin.server.index++;
 
 	arr.push(function(next) {
-		Exec('free -t -m', function(err, response) {
+		Exec('free -b -t', function(err, response) {
 			if (err)
 				return next();
 			var memory = response.split('\n')[1].match(/\d+/g);
@@ -197,32 +196,51 @@ SuperAdmin.sysinfo = function(callback) {
 	});
 
 	arr.push(function(next) {
-		Exec('df -hT {0}'.format(CONFIG('directory-www')), function(err, response) {
+		Exec('df -hTB1 {0}'.format(CONFIG('directory-www')), function(err, response) {
 			if (err)
 				return next();
 			var info = response.parseTerminal();
-			SuperAdmin.server.hddtotal = info[1][2].replace('G', ' GB');
-			SuperAdmin.server.hddfree = info[1][4].replace('G', ' GB');
-			SuperAdmin.server.hddused = info[1][3].replace('G', ' GB');
+			SuperAdmin.server.hddtotal = info[1][2].parseInt();
+			SuperAdmin.server.hddfree = info[1][4].parseInt();
+			SuperAdmin.server.hddused = info[1][3].parseInt();
 			next();
 		});
 	});
 
 	arr.push(function(next) {
 		Exec('netstat -anp | grep :80 | grep TIME_WAIT| wc -l', function(err, response) {
-			if (err)
-				return next();
-			SuperAdmin.server.connections = response.trim().parseInt();
+			if (!err)
+				SuperAdmin.server.connections = response.trim().parseInt();
 			next();
 		});
 	});
 
 	arr.push(function(next) {
 		Exec('bash {0}'.format(F.path.databases('cpu.sh')), function(err, response) {
+			if (!err)
+				SuperAdmin.server.cpu = response.trim().parseFloat().format(1) + '%';
+			next();
+		});
+	});
+
+	arr.push(function(next) {
+		if (SuperAdmin.server.index % 3 !== 0)
+			return next();
+		Exec('ps aux | grep "nginx" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
 			if (err)
 				return next();
-			SuperAdmin.server.cpu = response.trim().parseFloat().format(1) + '%';
-			next();
+
+			var pid = response.trim().split('\n').join(',');
+			if (!pid)
+				return next();
+			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
+				var line = response.split('\n')[1];
+				line = line.trim().replace(REG_EMPTY, ' ').split(' ');
+				SuperAdmin.server.nginx = {};
+				SuperAdmin.server.nginx.cpu = line[0] + ' %';
+				SuperAdmin.server.nginx.memory = line[1].parseInt() * 1024; // kB to bytes
+				next();
+			});
 		});
 	});
 
@@ -232,7 +250,7 @@ SuperAdmin.sysinfo = function(callback) {
 		Exec('ps aux | grep "mongod" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
 			if (err)
 				return next();
-			var pid = response.trim();
+			var pid = response.trim().split('\n').join(',');;
 			if (!pid)
 				return next();
 			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
@@ -240,7 +258,7 @@ SuperAdmin.sysinfo = function(callback) {
 				line = line.trim().replace(REG_EMPTY, ' ').split(' ');
 				SuperAdmin.server.mongodb = {};
 				SuperAdmin.server.mongodb.cpu = line[0] + ' %';
-				SuperAdmin.server.mongodb.memory = (line[1].parseInt() / 1024).format(0) + ' MB';
+				SuperAdmin.server.mongodb.memory = line[1].parseInt() * 1024; // kB to bytes
 				SuperAdmin.server.mongodb.time = line[2];
 				next();
 			});
@@ -253,7 +271,7 @@ SuperAdmin.sysinfo = function(callback) {
 		Exec('ps aux | grep "postgres" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
 			if (err)
 				return next();
-			var pid = response.trim();
+			var pid = response.trim().split('\n').join(',');;
 			if (!pid)
 				return next();
 			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid.split('\n').join(',')), function(err, response) {
@@ -266,10 +284,10 @@ SuperAdmin.sysinfo = function(callback) {
 						return;
 					line = line.replace(REG_EMPTY, ' ').split(' ');
 					SuperAdmin.server.postgresql.cpu += line[0].parseFloat();
-					SuperAdmin.server.postgresql.memory += (line[1].parseInt() / 1024);
+					SuperAdmin.server.postgresql.memory += line[1].parseInt() * 1024; // kB to bytes
 				});
 				SuperAdmin.server.postgresql.cpu = SuperAdmin.server.postgresql.cpu.format(1) + ' %';
-				SuperAdmin.server.postgresql.memory = SuperAdmin.server.postgresql.memory.format(0) + ' MB';
+				SuperAdmin.server.postgresql.memory = SuperAdmin.server.postgresql.memory.floor(2);
 				next();
 			});
 		});
@@ -281,7 +299,7 @@ SuperAdmin.sysinfo = function(callback) {
 		Exec('ps aux | grep "mysql" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
 			if (err)
 				return next();
-			var pid = response.trim();
+			var pid = response.trim().split('\n').join(',');;
 			if (!pid)
 				return next();
 			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
@@ -289,7 +307,7 @@ SuperAdmin.sysinfo = function(callback) {
 				line = line.trim().replace(REG_EMPTY, ' ').split(' ');
 				SuperAdmin.server.mysql = {};
 				SuperAdmin.server.mysql.cpu = line[0] + ' %';
-				SuperAdmin.server.mysql.memory = (line[1].parseInt() / 1024).format(0) + ' MB';
+				SuperAdmin.server.mysql.memory = line[1].parseInt() * 1024; // kb to bytes
 				SuperAdmin.server.mysql.time = line[2];
 				next();
 			});
@@ -302,10 +320,10 @@ SuperAdmin.sysinfo = function(callback) {
 		Exec('ps aux | grep "couchdb" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
 			if (err)
 				return next();
-			var pid = response.trim();
+			var pid = response.trim().split('\n').join(',');;
 			if (!pid)
 				return next();
-			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid.split('\n').join(',')), function(err, response) {
+			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
 				SuperAdmin.server.couchdb = {};
 				SuperAdmin.server.couchdb.cpu = 0;
 				SuperAdmin.server.couchdb.memory = 0;
@@ -315,10 +333,9 @@ SuperAdmin.sysinfo = function(callback) {
 						return;
 					line = line.replace(REG_EMPTY, ' ').split(' ');
 					SuperAdmin.server.couchdb.cpu += line[0].parseFloat();
-					SuperAdmin.server.couchdb.memory += (line[1].parseInt() / 1024);
+					SuperAdmin.server.couchdb.memory += line[1].parseInt() * 1024; // kB to bytes
 				});
 				SuperAdmin.server.couchdb.cpu = SuperAdmin.server.couchdb.cpu.format(1) + ' %';
-				SuperAdmin.server.couchdb.memory = SuperAdmin.server.couchdb.memory.format(0) + ' MB';
 				next();
 			});
 		});
@@ -330,7 +347,7 @@ SuperAdmin.sysinfo = function(callback) {
 		Exec('ps aux | grep "redis" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
 			if (err)
 				return next();
-			var pid = response.trim();
+			var pid = response.trim().split('\n').join(',');;
 			if (!pid)
 				return next();
 			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
@@ -338,7 +355,7 @@ SuperAdmin.sysinfo = function(callback) {
 				line = line.trim().replace(REG_EMPTY, ' ').split(' ');
 				SuperAdmin.server.redis = {};
 				SuperAdmin.server.redis.cpu = line[0] + ' %';
-				SuperAdmin.server.redis.memory = (line[1].parseInt() / 1024).format(0) + ' MB';
+				SuperAdmin.server.redis.memory = line[1].parseInt() * 1024; // kB to bytes
 				SuperAdmin.server.redis.time = line[2];
 				next();
 			});
@@ -672,6 +689,7 @@ SuperAdmin.load = function(callback) {
 		// Resets PID
 		APPLICATIONS.forEach(function(item) {
 			item.pid = 0;
+			item.cache_hdd = 0;
 			item.linker = item.url.superadmin_linker(item.path);
 			if (!item.priority)
 				item.priority = 0;
