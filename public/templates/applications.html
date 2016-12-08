@@ -1149,11 +1149,11 @@
 			};
 
 			options.data = {};
-			options.data.labels = ['@(Total)', '@(Used)', '@(Free)'];
+			options.data.labels = ['@(Used)', '@(Free)'];
     		options.data.datasets = [
         		{
-        			data: [0, 0, 0],
-            		backgroundColor: ["#909090", "#D63B32", "#8CC152"]
+        			data: [0, 0],
+            		backgroundColor: ["#D63B32", "#8CC152"]
             	}
             ];
 
@@ -1166,9 +1166,8 @@
  			if (!value || !value.memtotal)
 				return;
 			var data = chart.data.datasets[0].data;
-			data[0] = value.memtotal;
-			data[1] = value.memused;
-			data[2] = value.memfree;
+			data[0] = value.memused;
+			data[1] = value.memfree;
 			chart.update();
 		};
 	});
