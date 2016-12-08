@@ -29,7 +29,7 @@ h2 .fa { margin-right: 7px; }
 h2 b { font-weight: 700; }
 
 .monitoring { background: #F8F8F8 linear-gradient(#F3F3F3, #FDFDFD); border-radius: 0 0 4px 4px; padding: 10px 0; font-size: 11px; line-height: 16px; }
-.monitoring .key { color: gray; font-size: 11px; width: 170px; background-color: white; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; margin-bottom: 1px; padding: 1px 3px; }
+.monitoring .key { color: gray; font-size: 11px; width: 170px; background-color: white; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; margin-bottom: 1px; padding: 1px 3px; border-radius: 4px; }
 .monitoring .fa { margin-right: 5px; }
 .monitoring .value { float: right; font-size: 11px; font-weight: bold; margin: 2px 0 0 0; color: #505050; }
 
@@ -220,15 +220,18 @@ canvas { display: block; }
 	.tr { display: block; border-bottom: 1px solid #E0E0E0; padding: 10px 0; }
 	.atd table { border: 1px solid #F0F0F0; margin-bottom: 10px; background-color: #F8F8F8; }
 	.atd table .progress { background-color: #E0E0E0; }
-	.applications .td-buttons { width: 100%; text-align: left; }
+	.applications .td-buttons { width: 100%; text-align: left; border-top: 0 !important; }
 	.applications .td-mode { text-align: left; }
 	.applications .td-name { padding-bottom: 10px !important; font-size: 16px !important; }
+	.applications .td-buttons a { width: 14.2%; height: 30px; }
 	.applications td button { width: 14.2%; height: 30px; border-left: 1px solid #F0F0F0; }
 	.applications td button:first-child { border-left: 0; }
 	.applications .ttd-memory { width: 25%; }
 	.applications .ttd-connections { width: 25%; text-align: center !important; }
 	.applications .ttd-cpu { width: 25%; text-align: right; }
 	.applications .ttd-hdd { width: 25%; color: #AAB2BD; }
+	.applications .td-name { border-top: 0 !important; }
+	.monitoring .key { width: 180px; }
 }
 
 .stats { font-size: 11px; height: 18px; }
