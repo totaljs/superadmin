@@ -1145,7 +1145,7 @@
 			options.options.tooltips.bodyFontSize = 10;
 			options.options.tooltips.callbacks = {};
 			options.options.tooltips.callbacks.label = function(item, data) {
-				return ' ' + data.labels[item.index] + ' ' + data.datasets[item.datasetIndex].data[item.index].filesize(1);
+				return ' ' + data.datasets[item.datasetIndex].data[item.index].filesize(1);
 			};
 
 			options.data = {};
