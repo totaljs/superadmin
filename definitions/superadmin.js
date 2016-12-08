@@ -189,7 +189,7 @@ SuperAdmin.sysinfo = function(callback) {
 				return next();
 			var memory = response.split('\n')[1].match(/\d+/g);
 			SuperAdmin.server.memtotal = memory[0].parseInt();
-			SuperAdmin.server.memfree = memory[2].parseInt();
+			SuperAdmin.server.memfree = memory[2].parseInt() + memory[4].parseInt();
 			SuperAdmin.server.memused = memory[1].parseInt();
 			next();
 		});
