@@ -210,7 +210,18 @@ SuperAdmin.sysinfo = function(callback) {
 	arr.push(function(next) {
 		Exec('netstat -anp | grep :80 | grep TIME_WAIT| wc -l', function(err, response) {
 			if (!err)
-				SuperAdmin.server.connections = response.trim().parseInt();
+				SuperAdmin.server.networkconnections = response.trim().parseInt();
+			next();
+		});
+	});
+
+	arr.push(function(next) {
+		Exec('ifconfig eth0', function(err, response) {
+			var match = response.match(/RX bytes:\d+|TX bytes:\d+/g);
+			if (match) {
+				SuperAdmin.server.networkdownload = match[0].parseInt2();
+				SuperAdmin.server.networkupload = match[1].parseInt2();
+			}
 			next();
 		});
 	});
