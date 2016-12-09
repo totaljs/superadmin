@@ -157,10 +157,6 @@
 			AJAX('POST /api/apps/', applications.form, function(response) {
 
 				applications.waiting = false;
-
-				if (isError(arguments))
-					return;
-
 				SETTER('loading', 'hide', 1000);
 
 				// Error handling

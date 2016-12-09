@@ -113,9 +113,6 @@
 			loading.show();
 			AJAX('POST /api/apps/', applications.subprocess, function(response) {
 
-				if (isError(arguments))
-					return;
-
 				loading.hide(500);
 
 				// Error handling

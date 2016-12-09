@@ -113,9 +113,7 @@ NEWSCHEMA('Application').make(function(schema) {
 		}
 
 		Fs.readFile(item.debug ? Path.join(CONFIG('directory-www'), item.linker, 'logs', 'debug.log') : Path.join(CONFIG('directory-console'), item.linker + '.log'), function(err, response) {
-			if (err)
-				return callback('');
-			callback(response.toString('utf8'));
+			callback(err ? '' : response.toString('utf8'));
 		});
 	});
 

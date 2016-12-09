@@ -69,10 +69,6 @@
 				AJAX('POST /api/apps/unpack/', applications.upload, function(response) {
 
 					applications.waiting = false;
-
-					if (isError(arguments))
-						return;
-
 					loading.hide(500);
 
 					// Error handling
