@@ -103,8 +103,12 @@
 					<div>@(Count)</div>
 					<div data-name="count">...</div>
 				</div>
+
 				<div data-jc="chart.memory" data-jc-path="applications.stats"></div>
-				<hr class="nmt" />
+				<div data-name="cpu" style="font-size:32px;line-height:45px" class="center">...</div>
+				<div class="fs11 center">@(CPU utilization (all cores))</div>
+				<div data-jc="cpu" data-jc-path="applications.stats.cpu"></div>
+
 				<div class="caption"><i class="fa fa-hdd-o"></i>@(HDD)</div>
 				<div class="stats mt10">
 					<div>@(Total)</div>
@@ -229,9 +233,6 @@
 				</div>
 
 				<hr style="margin:15px 0" />
-				<div data-name="cpu" style="font-size:32px;line-height:45px">...</div>
-				<div class="fs11">@(CPU utilization (all cores))</div>
-				<hr />
 				<div class="fs11 b black" data-name="version_server">...</div>
 				<div class="stats mt5">
 					<div>@(Node.js)</div>
@@ -1137,8 +1138,8 @@
 			options.type = 'doughnut';
 			options.options = {};
 			options.options.layout = {};
-			options.options.layout.padding = 20;
-			options.options.cutoutPercentage = 40;
+			options.options.layout.padding = 18;
+			options.options.cutoutPercentage = 20;
 			options.options.legend = {};
 			options.options.legend.display = false;
 			options.options.tooltips = {};
@@ -1169,6 +1170,30 @@
 			data[0] = value.memused;
 			data[1] = value.memfree;
 			chart.update();
+		};
+	});
+
+	COMPONENT('cpu', function() {
+		var self = this;
+		var progress;
+		var width = {};
+		var css = {};
+
+		self.readonly();
+		self.make = function() {
+			self.element.css({ height: '3px', margin: '8px 0 15px', 'background-color': '#F0F0F0' });
+			self.append('<div style="height:3px"></div>');
+			progress = self.find('div');
+		};
+
+		self.setter = function(value) {
+			if (!value)
+				return;
+			var val = value.parseFloat();
+			width.width = Math.round(val) + '%';
+			css['background-color'] = val < 20 ? '#8CC152' : val < 50 ? '#F6BB42' : val < 70 ? '#E9573F' : '#DA4453';
+			progress.animate(width, 300);
+			progress.css(css);
 		};
 	});
 
