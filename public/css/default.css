@@ -1,6 +1,5 @@
 /*auto*/
 
-/*Source Sans Pro*/
 $font   : 'Arial';
 
 html,body { margin: 0; }
@@ -177,8 +176,12 @@ canvas { display: block; }
 .label-upper { text-transform: uppercase; }
 .label .fa { margin-right: 5px; }
 
+.chart-memory > div { position: absolute; margin-top: 66px; left: 50%; width: 100px; margin-left: -50px; text-align: center; font-size: 18px; color: #D63B32; }
+.cpu { border: 2px solid #F0F0F0; padding: 8px 8px 1px; border-radius:4px; margin: 12px 0 15px; text-align: center; }
+.cpu > div:first-child { font-size: 30px; line-height: 45px; color: #606060; letter-spacing: -1px; }
+
 @keyframes animate {
-	0% { transform: scale(0.8); }
+	0% { transform: spuale(0.8); }
 	50% { transform: scale(1); }
 	100% { transform: scale(0.8); }
 }
@@ -190,6 +193,7 @@ canvas { display: block; }
 
 @media(max-width: 1279px) {
 	.monitoring .key { width: 140px; }
+	.chart-memory > div { margin-top: 90px; }
 }
 
 @media(max-width: 996px) {

@@ -79,8 +79,8 @@
 			</div>
 		</div>
 		<div class="col-lg-2 col-md-3">
-			<div style="height:6px" class="visible-lg visible-md"></div>
 			<div data-jc="tagger" data-jc-path="applications.stats">
+				<div style="height:6px" class="visible-lg visible-md"></div>
 				<div class="caption"><i class="fa fa-server"></i>@(Memory)</div>
 				<div class="stats">
 					<div><i class="fa fa-square mr5"></i>@(Total)</div>
@@ -94,7 +94,7 @@
 					<div><i class="fa fa-square mr5 red"></i>@(Used)</div>
 					<div data-name="memused" data-format="n => n.filesize(1)">...</div>
 				</div>
-				<hr style="margin:5px 0 10px" />
+				<div data-jc="freeprogress" data-jc-path="applications.stats" data-type="memory"></div>
 				<div class="stats">
 					<div>@(Applications)</div>
 					<div data-name="memory" data-format="n => n.filesize(1)">...</div>
@@ -104,10 +104,11 @@
 					<div data-name="count">...</div>
 				</div>
 
-				<div data-jc="chart.memory" data-jc-path="applications.stats"></div>
-				<div data-name="cpu" style="font-size:32px;line-height:45px" class="center">...</div>
-				<div class="fs11 center">@(CPU utilization (all cores))</div>
-				<div data-jc="cpu" data-jc-path="applications.stats.cpu"></div>
+				<div class="cpu">
+					<div data-name="cpu">...</div>
+					<div class="fs11">@(CPU utilization (all cores))</div>
+					<div data-jc="freeprogress" data-jc-path="applications.stats" data-type="cpu"></div>
+				</div>
 
 				<div class="caption"><i class="fa fa-hdd-o"></i>@(HDD)</div>
 				<div class="stats mt10">
@@ -122,12 +123,20 @@
 					<div>@(Used)</div>
 					<div data-name="hddused" data-format="n => n.filesize(1)">...</div>
 				</div>
+				<div data-jc="freeprogress" data-jc-path="applications.stats" data-type="hdd"></div>
 
-				<br />
 				<div class="caption"><i class="fa fa-sitemap"></i>@(Network)</div>
 				<div class="stats">
 					<div>@(Open connections)</div>
-					<div><i class="fa fa-circle green blink fs10 mr5"></i><span data-name="connections" data-after="x">...</span></div>
+					<div><i class="fa fa-circle green blink fs10 mr5"></i><span data-name="networkconnections" data-after="x">.34343..</span></div>
+				</div>
+				<div class="stats">
+					<div>@(Upload)</div>
+					<div data-name="networkupload" data-format="n => n.filesize(1)">...</div>
+				</div>
+				<div class="stats">
+					<div>@(Download)</div>
+					<div data-name="networkdownload" data-format="n => n.filesize(1)">...</div>
 				</div>
 
 				<div data-name="nginx" data-visible="n => n" class="hidden">
@@ -231,7 +240,6 @@
 						<div data-name="version_redis" data-before="v">...</div>
 					</div>
 				</div>
-
 				<hr style="margin:15px 0" />
 				<div class="fs11 b black" data-name="version_server">...</div>
 				<div class="stats mt5">
@@ -1124,56 +1132,7 @@
 		};
 	});
 
-	COMPONENT('chart.memory', function() {
-
-		var self = this;
-		var chart;
-		var ctx;
-
-		self.readonly();
-
-		self.make = function() {
-
-			var options = {};
-			options.type = 'doughnut';
-			options.options = {};
-			options.options.layout = {};
-			options.options.layout.padding = 18;
-			options.options.cutoutPercentage = 20;
-			options.options.legend = {};
-			options.options.legend.display = false;
-			options.options.tooltips = {};
-			options.options.tooltips.bodyFontSize = 10;
-			options.options.tooltips.callbacks = {};
-			options.options.tooltips.callbacks.label = function(item, data) {
-				return ' ' + data.datasets[item.datasetIndex].data[item.index].filesize(1);
-			};
-
-			options.data = {};
-			options.data.labels = ['@(Used)', '@(Free)'];
-    		options.data.datasets = [
-        		{
-        			data: [0, 0],
-            		backgroundColor: ["#D63B32", "#8CC152"]
-            	}
-            ];
-
-			self.append('<canvas></canvas>');
-			ctx = self.find('canvas').get(0).getContext('2d');
-			chart = new Chart(ctx, options);
-		};
-
-		self.setter = function(value) {
- 			if (!value || !value.memtotal)
-				return;
-			var data = chart.data.datasets[0].data;
-			data[0] = value.memused;
-			data[1] = value.memfree;
-			chart.update();
-		};
-	});
-
-	COMPONENT('cpu', function() {
+	COMPONENT('freeprogress', function() {
 		var self = this;
 		var progress;
 		var width = {};
@@ -1181,15 +1140,30 @@
 
 		self.readonly();
 		self.make = function() {
-			self.element.css({ height: '3px', margin: '8px 0 15px', 'background-color': '#F0F0F0' });
+			self.element.css({ height: '3px', margin: '8px 0 {0}'.format(self.attr('data-type') === 'memory' ? '8px' : '15px'), 'background-color': '#F0F0F0' });
 			self.append('<div style="height:3px"></div>');
 			progress = self.find('div');
 		};
 
 		self.setter = function(value) {
+
 			if (!value)
 				return;
-			var val = value.parseFloat();
+
+			var val = 0;
+
+			switch (self.attr('data-type')) {
+				case 'memory':
+					val = (value.memused / value.memtotal) * 100;
+					break;
+				case 'hdd':
+					val = (value.hddused / value.hddtotal) * 100;
+					break;
+				case 'cpu':
+					val = value.cpu ? value.cpu.parseFloat() : 0;
+					break;
+			}
+
 			width.width = Math.round(val) + '%';
 			css['background-color'] = val < 20 ? '#8CC152' : val < 50 ? '#F6BB42' : val < 70 ? '#E9573F' : '#DA4453';
 			progress.animate(width, 300);
