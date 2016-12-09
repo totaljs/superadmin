@@ -66,9 +66,7 @@ Tangular.register('uptime', function(value) {
 	var minutes = (value / 60);
 	var hours = (minutes / 60);
 	var days = hours / 24;
-	if (days)
-		return Math.round(days).pluralize('# days', '# day', '# days', '# days');
-	return hours.padLeft(2) + ':' + minutes.padLeft(2);
+	return days ? Math.round(days).pluralize('# days', '# day', '# days', '# days') : hours.padLeft(2) + ':' + minutes.padLeft(2);
 });
 
 
