@@ -84,7 +84,7 @@ $ bash ssl.sh superadmin.mydomain.com --renew
 - kill SuperAdmin using this command `$ kill -9 $(lsof -i :9999 | grep "total" | awk {'print $2'}) > /dev/null`
 - to replace nginx.conf with backed up file use this command `$ cp /etc/nginx/nginx.conf.backup /etc/`nginx/nginx.conf
 - reload nginx service nginx reload and/or just stop it `$ service nginx stop`
-- if you added a cron job to start apps at system startup then remove this line `@reboot /bin/bash /www/superadmin/run.sh` from crontab using crontab -e command
+- if you added a cron job to start apps at system startup then remove this line `@reboot /bin/bash /www/superadmin/run.sh` from crontab using `$ crontab -e` command
 - remove `/www/` folder, this will remove all ssl certificates, nginx conf files, all applications, etc.
 - to remove node.js run `$ apt-get remove -y nodejs`
 - to remove nginx run `$ apt-get remove -y nginx`
