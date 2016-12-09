@@ -176,7 +176,6 @@ canvas { display: block; }
 .label-upper { text-transform: uppercase; }
 .label .fa { margin-right: 5px; }
 
-.chart-memory > div { position: absolute; margin-top: 66px; left: 50%; width: 100px; margin-left: -50px; text-align: center; font-size: 18px; color: #D63B32; }
 .cpu { border: 2px solid #F0F0F0; padding: 8px 8px 1px; border-radius:4px; margin: 12px 0 15px; text-align: center; }
 .cpu > div:first-child { font-size: 30px; line-height: 45px; color: #606060; letter-spacing: -1px; }
 
@@ -193,7 +192,6 @@ canvas { display: block; }
 
 @media(max-width: 1279px) {
 	.monitoring .key { width: 140px; }
-	.chart-memory > div { margin-top: 90px; }
 }
 
 @media(max-width: 996px) {
