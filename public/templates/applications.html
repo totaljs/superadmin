@@ -655,24 +655,26 @@
 	WATCH('applications.filter.search', function(path, value) {
 		if (NOTMODIFIED('applications.filter', applications.filter))
 			return;
+
 		if (!value)
 			value = '';
 
 		value = value.toLowerCase();
 		var categories = {};
 
-		FIND('applications').element.find('tr.tr').each(function(index) {
-			var el = $(this);
-			var search = el.attr('data-search').toLowerCase();
-			var no = value ? search.indexOf(value) === -1 : false;
-			el.toggleClass('hidden', no);
-			if (!no)
-				categories[el.attr('data-category')] = true;
-		});
-
-		FIND('applications').element.find('.category,.items').each(function() {
-			$(this).toggleClass('hidden', categories[this.getAttribute('data-category')] === undefined);
-		});
+		FIND('applications', function(component) {
+			component.element.find('tr.tr').each(function(index) {
+				var el = $(this);
+				var search = el.attr('data-search').toLowerCase();
+				var no = value ? search.indexOf(value) === -1 : false;
+				el.toggleClass('hidden', no);
+				if (!no)
+					categories[el.attr('data-category')] = true;
+			});
+			component.element.find('.category,.items').each(function() {
+				$(this).toggleClass('hidden', categories[this.getAttribute('data-category')] === undefined);
+			});
+		})
 	});
 
 	function applications_edit(id, index) {
@@ -680,9 +682,6 @@
 		loading.show();
 		applications.id = id;
 		AJAX('GET /api/apps/{0}/'.format(id), function(response) {
-
-			if (isError(arguments))
-				return;
 
 			loading.hide(500);
 
@@ -976,7 +975,7 @@
 		var empty = '<div class="offline">@(OFFLINE)</div>';
 		var parent;
 
-		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg visible-xs ttd-hdd">{{ hdd | filesize(0) }}<i class="fa fa-folder-o ml5"></i></td><td class="ttd-cpu visible-xs visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td class="ttd-memory">{{ memory | filesize(1) }}{{ memory | application-progress(\'memory\', 524288000) }}</td><td class="ttd-files visible-lg">{{ openfiles }}<i class="fa fa-hdd-o ml5"></i></td><td class="ttd-connections visible-xs visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
+		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg visible-xs ttd-hdd">{{ hdd | filesize(0) }}<i class="fa fa-folder-o ml5"></i></td><td class="ttd-cpu visible-xs visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td class="ttd-memory">{{ memory | filesize(1) }}</td><td class="ttd-files visible-lg">{{ openfiles }}<i class="fa fa-hdd-o ml5"></i></td><td class="ttd-connections visible-xs visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
 
 		self.make = function() {
 			parent = self.element.closest('tr');

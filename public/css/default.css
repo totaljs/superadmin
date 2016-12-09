@@ -144,9 +144,9 @@ canvas { display: block; }
 .applications .td-port { width: 50px; text-align: right; }
 .applications .td-buttons { width: 145px; text-align: right; }
 .applications .ttd-files { width: 45px; text-align: right; }
-.applications .ttd-memory { width: 85px; }
+.applications .ttd-memory { width: 60px; }
 .applications .ttd-connections { width: 45px; text-align: right; }
-.applications .ttd-cpu { width: 75px; text-align: right; }
+.applications .ttd-cpu { width: 80px; text-align: right; }
 .applications .ttd-hdd { width: 80px; color: #AAB2BD; }
 .tr-subprocess .td-name { font-size: 11px !important; padding-left: 20px !important; background-image: url(../img/line-continue.png); background-repeat: no-repeat; background-position: 0 -1px; }
 .tr-subprocess-last .td-name { background-image: url(../img/line.png) !important; }

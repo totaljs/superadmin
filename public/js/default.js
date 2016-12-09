@@ -14,10 +14,6 @@ $(document).ready(function() {
 	});
 });
 
-function isError(arguments) {
-	return false;
-}
-
 // Because of login form
 if (window.su) {
 	jR.route('/', function() {
