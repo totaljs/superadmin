@@ -18,6 +18,10 @@ __Install requirements:__
 - `openssl`
 
 __SuperAdmin requirements:__
+- `bash`
+- `grep`
+- `awk`
+- `wc`
 - `lsof`
 - `ps`
 - `netstat`
@@ -27,6 +31,12 @@ __SuperAdmin requirements:__
 - `df`
 - `tail`
 - `last`
+- `ifconfig`
+- `uptime`
+- `tar`
+- `cp`
+- `mkdir`
+- `npm`
 
 __To install SuperAdmin run commands bellow:__
 - run `$ sudo wget https://raw.githubusercontent.com/totaljs/superadmin/master/install.sh`
