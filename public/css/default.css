@@ -27,7 +27,7 @@ h2 { font-weight: 400; font-family: $font; margin: 0 0 20px 0; padding: 0; color
 h2 .fa { margin-right: 7px; }
 h2 b { font-weight: 700; }
 
-.monitoring { background: #F8F8F8 linear-gradient(#F3F3F3, #FDFDFD); border-radius: 0 0 4px 4px; padding: 10px 0; font-size: 11px; line-height: 16px; }
+.monitoring { background: #F8F8F8 linear-gradient(#F3F3F3, #FDFDFD); border-radius: 0 0 4px 4px; padding: 10px 0; font-size: 11px; line-height: 16px; margin-bottom: 10px; }
 .monitoring .key { color: gray; font-size: 11px; width: 170px; background-color: white; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; margin-bottom: 1px; padding: 1px 3px; border-radius: 4px; }
 .monitoring .fa { margin-right: 5px; }
 .monitoring .value { float: right; font-size: 11px; font-weight: bold; margin: 2px 0 0 0; color: #505050; }

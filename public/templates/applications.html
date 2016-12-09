@@ -53,8 +53,6 @@
 	</div>
 </div>
 
-<br />
-
 <div class="container">
 	<div class="row">
 		<div class="col-lg-10 col-md-9">
@@ -92,11 +90,11 @@
 				</div>
 				<div class="stats">
 					<div><i class="fa fa-square mr5 red"></i>@(Used)</div>
-					<div data-name="memused" data-format="n => n.filesize(1)">...</div>
+					<div data-name="memused" data-format="n => n.filesize(1)" class="b">...</div>
 				</div>
 				<div data-jc="freeprogress" data-jc-path="applications.stats" data-type="memory"></div>
 				<div class="stats">
-					<div>@(Applications)</div>
+					<div>@(Applications (RSS))</div>
 					<div data-name="memory" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
@@ -121,7 +119,7 @@
 				</div>
 				<div class="stats">
 					<div>@(Used)</div>
-					<div data-name="hddused" data-format="n => n.filesize(1)">...</div>
+					<div data-name="hddused" data-format="n => n.filesize(1)" class="b">...</div>
 				</div>
 				<div data-jc="freeprogress" data-jc-path="applications.stats" data-type="hdd"></div>
 
