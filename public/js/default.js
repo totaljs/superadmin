@@ -61,6 +61,17 @@ Tangular.register('filesize', function(value, decimals, type) {
 	return value.filesize(decimals, type);
 });
 
+Tangular.register('uptime', function(value) {
+	// value === seconds
+	var minutes = (value / 60);
+	var hours = (minutes / 60);
+	var days = hours / 24;
+	if (days)
+		return Math.round(days).pluralize('# days', '# day', '# days', '# days');
+	return hours.padLeft(2) + ':' + minutes.padLeft(2);
+});
+
+
 function mainmenu() {
 	$('header nav').toggleClass('mainmenu-visible');
 }

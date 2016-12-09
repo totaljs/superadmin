@@ -227,6 +227,13 @@ SuperAdmin.sysinfo = function(callback) {
 	});
 
 	arr.push(function(next) {
+		Exec('uptime -s', function(err, response) {
+			SuperAdmin.server.uptime = response.replace(' ', 'T').parseDate().diff('seconds') * -1;
+			next();
+		});
+	});
+
+	arr.push(function(next) {
 		Exec('bash {0}'.format(F.path.databases('cpu.sh')), function(err, response) {
 			if (!err)
 				SuperAdmin.server.cpu = response.trim().parseFloat().format(1) + '%';
