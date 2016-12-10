@@ -1,7 +1,7 @@
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 printf "${RED}SuperAdmin Installtion${NC}\n"
-echo "Installion assumes a clean install of Ubuntu 14.04"
+echo "Installion assumes a clean install of Ubuntu 16.04"
 echo "Installion prompts are for creating a subdomain 'superadmin for a domain name 'domain.tld' and accessing superadmin via it"
 echo "you wil be prompted to provide both."
 echo "By default, a cer-key pair is generated using OpenSSL for HTTPS, if HTTPS is enabled"
@@ -15,7 +15,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 #User Consent
-printf "${RED}This setup requires the installation of the nginx, nodejs and graphicsmagick packages using apt-get!${NC}\n"
+printf "${RED}This setup requires the installation of the Nginx, Node.js and GraphicsMagick packages using apt-get!${NC}\n"
 read -p "Do you wish to permit this ? (y/n) : " userConsent
 
 if [ "$userConsent" == "y" ]; then
@@ -27,18 +27,18 @@ if [ "$userConsent" == "y" ]; then
     read -p "Subdomain without protocol (e.g. superadmin): " subdomain
 
     if [ "$httpsEn" == "y" ]; then
-        read -p "Country Name (2 letter code) (eg, IN): " certC
-        read -p "State or Province Name (eg, Kerala): " certST
-        read -p "Locality Name (eg, Kochi): " certL
-        read -p "Organization Name (eg, Novocorp Industries Inc): " certO
-        read -p "Organizational Unit Name (RnD): " certOU
+        read -p "Country Name (2 letter code) (e.g. IN): " certC
+        read -p "State or Province Name (e.g. Kerala): " certST
+        read -p "Locality Name (e.g. Kochi): " certL
+        read -p "Organization Name (e.g. Novocorp Industries Inc): " certO
+        read -p "Organizational Unit Name (e.g. IT department): " certOU
     fi
 
     #Prerequisits
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
     apt-get install python-software-properties
     apt-get install software-properties-common
-    curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+    curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
     apt-get update
     apt-get install -y nginx
     apt-get install -y nodejs
@@ -52,7 +52,7 @@ if [ "$userConsent" == "y" ]; then
     mkdir /www/www/
     mkdir /www/node_modules/
     cd /www/
-    npm install total.js@beta
+    npm install total.js
 
     #Key Generation
 
