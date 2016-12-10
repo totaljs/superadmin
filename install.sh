@@ -7,6 +7,7 @@ echo "you wil be prompted to provide both."
 echo "By default, a cer-key pair is generated using OpenSSL for HTTPS, if HTTPS is enabled"
 echo "You can find the cer-key pair in the /etc/ssl/<domain>/ folder."
 echo "You will be promted to enter details for the certificate"
+echo "SuperAdmin uses these commands: lsof, ps, netstat, du, cat, free, df, tail, last, ifconfig, uptime, tar"
 
 # Root check
 if [[ $EUID -ne 0 ]]; then
@@ -19,8 +20,8 @@ printf "${RED}This setup requires the installation of the Nginx, Node.js and Gra
 read -p "Do you wish to permit this ? (y/n) : " userConsent
 
 if [ "$userConsent" == "y" ]; then
-    read -p "HTTP ? (y/n) : " httpEn
-    read -p "HTTPS ? (y/n) : " httpsEn
+    read -p "Do you want to provide SuperAdmin via HTTP? (y/n) : " httpEn
+    read -p "Do you want to provide SuperAdmin via HTTPS? (y/n) : " httpsEn
 
     #User Input
     read -p "Domain without protocol (e.g. domain.tk): " domain
