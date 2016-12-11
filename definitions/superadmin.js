@@ -537,7 +537,7 @@ SuperAdmin.ssl = function(url, generate, callback, renew, second) {
 };
 
 SuperAdmin.sslexists = function(url, second, callback) {
-	Fs.readFile(Path.join(CONFIG('directory-ssl'), url, url + '.conf'), function(err, data) {
+	Fs.readFile(Path.join(CONFIG('directory-ssl'), url, 'fullchain.cer'), function(err, data) {
 		if (err)
 			callback(false, false);
 		else
