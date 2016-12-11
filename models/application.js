@@ -333,7 +333,7 @@ NEWSCHEMA('Application').make(function(schema) {
 
 		Fs.readFile(F.path.databases('website.conf'), function(err, response) {
 			response = response.toString('utf8');
-			Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
+			Fs.writeFile(filename, F.viewCompile(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
 
 				if (!ssl) {
 					SuperAdmin.reload(function(err) {
@@ -363,7 +363,7 @@ NEWSCHEMA('Application').make(function(schema) {
 							data.second = undefined;
 
 						data.redirect = model.redirect;
-						Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
+						Fs.writeFile(filename, F.viewCompile(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
 							SuperAdmin.reload(function(err) {
 
 								if (err) {
