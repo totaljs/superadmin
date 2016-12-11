@@ -4,7 +4,7 @@
 
 # Installation
 
-- __SuperAdmin__ (v5.0.0) needs latest Total.js from NPM `+v2.1.0`
+- __SuperAdmin__ (v5.0.0) needs latest Total.js from NPM `+v2.3.0`
 - __License__: [MIT](license.txt)
 - [__HelpDesk with professional support__](https://helpdesk.totaljs.com)
 
@@ -19,20 +19,20 @@ __Install requirements:__
 
 __SuperAdmin requirements:__
 - `bash`
-- `grep`
-- `awk`
-- `wc`
 - `lsof`
 - `ps`
 - `netstat`
+- `ifconfig`
+- `uptime`
+- `grep`
+- `awk`
+- `wc`
 - `du`
 - `cat`
 - `free`
 - `df`
 - `tail`
 - `last`
-- `ifconfig`
-- `uptime`
 - `tar`
 - `cp`
 - `mkdir`
@@ -60,6 +60,25 @@ __To install SuperAdmin run commands bellow:__
 ## Where does SuperAdmin store data?
 
 All data are stored in `/superadmin/databases/` directory. Applications are stored in `application.json`.
+
+---
+
+## How to upload my application?
+
+__SuperAdmin__ uses a Total.js package mechanism. The mechanism creates a package file with a complete directory structure and all files.
+
+- first you have to install Total.js framework as a global module `$ npm install -g total.js`
+- then perform a command below:
+
+```bash
+$ cd myapplication
+$ tpm create myapp.package
+```
+
+- `tpm` creates a package file
+- this file you can upload via SuperAdmin
+
+![Upload a new application](https://www.totaljs.com/img/superadmin-upload.png)
 
 ---
 
