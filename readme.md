@@ -97,7 +97,7 @@ Don't worry, it's very easy.
 
 ## Nice to know
 
-Bash script `ssl.sh` can create or renew certificate manually:
+Bash script `superadmin/ssl.sh` can create or renew certificate manually:
 
 ```bash
 # CREATE:
