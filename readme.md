@@ -76,7 +76,7 @@ $ tpm create myapp.package
 ```
 
 - `tpm` creates a package file
-- this file you can upload via SuperAdmin
+- and this file you can upload via SuperAdmin
 
 ![Upload a new application](https://www.totaljs.com/img/superadmin-upload.png)
 
