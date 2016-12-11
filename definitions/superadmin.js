@@ -538,10 +538,21 @@ SuperAdmin.ssl = function(url, generate, callback, renew, second) {
 
 SuperAdmin.sslexists = function(url, second, callback) {
 	Fs.readFile(Path.join(CONFIG('directory-ssl'), url, 'fullchain.cer'), function(err, data) {
-		if (err)
+
+		if (err) {
 			callback(false, false);
-		else
-			callback(true, second && data.toString('utf8').indexOf('Le_Alt="{0}"'.format(second)) !== -1);
+			return;
+		}
+
+		if (!second)
+			return callback(true, false);
+
+		Fs.readFile(Path.join(CONFIG('directory-ssl'), url, url + '.conf'), function(err, data) {
+			if (err)
+				callback(false, false);
+			else
+				callback(true, second && data.toString('utf8').indexOf('Le_Alt="{0}"'.format(second)) !== -1);
+		});
 	});
 };
 
