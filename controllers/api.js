@@ -286,7 +286,7 @@ function json_templates() {
 	var self = this;
 	var url = CONFIG('superadmin-templates');
 
-	if (!url.isURL())
+	if (!url || !url.isURL())
 		return self.json(EMPTYARRAY);
 
 	U.request(url, ['get', 'dnscache'], function(err, response) {
