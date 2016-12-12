@@ -122,7 +122,7 @@ $ bash ssl.sh superadmin.mydomain.com --renew
 ## Contributors
 
 - Peter Širka (author) <petersirka@gmail.com>
-- Martin Smola  <smola.martin@gmail.com>
+- Martin Smola (support)  <smola.martin@gmail.com>
 - Athul B Raj <https://github.com/Athuli7>
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat
