@@ -5,29 +5,30 @@ const Spawn = require('child_process').spawn;
 
 NEWSCHEMA('Application').make(function(schema) {
 
-	schema.define('id',         'UID');
-	schema.define('url',        'Url', true);
-	schema.define('path',       'String(100)');
-	schema.define('category',   'String(50)');
-	schema.define('redirect',   '[String]');
-	schema.define('allow',      '[String]');
-	schema.define('disallow',   '[String]');
-	schema.define('monitor',    'String(50)');              // URL to monitoring
-	schema.define('ssl_key',    'String');
-	schema.define('ssl_cer',    'String');
-	schema.define('notes',      'String');
-	schema.define('nginx',      'String');                  // Additional NGINX settings (lua)
-	schema.define('delay',       Number);                   // Delay after start
-	schema.define('memory',       Number);                  // Memory limit
-	schema.define('priority',    Number);                   // Start priority
-	schema.define('port',        Number);
-	schema.define('cluster',     Number);                   // Thread count
-	schema.define('ddos',        Number);                   // Maximum count of request per second
-	schema.define('size',        Number);                   // Maximum size of request body (upload size)
-	schema.define('debug',       Boolean);                  // Enables debug mode
-	schema.define('subprocess',  Boolean);
-	schema.define('npm',         Boolean);                  // Performs NPM install
-	schema.define('renew',       Boolean);                  // Performs renew
+	schema.define('id',            'UID');
+	schema.define('url',           'Url', true);
+	schema.define('path',          'String(100)');
+	schema.define('category',      'String(50)');
+	schema.define('redirect',      '[String]');
+	schema.define('allow',         '[String]');
+	schema.define('disallow',      '[String]');
+	schema.define('monitor',       'String(50)');              // URL to monitoring
+	schema.define('ssl_key',       'String');
+	schema.define('ssl_cer',       'String');
+	schema.define('notes',         'String');
+	schema.define('startscript',   'String');                  // A start script
+	schema.define('nginx',         'String');                  // Additional NGINX settings (lua)
+	schema.define('delay',          Number);                   // Delay after start
+	schema.define('memory',         Number);                   // Memory limit
+	schema.define('priority',       Number);                   // Start priority
+	schema.define('port',           Number);
+	schema.define('cluster',        Number);                   // Thread count
+	schema.define('ddos',           Number);                   // Maximum count of request per second
+	schema.define('size',           Number);                   // Maximum size of request body (upload size)
+	schema.define('debug',          Boolean);                  // Enables debug mode
+	schema.define('subprocess',     Boolean);
+	schema.define('npm',            Boolean);                  // Performs NPM install
+	schema.define('renew',          Boolean);                  // Performs renew
 
 	schema.setQuery(function(error, options, callback) {
 		callback(APPLICATIONS);
@@ -112,9 +113,7 @@ NEWSCHEMA('Application').make(function(schema) {
 		}
 
 		Fs.readFile(item.debug ? Path.join(CONFIG('directory-www'), item.linker, 'logs', 'debug.log') : Path.join(CONFIG('directory-console'), item.linker + '.log'), function(err, response) {
-			if (err)
-				return callback('');
-			callback(response.toString('utf8'));
+			callback(err ? '' : response.toString('utf8'));
 		});
 	});
 
@@ -211,6 +210,44 @@ NEWSCHEMA('Application').make(function(schema) {
 		}, true, second);
 	});
 
+	// Analyzes logs
+	schema.addWorkflow('analyzator', function(error, model, controller, callback) {
+
+		var output = [];
+		var search = controller.query.q ? [controller.query.q.toLowerCase()] : ['======= ', 'obsolete', 'error'];
+		var length = search.length;
+
+		APPLICATIONS.wait(function(item, next) {
+
+			if (item.stopped)
+				return next();
+
+			var type = 0;
+			var filename = item.debug ? Path.join(CONFIG('directory-www'), item.linker, 'logs', 'debug.log') : Path.join(CONFIG('directory-console'), item.linker + '.log');
+			var stream = Fs.createReadStream(filename);
+
+			stream.on('data', function(chunk) {
+
+				if (type)
+					return;
+
+				chunk = chunk.toString('utf8').toLowerCase();
+				for (var i = 0; i < length; i++) {
+					if (chunk.indexOf(search[i]) !== -1) {
+						type = search[i].startsWith('===') ? 'error' : search[i];
+						break;
+					}
+				}
+			});
+
+			CLEANUP(stream, function() {
+				type && output.push({ id: item.id, type: type });
+				next();
+			});
+
+		}, () => callback(output), 2);
+	});
+
 	// Creates nginx configuration
 	schema.addWorkflow('nginx', function(error, model, options, callback) {
 
@@ -274,27 +311,29 @@ NEWSCHEMA('Application').make(function(schema) {
 		data.ssl_cer = model.ssl_cer || (CONFIG('directory-ssl') + url + '/fullchain.cer');
 		data.ssl_key = model.ssl_key || (CONFIG('directory-ssl') + url + '/' + url + '.key');
 
-		if (url.startsWith('www.'))
-			data.second = url.substring(4);
-		else if (url.count('.') === 1)
-			data.second = 'www.' + url;
+		if (data.ssl) {
+			if (url.startsWith('www.'))
+				data.second = url.substring(4);
+			else if (url.count('.') === 1)
+				data.second = 'www.' + url;
 
-		if (data.second && APPLICATIONS.findItem('url', 'https://' + data.second))
-			data.second = undefined;
-
-		if (data.second) {
-			if (model.ssl_cer) {
-				// 3rd-party certificate
+			if (data.second && APPLICATIONS.findItem('url', 'https://' + data.second))
 				data.second = undefined;
-			} else {
-				data.second_cer = CONFIG('directory-ssl') + data.second + '/fullchain.cer';
-				data.second_key = CONFIG('directory-ssl') + data.second + '/' + data.second + '.key';
+
+			if (data.second) {
+				if (model.ssl_cer) {
+					// 3rd-party certificate
+					data.second = undefined;
+				} else {
+					data.second_cer = CONFIG('directory-ssl') + data.second + '/fullchain.cer';
+					data.second_key = CONFIG('directory-ssl') + data.second + '/' + data.second + '.key';
+				}
 			}
 		}
 
 		Fs.readFile(F.path.databases('website.conf'), function(err, response) {
 			response = response.toString('utf8');
-			Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
+			Fs.writeFile(filename, F.viewCompile(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
 
 				if (!ssl) {
 					SuperAdmin.reload(function(err) {
@@ -324,7 +363,7 @@ NEWSCHEMA('Application').make(function(schema) {
 							data.second = undefined;
 
 						data.redirect = model.redirect;
-						Fs.writeFile(filename, F.view(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
+						Fs.writeFile(filename, F.viewCompile(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
 							SuperAdmin.reload(function(err) {
 
 								if (err) {

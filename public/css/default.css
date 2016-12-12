@@ -1,6 +1,5 @@
 /*auto*/
 
-/*Source Sans Pro*/
 $font   : 'Arial';
 
 html,body { margin: 0; }
@@ -28,8 +27,8 @@ h2 { font-weight: 400; font-family: $font; margin: 0 0 20px 0; padding: 0; color
 h2 .fa { margin-right: 7px; }
 h2 b { font-weight: 700; }
 
-.monitoring { background-color: #F8F8F8; border-radius: 0 0 4px 4px; padding: 10px 0; border-bottom: 1px solid #F0F0F0; font-size: 11px; line-height: 16px; }
-.monitoring .key { color: gray; font-size: 11px; width: 170px; background-color: white; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; margin-bottom: 1px; padding: 1px 3px; }
+.monitoring { background: #F8F8F8 linear-gradient(#F3F3F3, #FDFDFD); border-radius: 0 0 4px 4px; padding: 10px 0; font-size: 11px; line-height: 16px; margin-bottom: 10px; }
+.monitoring .key { color: gray; font-size: 11px; width: 170px; background-color: white; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; margin-bottom: 1px; padding: 1px 3px; border-radius: 4px; }
 .monitoring .fa { margin-right: 5px; }
 .monitoring .value { float: right; font-size: 11px; font-weight: bold; margin: 2px 0 0 0; color: #505050; }
 
@@ -70,6 +69,7 @@ footer { border-top: 1px solid #E0E0E0; padding: 30px 0 0; text-align: center; f
 table td { vertical-align: middle !important;}
 .table-small td { padding: 3px 10px !important; font-size: 12px; }
 
+.fs12 { font-size: 12px !important; }
 .fs11 { font-size: 11px !important; }
 .fs10 { font-size: 10px !important; }
 .help { font-size: 11px; color: #AAB2BD; margin-top: 7px; line-height: 13px; }
@@ -99,6 +99,15 @@ canvas { display: block; }
 .mainmenu-button { font-size: 25px; margin-top: 4px; color: gray; float: right; }
 .mainmenu-visible { display: block; }
 
+.analyzator tr>td:first-child { padding-left: 0; }
+.analyzator tr>td:last-child { padding-right: 0; }
+
+.analyzator .td-buttons { text-align: right; }
+.analyzator .td-buttons a { outline: 0; background-color: #F0F0F0; border: 0; font-size: 12px; width: 24px; height: 20px; padding: 2px 0 0; color: silver; position: relative; display: inline-block; text-align: center; border-left: 1px solid #E0E0E0; }
+.analyzator .td-buttons a:hover { color: black; background-color: #E0E0E0; }
+.analyzator .td-buttons a:last-child { color: #E9573F; border-radius: 0 4px 4px 0; }
+.analyzator .td-buttons a:first-child { border-radius: 4px 0 0 4px; border-left: 0; }
+
 .applications .items { border: 1px solid #F0F0F0; padding: 6px; margin-bottom: 20px; border-radius: 4px; background-color: white; box-shadow: 0 3px 10px #F9F9F9; }
 .applications .items > table { width: 100%; }
 .applications .items > table td { border-top: 1px solid #F0F0F0; padding: 0; font-size: 12px; }
@@ -107,6 +116,8 @@ canvas { display: block; }
 .applications .items > table table { width: 100%; }
 .applications .items > table table td { padding: 2px 0; font-size: 11px; text-align: right; border: 0; }
 .applications td button { outline: 0; background-color: transparent; border: 0; font-size: 12px; width: 20px; height: 20px; padding: 0; color: silver; }
+.applications .td-buttons a { outline: 0; background-color: transparent; border: 0; font-size: 12px; width: 20px; height: 20px; padding: 2px 0 0; color: silver; position: relative; display: inline-block; text-align: center; }
+.applications .td-buttons a:hover { color: black; background-color: #E0E0E0; }
 .applications td button:hover { color: black; background-color: #E0E0E0; }
 .applications td button:last-child { color: #E9573F; }
 .applications .first { padding-left: 5px !important; }
@@ -133,15 +144,15 @@ canvas { display: block; }
 .applications .td-port { width: 50px; text-align: right; }
 .applications .td-buttons { width: 145px; text-align: right; }
 .applications .ttd-files { width: 45px; text-align: right; }
-.applications .ttd-memory { width: 85px; }
+.applications .ttd-memory { width: 60px; }
 .applications .ttd-connections { width: 45px; text-align: right; }
-.applications .ttd-cpu { width: 75px; text-align: right; }
-.applications .ttd-hdd { width: 60px; color: #AAB2BD; }
+.applications .ttd-cpu { width: 80px; text-align: right; }
+.applications .ttd-hdd { width: 80px; color: #AAB2BD; }
 .tr-subprocess .td-name { font-size: 11px !important; padding-left: 20px !important; background-image: url(../img/line-continue.png); background-repeat: no-repeat; background-position: 0 -1px; }
 .tr-subprocess-last .td-name { background-image: url(../img/line.png) !important; }
 
-.operations { margin: 5px 0 0 0; padding: 0;}
-.operations button { outline: 0; color: #989FA9; background-color: white; border: 0; font-size: 16px; width: 14.285%; height: 44px; margin: 0; padding: 0; border-top: 1px solid #E0E0E0; border-bottom: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0; }
+.operations { margin: 5px 0 0 0; padding: 0; }
+.operations button { outline: 0; color: #989FA9; background-color: white; border: 0; font-size: 16px; width: 16.6%; height: 44px; margin: 0; padding: 0; border-top: 1px solid #E0E0E0; border-bottom: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0; }
 .operations button:hover { color: black; background-color: #E0E0E0; }
 .operations button:first-child { border-radius: 4px 0 0 4px; border-left: 1px solid #E0E0E0; }
 .operations button:last-child { border-radius: 0 4px 4px 0; }
@@ -165,8 +176,11 @@ canvas { display: block; }
 .label-upper { text-transform: uppercase; }
 .label .fa { margin-right: 5px; }
 
+.cpu { border: 2px solid #F0F0F0; padding: 8px 8px 1px; border-radius:4px; margin: 12px 0 15px; text-align: center; }
+.cpu > div:first-child { font-size: 30px; line-height: 45px; color: #606060; letter-spacing: -1px; }
+
 @keyframes animate {
-	0% { transform: scale(0.8); }
+	0% { transform: spuale(0.8); }
 	50% { transform: scale(1); }
 	100% { transform: scale(0.8); }
 }
@@ -208,15 +222,18 @@ canvas { display: block; }
 	.tr { display: block; border-bottom: 1px solid #E0E0E0; padding: 10px 0; }
 	.atd table { border: 1px solid #F0F0F0; margin-bottom: 10px; background-color: #F8F8F8; }
 	.atd table .progress { background-color: #E0E0E0; }
-	.applications .td-buttons { width: 100%; text-align: left; }
+	.applications .td-buttons { width: 100%; text-align: left; border-top: 0 !important; }
 	.applications .td-mode { text-align: left; }
 	.applications .td-name { padding-bottom: 10px !important; font-size: 16px !important; }
+	.applications .td-buttons a { width: 14.2%; height: 30px; }
 	.applications td button { width: 14.2%; height: 30px; border-left: 1px solid #F0F0F0; }
 	.applications td button:first-child { border-left: 0; }
 	.applications .ttd-memory { width: 25%; }
 	.applications .ttd-connections { width: 25%; text-align: center !important; }
 	.applications .ttd-cpu { width: 25%; text-align: right; }
 	.applications .ttd-hdd { width: 25%; color: #AAB2BD; }
+	.applications .td-name { border-top: 0 !important; }
+	.monitoring .key { width: 180px; }
 }
 
 .stats { font-size: 11px; height: 18px; }

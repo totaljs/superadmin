@@ -1,9 +1,13 @@
 #!/bin/bash
 
-if [ "$2" == "--www" ] || [ "$2" == "www" ] || [ "$1" == "-www" ]
+if [[ "$@" == *"-renew"* ]]
 then
-	/root/.acme.sh/acme.sh --certhome /www/ssl --issue -d $1 --issue -d www.$1 -w /www/acme
-	exit
+	/root/.acme.sh/acme.sh --certhome /www/ssl --issue -d $1 --renew --force -w /www/acme
+else
+	if [[ "$@" == *"-update"* ]]
+	then
+		/root/.acme.sh/acme.sh upgrade
+	else
+		/root/.acme.sh/acme.sh --certhome /www/ssl --issue -d $1 -w /www/acme
+	fi
 fi
-
-/root/.acme.sh/acme.sh --certhome /www/ssl --issue -d $1 -w /www/acme

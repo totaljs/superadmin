@@ -2,16 +2,24 @@ const SA = { id: '0', name: 'SuperAdmin', roles: EMPTYARRAY };
 var DDOS = {};
 
 F.onAuthorize = function(req, res, flags, callback) {
-	var cookie = req.cookie('__sa');
+
+	var cookie = req.cookie(F.config.cookie);
 	if (!cookie || cookie.parseInt() !== F.config.superadmin.hash()) {
-		if (DDOS[req.ip] > 4)
+
+		if (DDOS[req.ip] > 3) {
+			F.logger('blocked', req.ip, req.headers.useragent);
 			return callback(false);
-		if (!DDOS[req.ip])
-			DDOS[req.ip] = 0;
-		DDOS[req.ip]++;
+		}
+
+		if (DDOS[req.ip])
+			DDOS[req.ip]++;
+		else
+			DDOS[req.ip] = 1;
+
 		return callback(false);
 	}
 
+	SA.ip = req.ip;
 	callback(true, SA);
 };
 

@@ -1,0 +1,58 @@
+<div data-jc="form" data-title="@(Logs analyzator)" data-jc-path="common.form" data-if="value === 'applications-analyzator'" data-width="800px" class="hidden">
+	<div class="padding">
+		<div data-jc="visible" data-jc-path="applications.analyzator" data-if="!value || !value.length">
+			<div class="padding center">
+				<i class="fa fa-check-circle fa-4x green"></i>
+				<div class="mt10">@(<b>Good job</b>, no issue present.)</div>
+			</div>
+		</div>
+		<table class="table analyzator fs12 hidden" data-jc="visible" data-jc-path="applications.analyzator" data-if="value && value.length > 0">
+			<tbody data-jc="repeater" data-jc-path="applications.analyzator">
+				<script type="text/html">
+					<tr>
+						<td><a href="{{ url }}" target="_blank">{{ url }}</a></td>
+						<td class="col-xs-2 red b"><i class="fa fa-bug mr5"></i>{{ type }}</td>
+						<td class="td-buttons" style="width:60px">
+							<a href="/logs/{{ id }}/" target="_blank" title="@(Show logs)"><i class="fa fa-search"></i></a>
+							<a href="javascript:applications_analyzator_restart({{ index }})" title="@(Restart)"><i class="fa fa-refresh"></i></a>
+						</td>
+					</tr>
+				</script>
+			</tbody>
+		</table>
+	</div>
+	<div class="ui-form-buttons center">
+		<button name="cancel" style="width:200px">@(Close)</button>
+	</div>
+</div>
+
+<script>
+	applications.analyzator = EMPTYARRAY;
+
+	function applications_analyzator_refresh() {
+		CACHE('analyzator', '1', '4 days');
+		SETTER('loading', 'show');
+		AJAX('GET /api/apps/analyzator/', function(response) {
+
+			SETTER('loading', 'hide', 500);
+
+			response.forEach(function(item) {
+				var app = applications.grid.findItem('id', item.id);
+				item.url = app ? app.url : 'undefined';
+			});
+
+			SET('applications.analyzator', response);
+		});
+	}
+
+	function applications_analyzator_restart(index) {
+		var item = applications.analyzator[index];
+		applications_restart(item.id, function() {
+			SETTER('loading', 'show');
+			setTimeout2('analyzator', function() {
+				applications_analyzator_refresh();
+			}, 2000);
+		});
+	}
+
+</script>

@@ -2,24 +2,27 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-md-4 m">
-				<div data-component="textboxsearch" data-component-path="applications.filter.search" data-placeholder="@(Type a word)">@(Search applications)</div>
+				<div data-jc="textboxsearch" data-jc-path="applications.filter.search" data-placeholder="@(Type a word)">@(Search applications)</div>
 			</div>
-			<div class="col-md-4 col-md-offset-4 m">
+			<div class="col-md-4 center hidden-sm hidden-xs">
+				@(Your IP address:)
+				<div data-jc="" data-jc-path="su.ip" class="black b" style="font-size:24px"></div>
+			</div>
+			<div class="col-md-4 m">
 				<div class="operations">
 					<button class="operation-button" name="add" title="@(Add application)"><i class="fa fa-plus-circle"></i></button>
 					<button class="operation-button" name="addsubprocess" title="@(Add subprocess)"><i class="fa fa-plug"></i></button>
+					<button class="operation-button" name="analyzator" title="@(Logs analyzator)"><i class="fa fa-bug"></i></button>
 					<button class="operation-button" name="summary" title="@(Summary)"><i class="fa fa-bar-chart"></i></button>
 					<button class="operation-button" name="restart" title="@(Restart all)"><i class="fa fa-refresh"></i></button>
-					<button class="operation-button" name="stop" title="@(Stop all)"><i class="fa fa-stop-circle"></i></button>
-					<button class="operation-button" name="reconfigure" title="@(Reconfigure all)"><i class="fa fa-retweet"></i></button>
-					<button class="operation-button" name="backup" title="@(Backup the server)"><i class="fa fa-cloud-download"></i></button>
+					<button class="operation-button" name="options" title="@(Options)"><i class="fa fa-server"></i></button>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
 
-<div class="monitoring hidden" data-component="monitoring" data-component-path="applications.monitor">
+<div class="monitoring hidden" data-jc="monitoring" data-jc-path="applications.monitor">
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-3">
@@ -50,20 +53,18 @@
 	</div>
 </div>
 
-<br />
-
 <div class="container">
 	<div class="row">
 		<div class="col-lg-10 col-md-9">
-			<div data-component="applications" data-component-path="applications.grid">
+			<div data-jc="applications" data-jc-path="applications.grid">
 				<script type="text/html">
 					<tr data-search="{{ url }}" class="tr{{ if subprocess }} tr-subprocess{{ fi }}{{ if $.last }} tr-subprocess-last{{ fi }}" data-id="{{ id }}" data-category="{{ category }}">
 						<td class="atd first td-name" data-monitor="{{ monitor }}"><a href="{{ url }}{{ path }}" target="_blank" class="name"><i class="fa fa-bug"></i>{{ url | application-name }}{{ path }}{{ if monitor }}<i class="fa fa-desktop fs10 ml5 silver"></i>{{ fi }}{{ if cluster > 1 }}<span class="badge badge-silver cluster">{{ cluster }}</span>{{ fi }}</a></td>
 						<td class="atd hidden-xs td-mode">{{ if debug }}<i class="fa fa-flask mr5"></i><span class="badge badge-red">@(debug)</span>{{ fi }}</td>
-						<td class="atd"><div data-component="application-appinfo" data-port="{{ port }}" data-monitor="{{ monitor }}" data-component-path="applications.info"></div></td>
+						<td class="atd"><div data-jc="application-appinfo" data-port="{{ port }}" data-monitor="{{ monitor }}" data-jc-path="applications.info"></div></td>
 						<td class="atd hidden-xs td-port"><span class="badge badge-silver">{{ port }}</span></td>
 						<td class="atd td-buttons" data-id="{{ id }}">
-							<button class="application-button" name="logs" title="@(Show logs)"><i class="fa fa-search"></i></button>
+							<a href="/logs/{{ id }}/" target="_blank" title="@(Show logs)"><i class="fa fa-search"></i></a>
 							<button class="application-button" name="restart" title="@(Restart)"><i class="fa fa-refresh"></i></button>
 							<button class="application-button" name="stop" title="@(Stop)"><i class="fa fa-stop-circle"></i></button>
 							<button class="application-button" name="upload" title="@(Upload package)"><i class="fa fa-cloud-upload"></i></button>
@@ -76,50 +77,81 @@
 			</div>
 		</div>
 		<div class="col-lg-2 col-md-3">
-			<div style="height:6px" class="visible-lg visible-md"></div>
-			<div data-component="tagger" data-component-path="applications.stats">
+			<div data-jc="tagger" data-jc-path="applications.stats">
+				<div style="height:6px" class="visible-lg visible-md"></div>
 				<div class="caption"><i class="fa fa-server"></i>@(Memory)</div>
 				<div class="stats">
-					<div>@(Total)</div>
-					<div data-name="memtotal" data-format="n => n.format(0)" data-after=" MB">...</div>
+					<div><i class="fa fa-square mr5"></i>@(Total)</div>
+					<div data-name="memtotal" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
-					<div>@(Free)</div>
-					<div data-name="memfree" data-format="n => n.format(0)" data-after=" MB">...</div>
+					<div><i class="fa fa-square mr5 green"></i>@(Free)</div>
+					<div data-name="memfree" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
-					<div>@(Used)</div>
-					<div data-name="memused" data-format="n => n.format(0)" data-after=" MB">...</div>
+					<div><i class="fa fa-square mr5 red"></i>@(Used)</div>
+					<div data-name="memused" data-format="n => n.filesize(1)" class="b">...</div>
 				</div>
-				<hr style="margin:5px 0 10px" />
+				<div data-jc="freeprogress" data-jc-path="applications.stats" data-type="memory"></div>
 				<div class="stats">
-					<div>@(Applications)</div>
-					<div data-name="memory" data-format="n => n.format(0)" data-after=" MB">...</div>
+					<div>@(Applications (RSS))</div>
+					<div data-name="memory" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
 					<div>@(Count)</div>
 					<div data-name="count">...</div>
 				</div>
-				<br />
+
+				<div class="cpu">
+					<div data-name="cpu">...</div>
+					<div class="fs11">@(CPU utilization (all cores))</div>
+					<div data-jc="freeprogress" data-jc-path="applications.stats" data-type="cpu"></div>
+				</div>
+
 				<div class="caption"><i class="fa fa-hdd-o"></i>@(HDD)</div>
 				<div class="stats mt10">
 					<div>@(Total)</div>
-					<div data-name="hddtotal">...</div>
+					<div data-name="hddtotal" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
 					<div>@(Free)</div>
-					<div data-name="hddfree">...</div>
+					<div data-name="hddfree" data-format="n => n.filesize(1)">...</div>
 				</div>
 				<div class="stats">
 					<div>@(Used)</div>
-					<div data-name="hddused">...</div>
+					<div data-name="hddused" data-format="n => n.filesize(1)" class="b">...</div>
 				</div>
+				<div data-jc="freeprogress" data-jc-path="applications.stats" data-type="hdd"></div>
 
-				<br />
 				<div class="caption"><i class="fa fa-sitemap"></i>@(Network)</div>
 				<div class="stats">
 					<div>@(Open connections)</div>
-					<div><i class="fa fa-circle green blink fs10 mr5"></i><span data-name="connections" data-after="x">...</span></div>
+					<div><i class="fa fa-circle green blink fs10 mr5"></i><span data-name="networkconnections" data-after="x">.34343..</span></div>
+				</div>
+				<div class="stats">
+					<div>@(Upload)</div>
+					<div data-name="networkupload" data-format="n => n.filesize(1)">...</div>
+				</div>
+				<div class="stats">
+					<div>@(Download)</div>
+					<div data-name="networkdownload" data-format="n => n.filesize(1)">...</div>
+				</div>
+
+				<div data-name="nginx" data-visible="n => n" class="hidden">
+					<br />
+					<div class="caption"><i class="fa fa-server green"></i>@(Nginx)</div>
+					<div class="stats mt10">
+						<div>@(CPU)</div>
+						<div data-name="nginx.cpu">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Memory)</div>
+						<div data-name="nginx.memory" data-format="n => n.filesize(1)">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Version)</div>
+						<div data-name="version_nginx" data-before="v">...</div>
+					</div>
 				</div>
 
 				<div data-name="mongodb" data-visible="n => n" class="hidden">
@@ -131,7 +163,7 @@
 					</div>
 					<div class="stats">
 						<div>@(Memory)</div>
-						<div data-name="mongodb.memory">...</div>
+						<div data-name="mongodb.memory" data-format="n => n.filesize(1)">...</div>
 					</div>
 					<div class="stats">
 						<div>@(Version)</div>
@@ -148,7 +180,7 @@
 					</div>
 					<div class="stats">
 						<div>@(Memory)</div>
-						<div data-name="postgresql.memory">...</div>
+						<div data-name="postgresql.memory" data-format="n => n.filesize(1)">...</div>
 					</div>
 					<div class="stats">
 						<div>@(Version)</div>
@@ -165,11 +197,28 @@
 					</div>
 					<div class="stats">
 						<div>@(Memory)</div>
-						<div data-name="mysql.memory">...</div>
+						<div data-name="mysql.memory" data-format="n => n.filesize(1)">...</div>
 					</div>
 					<div class="stats">
 						<div>@(Version)</div>
 						<div data-name="version_mysql" data-before="v">...</div>
+					</div>
+				</div>
+
+				<div data-name="couchdb" data-visible="n => n" class="hidden">
+					<br />
+					<div class="caption"><i class="fa fa-database green"></i>@(CouchDB)</div>
+					<div class="stats mt10">
+						<div>@(CPU)</div>
+						<div data-name="couchdb.cpu">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Memory)</div>
+						<div data-name="couchdb.memory" data-format="n => n.filesize(1)">...</div>
+					</div>
+					<div class="stats">
+						<div>@(Version)</div>
+						<div data-name="version_couchdb" data-before="v">...</div>
 					</div>
 				</div>
 
@@ -182,22 +231,18 @@
 					</div>
 					<div class="stats">
 						<div>@(Memory)</div>
-						<div data-name="redis.memory">...</div>
+						<div data-name="redis.memory" data-format="n => n.filesize(1)">...</div>
 					</div>
 					<div class="stats">
 						<div>@(Version)</div>
 						<div data-name="version_redis" data-before="v">...</div>
 					</div>
 				</div>
-
 				<hr style="margin:15px 0" />
-				<div data-name="cpu" style="font-size:32px;line-height:45px">...</div>
-				<div class="fs11">@(CPU utilization (all cores))</div>
-				<hr />
 				<div class="fs11 b black" data-name="version_server">...</div>
 				<div class="stats mt5">
-					<div>@(Nginx)</div>
-					<div data-name="version_nginx" data-before="v">...</div>
+					<div>@(Uptime)</div>
+					<div data-name="uptime" data-format="n => Tangular.helpers.uptime(n)">...</div>
 				</div>
 				<div class="stats">
 					<div>@(Node.js)</div>
@@ -214,12 +259,14 @@
 </div>
 <br />
 
-<div data-url="/templates/applications-form-summary.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-summary'" data-reload="applications_summary_refresh"></div>
-<div data-url="/templates/applications-form-logs.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-logs'" data-reload="applications_logs_refresh"></div>
-<div data-url="/templates/applications-form-backup.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-backup'"></div>
-<div data-url="/templates/applications-form-upload.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-upload'" data-reload="applications_upload_refresh"></div>
-<div data-url="/templates/applications-form-subprocess.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications-subprocess'" data-reload="applications_subprocess_refresh"></div>
-<div data-url="/templates/applications-form.html" data-component="importer" data-component-path="common.form" data-if="value === 'applications'" data-reload="applications_form_refresh"></div>
+<div data-url="/templates/applications-form-analyzator.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-analyzator'" data-reload="applications_analyzator_refresh"></div>
+<div data-url="/templates/applications-form-summary.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-summary'" data-reload="applications_summary_refresh"></div>
+<div data-url="/templates/applications-form-logs.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-logs'" data-reload="applications_logs_refresh"></div>
+<div data-url="/templates/applications-form-backup.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-backup'"></div>
+<div data-url="/templates/applications-form-upload.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-upload'" data-reload="applications_upload_refresh"></div>
+<div data-url="/templates/applications-form-subprocess.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-subprocess'" data-reload="applications_subprocess_refresh"></div>
+<div data-url="/templates/applications-stdout.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications-stdout'"></div>
+<div data-url="/templates/applications-form.html" data-jc="importer" data-jc-path="common.form" data-if="value === 'applications'" data-reload="applications_form_refresh"></div>
 
 <script type="text/html" id="template-monitoring">
 	<table class="keyvalue-table">
@@ -465,13 +512,7 @@
 				});
 				return;
 			case 'restart':
-				SETTER('loading', 'show');
-				delete applications.merrors[id];
-				AJAX('GET /api/apps/{0}/restart/'.format(id), function(response) {
-					button.closest('tr').removeClass('error');
-					applications_info();
-					success();
-				});
+				applications_restart(id);
 				return;
 			case 'stop':
 				SETTER('loading', 'show');
@@ -496,6 +537,17 @@
 		}
 	});
 
+	function applications_restart(id, callback) {
+		delete applications.merrors[id];
+		SETTER('loading', 'show');
+		AJAX('GET /api/apps/{0}/restart/'.format(id), function(response) {
+			applications_info();
+			$('tr[data-id="{0}"]'.format(id)).removeClass('error');
+			success();
+			callback && callback();
+		});
+	}
+
 	$(document).on('click', '.operation-button', function() {
 		switch (this.name) {
 
@@ -503,16 +555,9 @@
 				SET('common.form', 'applications-summary', 100);
 				break;
 
-			case 'backup':
-				FIND('confirm').confirm('@(Are you sure you want to create a backup of the whole server?)', ['@(Yes)', '@(Cancel)'], function(index) {
-					if (index)
-						return;
-					SETTER('loading', 'show');
-					SETTER('loading', 'hide', 1000);
-					SET('common.form', 'applications-backup');
-					location.href = '/api/apps/backup/';
-				});
-				return;
+			case 'analyzator':
+				SET('common.form', 'applications-analyzator', 100);
+				break;
 
 			case 'add':
 				applications_new();
@@ -520,6 +565,72 @@
 
 			case 'addsubprocess':
 				applications_newsubprocess();
+				break;
+
+			case 'options':
+				FIND('contextmenu').show('right', this, [{ name: '@(Reconfigure all)', icon: 'fa-retweet', value: 'reconfigure' }, { name: 'Backup server', icon: 'fa-cloud-download', value: 'backup' }, { name: '@(Nginx test)', icon: 'fa-flask', value: 'nginx' }, { name: '@(SuperAdmin logs)', icon: 'fa-file-text-o', value: 'logs' }, { name: '@(Server logins)', icon: 'fa-lock', value: 'last' }, { name: '@(Stop all)', icon: 'fa-stop', value: 'stop' }], function(value) {
+
+					if (value === 'backup') {
+						FIND('confirm').confirm('@(Are you sure you want to create a backup of the whole server?)', ['@(Yes)', '@(Cancel)'], function(index) {
+							if (index)
+								return;
+							SETTER('loading', 'show');
+							SETTER('loading', 'hide', 1000);
+							SET('common.form', 'applications-backup');
+							location.href = '/api/apps/backup/';
+						});
+						return;
+					}
+
+					if (value === 'reconfigure') {
+						FIND('confirm').confirm('@(Are you sure you want to reconfigure all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
+							if (index)
+								return;
+							SETTER('loading', 'show');
+							applications.waiting = true;
+							applications.sslexpire = {};
+							AJAX('GET /api/apps/reconfigure/', function(response) {
+								applications.waiting = false;
+								applications_info();
+								success();
+							});
+						});
+						return;
+					}
+
+					if (value === 'stop') {
+						FIND('confirm').confirm('@(Are you sure you want to stop all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
+							if (index)
+								return;
+							SETTER('loading', 'show');
+							applications.waiting = true;
+							AJAX('GET /api/apps/stop/', function(response) {
+								applications.waiting = false;
+								applications_info();
+								success();
+							});
+						});
+						return;
+					}
+
+					if (value === 'stop') {
+						FIND('confirm').confirm('@(Are you sure you want to stop all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
+							if (index)
+								return;
+							SETTER('loading', 'show');
+							applications.waiting = true;
+							AJAX('GET /api/apps/stop/', function(response) {
+								applications.waiting = false;
+								applications_info();
+								success();
+							});
+						});
+						return;
+					}
+
+					AJAX('GET /api/{0}/'.format(value), 'applications.stdout.lines');
+					SET('common.form', 'applications-stdout');
+				}, -5);
 				break;
 
 			case 'restart':
@@ -537,35 +648,6 @@
 					});
 				});
 				break;
-
-			case 'reconfigure':
-				FIND('confirm').confirm('@(Are you sure you want to reconfigure all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
-					if (index)
-						return;
-					SETTER('loading', 'show');
-					applications.waiting = true;
-					applications.sslexpire = {};
-					AJAX('GET /api/apps/reconfigure/', function(response) {
-						applications.waiting = false;
-						applications_info();
-						success();
-					});
-				});
-				break;
-
-			case 'stop':
-				FIND('confirm').confirm('@(Are you sure you want to stop all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
-					if (index)
-						return;
-					SETTER('loading', 'show');
-					applications.waiting = true;
-					AJAX('GET /api/apps/stop/', function(response) {
-						applications.waiting = false;
-						applications_info();
-						success();
-					});
-				});
-				break;
 		}
 	});
 
@@ -573,24 +655,26 @@
 	WATCH('applications.filter.search', function(path, value) {
 		if (NOTMODIFIED('applications.filter', applications.filter))
 			return;
+
 		if (!value)
 			value = '';
 
 		value = value.toLowerCase();
 		var categories = {};
 
-		FIND('applications').element.find('tr.tr').each(function(index) {
-			var el = $(this);
-			var search = el.attr('data-search').toLowerCase();
-			var no = value ? search.indexOf(value) === -1 : false;
-			el.toggleClass('hidden', no);
-			if (!no)
-				categories[el.attr('data-category')] = true;
-		});
-
-		FIND('applications').element.find('.category,.items').each(function() {
-			$(this).toggleClass('hidden', categories[this.getAttribute('data-category')] === undefined);
-		});
+		FIND('applications', function(component) {
+			component.element.find('tr.tr').each(function(index) {
+				var el = $(this);
+				var search = el.attr('data-search').toLowerCase();
+				var no = value ? search.indexOf(value) === -1 : false;
+				el.toggleClass('hidden', no);
+				if (!no)
+					categories[el.attr('data-category')] = true;
+			});
+			component.element.find('.category,.items').each(function() {
+				$(this).toggleClass('hidden', categories[this.getAttribute('data-category')] === undefined);
+			});
+		})
 	});
 
 	function applications_edit(id, index) {
@@ -598,9 +682,6 @@
 		loading.show();
 		applications.id = id;
 		AJAX('GET /api/apps/{0}/'.format(id), function(response) {
-
-			if (isError(arguments))
-				return;
 
 			loading.hide(500);
 
@@ -639,7 +720,14 @@
 		if (reset)
 			applications.filter.page = 1;
 
-		AJAX('GET /api/apps/', applications.filter, function(response, a, b, c) {
+		clearTimeout2('applications.refresh');
+
+		AJAX('GET /api/apps/', applications.filter, function(response, err) {
+
+			if (err) {
+				setTimeout2('applications.refresh', applications_refresh, 1000);
+				return;
+			}
 
 			var categories = {};
 
@@ -681,9 +769,12 @@
 			return;
 		}
 
-		AJAX('GET /api/apps/info/', function(response) {
-			SET('applications.info', response);
+		AJAX('GET /api/apps/info/', function(response, err) {
 
+			if (err)
+				return;
+
+			SET('applications.info', response);
 			applications.timeout_info = setTimeout(applications_info, timeout);
 
 			var sum = 0;
@@ -691,7 +782,7 @@
 			var has = false;
 
 			response.forEach(function(item) {
-				sum += item.memory.replace(/\sMB/g, '').parseFloat();
+				sum += item.memory;
 
 				if (item.sslexpire)
 					item.sslexpire = item.sslexpire.parseDate();
@@ -791,7 +882,7 @@
 			var html = element.html();
 			element.remove();
 			self.template = Tangular.compile(html);
-			recompile = html.indexOf('data-component="') !== -1;
+			recompile = html.indexOf('data-jc="') !== -1;
 			self.element.addClass('applications');
 
 			!isMOBILE && self.element.on('mouseenter mouseleave', '.td-name', function(e) {
@@ -842,7 +933,6 @@
 					categories[item.category] = [item];
 			});
 
-
 			var keys = Object.keys(categories);
 
 			keys.sort(function(a, b) {
@@ -853,6 +943,7 @@
 
 				var builder = [];
 				var items = categories[name];
+				var memory = 0;
 
 				items.sort(function(a, b) {
 					var an = a.url.replace(REG_CLEANURL, '').substring(0, 15).toLowerCase();
@@ -867,6 +958,7 @@
 						return;
 					var length = sub.length - 1;
 					sub.forEach(function(item, index) {
+						memory += item.memory.parseFloat();
 						builder.push(self.template(item, { last: index === length }));
 					});
 				});
@@ -890,7 +982,7 @@
 		var empty = '<div class="offline">@(OFFLINE)</div>';
 		var parent;
 
-		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg visible-xs ttd-hdd">{{ hdd }}<i class="fa fa-folder-o ml5"></i></td><td class="ttd-cpu visible-xs visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td class="ttd-memory">{{ memory | application-round }}{{ memory | application-progress(\'memory\', 500) }}</td><td class="ttd-files visible-lg">{{ openfiles }}<i class="fa fa-hdd-o ml5"></i></td><td class="ttd-connections visible-xs visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
+		self.template = Tangular.compile('<table><tr><td class="visible-lg">{{ time | application-uptime }}</td><td class="visible-lg visible-xs ttd-hdd">{{ hdd | filesize(0) }}<i class="fa fa-folder-o ml5"></i></td><td class="ttd-cpu visible-xs visible-lg">{{ cpu | application-round }}{{ cpu | application-progress(\'cpu\', 100) }}</td><td class="ttd-memory">{{ memory | filesize(1) }}</td><td class="ttd-files visible-lg">{{ openfiles }}<i class="fa fa-hdd-o ml5"></i></td><td class="ttd-connections visible-xs visible-lg{{ if connections > 0 }} green{{ fi }}">{{ connections }}<i class="fa fa-globe ml5"></i></td></tr></table>');
 
 		self.make = function() {
 			parent = self.element.closest('tr');
@@ -921,18 +1013,14 @@
 		if (value == null)
 			return '';
 		var arr = value.split('-');
-		if (arr.length === 1)
-			return arr[0];
-		return '<span class="time">{0}</span>'.format(arr[0].parseInt().pluralize('# days', '# day', '# days', '# days'));
+		return arr.length === 1 ? arr[0] : '<span class="time">{0}</span>'.format(arr[0].parseInt().pluralize('# days', '# day', '# days', '# days'));
 	});
 
 	Tangular.register('application-round', function(value) {
 		if (value == null)
 			return '';
 		var m = value.match(/[0-9\.]+/g);
-		if (!m)
-			return value;
-		return Math.round(m.toString().parseFloat()) + value.replace(m, '');
+		return m ? Math.round(m.toString().parseFloat()) + value.replace(m, '') : value;
 	});
 
 	Tangular.register('application-progress', function(value, type, max) {
@@ -943,7 +1031,7 @@
 		if (this.cluster > 1)
 			max *= this.cluster;
 
-		var current = Math.round(value.replace(/(\s|\%|MB)?/g, '').parseFloat());
+		var current = Math.round(typeof(value) === 'number' ? value : value.replace(/(\s|\%|MB)?/g, '').parseFloat());
 		var percentage = (current / max) * 100;
 		if (percentage > 100)
 			percentage = 100;
@@ -1002,10 +1090,7 @@
 						has = true;
 						(function(key) {
 							var app = applications.grid.findItem('id', key);
-							app && SETTER('notifications', 'append', 'fa-bug', '@(The application <a href="{0}" target="_blank">{0}</a> <b class="red">contains errors</b>.)'.format(app.url), new Date(), function() {
-								applications.id = key;
-								SET('common.form', 'applications-logs');
-							}, '#D53F39');
+							app && SETTER('notifications', 'append', 'fa-bug', '@(The application {1} <b class="red">contains errors</b> - <a href="/logs/{0}/" target="_blank">show logs</a>.)'.format(app.id, app.url), new Date(), null, '#D53F39');
 						})(key);
 					}
 				}
@@ -1055,6 +1140,46 @@
 		};
 	});
 
+	COMPONENT('freeprogress', function() {
+		var self = this;
+		var progress;
+		var width = {};
+		var css = {};
+
+		self.readonly();
+		self.make = function() {
+			self.element.css({ height: '3px', margin: '8px 0 {0}'.format(self.attr('data-type') === 'memory' ? '8px' : '15px'), 'background-color': '#F0F0F0' });
+			self.append('<div style="height:3px;width:0"></div>');
+			progress = self.find('div');
+		};
+
+		self.setter = function(value) {
+
+			if (!value)
+				return;
+
+			var val = 0;
+
+			switch (self.attr('data-type')) {
+				case 'memory':
+					val = (value.memused / value.memtotal) * 100;
+					break;
+				case 'hdd':
+					val = (value.hddused / value.hddtotal) * 100;
+					break;
+				case 'cpu':
+					val = value.cpu ? value.cpu.parseFloat() : 0;
+					break;
+			}
+
+			width.width = val >= 0 ? Math.round(val) + '%' : '0';
+
+			css['background-color'] = val < 20 ? '#8CC152' : val < 50 ? '#F6BB42' : val < 70 ? '#E9573F' : '#DA4453';
+			progress.animate(width, 300);
+			progress.css(css);
+		};
+	});
+
 	function applications_app_reqstats(reqstats) {
 
 		var values = {};
@@ -1086,6 +1211,13 @@
 		});
 
 		return values;
+	}
+
+	if (!CACHE('analyzator')) {
+		CACHE('analyzator', '1', '4 days');
+		SETTER('notifications', 'append', 'fa-bug', '@(More than 3 days you don\'t have launched <b>Logs analyzator</b>. Run it now.)', function() {
+			SET('common.form', 'applications-analyzator');
+		});
 	}
 
 </script>

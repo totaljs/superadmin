@@ -42,7 +42,7 @@ button { outline: 0; }
 .ui-form-container-padding { padding: 0 30px;}
 .ui-form { background-color: white; margin: 0 auto 30px; border-radius: 4px; box-shadow: 0 0 20px #D0D0D0; transform: translate(0, -500px); transition: all 0.2s; opacity: 0; }
 .ui-form-animate { transform: translate(0,0); opacity: 1; }
-.ui-form-animate-click { transform: translate(0,30px) scale(1.07); }
+.ui-form-animate-click { transform: translate(0,0) scale(1.03); }
 .ui-form-padding { padding: 0 30px; }
 .ui-form-title { padding: 15px 20px; font-size: 16px; user-select: none; color: #AAB2BD; background-color: #F8F8F8; font-family: 'Source Sans Pro'; border-bottom: 1px solid #F0F0F0; }
 .ui-form-title .fa-times { float: right; cursor: pointer; font-size: 18px; margin-top: 4px; }
@@ -274,6 +274,18 @@ label span { vertical-align: middle; }
 .ui-info-arrow-down { top: auto; bottom: -18px; }
 .ui-info-visible { opacity: 1; transform: translate(0px,0px); }
 .ui-info-body { background-color: white; padding: 15px; }
+
+.ui-contextmenu { position: absolute; opacity: 0; transition: 0.25s transform cubic-bezier(0.23, 1, 0.32, 1); left: -100; top: -100; z-index: 20; width: 200px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); transform: translate(0px,20px); background-color: #303030; border-radius: 4px; }
+.ui-contextmenu .selected { font-weight: bold; }
+.ui-contextmenu .selected * { color: #1484FC !important; }
+.ui-contextmenu-arrow { position: absolute; font-size: 30px; top: -20px; color: #303030; left: 67px; }
+.ui-contextmenu-visible { opacity: 1; transform: translate(0px,0px); }
+.ui-contextmenu-items > div { border-top: 1px solid #404040; font-size: 12px; height: 32px; background-color: #303030; cursor: pointer; }
+.ui-contextmenu-items > div:hover { background-color: black; }
+.ui-contextmenu-items i { float: left; width: 40px; text-align: center; color: gray; padding: 9px 0 3px; font-size: 14px; }
+.ui-contextmenu-items span { float: left; color: white; width: 140px; margin: 8px 0 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; height: 20px; }
+.ui-contextmenu-items > div:first-child { border-width: 0; border-top-left-radius: 4px; border-top-right-radius: 4px; }
+.ui-contextmenu-items > div:last-child { border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; }
 
 @media(max-width: 767px) {
     .ui-notification-container { width: auto; left: 0; padding-left: 20px; }

@@ -1,3 +1,17 @@
+======= 5.0.0
+
+- add logs analyzator
+- add custom start scripts
+- add CouchDB consumption
+- add backuping of `applications.json`
+- add logging
+- app does not use `service nginx` command
+- add server last logins preview
+- add nginx config test preview
+- add SuperAdmin logs preview
+- add backuping of all applications logs in release mode
+- improve UI
+
 ======= 4.0.0
 
 - renew Let's encrypt certificates
