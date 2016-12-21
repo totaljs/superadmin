@@ -54,7 +54,7 @@ Tangular.register('indexer', function(index) {
 });
 
 Tangular.register('filesize', function(value, decimals, type) {
-	return value.filesize(decimals, type);
+	return value ? value.filesize(decimals, type) : '...';
 });
 
 Tangular.register('uptime', function(value) {
