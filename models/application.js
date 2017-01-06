@@ -362,7 +362,9 @@ NEWSCHEMA('Application').make(function(schema) {
 						if (second_problem)
 							data.second = undefined;
 
-						data.redirect = model.redirect;
+						data.redirect = [];
+						model.redirect.forEach(url => data.redirect.push(url.superadmin_nginxredirect()));
+
 						Fs.writeFile(filename, F.viewCompile(response, data).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), function() {
 							SuperAdmin.reload(function(err) {
 
