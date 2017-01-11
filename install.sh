@@ -1,31 +1,56 @@
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-printf "${RED}SuperAdmin Installtion${NC}\n"
-echo "Installion assumes a clean install of Ubuntu 16.04"
-echo "Installion prompts are for creating a subdomain 'superadmin for a domain name 'domain.tld' and accessing superadmin via it"
-echo "you wil be prompted to provide both."
-echo "By default, a cer-key pair is generated using OpenSSL for HTTPS, if HTTPS is enabled"
-echo "You can find the cer-key pair in the /etc/ssl/<domain>/ folder."
-echo "You will be promted to enter details for the certificate"
-echo "SuperAdmin uses these commands: lsof, ps, netstat, du, cat, free, df, tail, last, ifconfig, uptime, tar"
+echo ""
+echo "==================================================="
+echo -e "\e[41mSuperAdmin Installtion\e[0m"
+echo "==================================================="
+echo ""
+echo -e "\e[90mInstallation assumes a clean installation of Ubuntu Server +16\e[0m"
+echo ""
+echo -e "\e[100m-->\e[0m Installation prompts are for creating URL for SuperAdmin."
+echo -e "\e[100m-->\e[0m By default, a cer-key pair is generated using OpenSSL for HTTPS, if HTTPS is enabled."
+echo -e "\e[100m-->\e[0m You can find the cer-key pair in the /etc/ssl/<domain>/ folder."
+echo -e "\e[100m-->\e[0m You will be promted to enter details for the certificate."
+echo -e "\e[100m-->\e[0m \e[90mThis installation installs: Nginx, Node.js, GraphicsMagick and Git.\e[0m"
 
 # Root check
 if [[ $EUID -ne 0 ]]; then
-    printf "${RED}You must be a root user${NC}" 2>&1
+    echo -e "\e[91mYou must be a root user.\e[0m" 2>&1
     exit 1
 fi
 
-#User Consent
-printf "${RED}This setup requires the installation of the Nginx, Node.js and GraphicsMagick packages using apt-get!${NC}\n"
-read -p "Do you wish to permit this ? (y/n) : " userConsent
+# User Consent
+echo ""
+read -p $'Do you wish to permit this? \e[104m(y/n)\e[0m : ' userConsent
 
 if [ "$userConsent" == "y" ]; then
-    read -p "Do you want to provide SuperAdmin via HTTP? (y/n) : " httpEn
-    read -p "Do you want to provide SuperAdmin via HTTPS? (y/n) : " httpsEn
+
+    read -p $'Do you want to provide SuperAdmin via HTTPS? \e[104m(y/n)\e[0m : ' httpsEn
+    echo ""
+
+    if [ "$httpsEn" == "n" ]; then
+        httpEn="y"
+    fi
 
     #User Input
-    read -p "Domain without protocol (e.g. domain.tk): " domain
-    read -p "Subdomain without protocol (e.g. superadmin): " subdomain
+    read -p $'Top domain name without protocol (e.g. \e[100myourdomain.com\e[0m): ' domain
+    read -p $'Subdomain name (e.g. \e[100msuperadmin\e[0m): ' subdomain
+
+    echo ""
+    echo "---------------------------------------------------"
+    echo -e "SuperAdmin URL address will be:"
+
+    if [ "$httpsEn" == "y" ]; then
+        echo -e "\e[44mhttps://$subdomain.$domain\e[0m"
+    else
+        echo -e "\e[44mhttp://$subdomain.$domain\e[0m"
+    fi
+    echo "---------------------------------------------------"
+    echo ""
+
+    read -p $'Are you sure you want to continue? \e[104m(y/n)\e[0m : ' next
+
+    if [ "$next" == "n" ]; then
+        exit 1;
+    fi
 
     if [ "$httpsEn" == "y" ]; then
         read -p "Country Name (2 letter code) (e.g. IN): " certC
@@ -55,15 +80,14 @@ if [ "$userConsent" == "y" ]; then
     cd /www/
     npm install total.js
 
-    #Key Generation
-
+    # Key Generation
     mkdir /etc/ssl/${domain}
     openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
     -subj "/C=$certC/ST=$certST/L=$certL/O=$certO/OU=$certOU/CN=$subdomain.$domain" \
     -keyout /etc/ssl/${domain}/${subdomain}.key \
     -out /etc/ssl/${domain}/${subdomain}.cer
 
-    #Configuration
+    # Configuration
     cd
     apt-get install -y git
     git clone https://github.com/totaljs/superadmin
@@ -88,7 +112,7 @@ if [ "$userConsent" == "y" ]; then
     service nginx reload
 
     rm /www/superadmin/user.guid
-    read -p "Which user should SuperAdmin use to run your applications ? (default root) : " user
+    read -p $'Which user should SuperAdmin use to run your applications ? (default \e[104mroot\e[0m) : ' user
     if id "$user" >/dev/null 2>&1; then
         printf "Using user -> %s\n" "$user"
         uid=$(id -u ${user})
@@ -99,7 +123,8 @@ if [ "$userConsent" == "y" ]; then
         echo "root:0:0" >> /www/superadmin/user.guid
     fi
 
-    read -p "Do you wish to install cron job to start SuperAdmin automaticly after server restart? (y/n) :" autorestart
+    read -p $'Do you wish to install cron job to start SuperAdmin automatically after server restarts? \e[104m(y/n)\e[0m :' autorestart
+
     if [ "$autorestart" == "y" ]; then
         #write out current crontab
         crontab -l > mycron
@@ -110,9 +135,16 @@ if [ "$userConsent" == "y" ]; then
         echo "Cron job added."
     fi
 
-    #Starting
+    echo ""
+    echo -e "\e[100m-->\e[0m SuperAdmin uses these commands:"
+    echo "lsof, ps, netstat, du, cat, free, df, tail, last, ifconfig, uptime, tar, git, npm,"
+    echo "wc, grep, cp, mkdir"
+    echo ""
+
+    # Starting
+    echo -e "\e[42mSTARTING...\e[0m"
     /bin/bash /www/superadmin/run.sh
 
 else
-    echo "Sorry, this installation cannot continue."
+    echo -e "\e[41mSorry, this installation cannot continue.\e[0m"
 fi
