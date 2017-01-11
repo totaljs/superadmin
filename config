@@ -1,6 +1,6 @@
 name                      : MyServer
 version                   : 5.0.0
-author                    : Totaljs.com Ltd
+author                    : Peter Širka
 cookie                    : __sa
 
 superadmin                : admin:admin
