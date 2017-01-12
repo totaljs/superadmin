@@ -39,9 +39,14 @@ __SuperAdmin requirements:__
 - `npm`
 
 __To install SuperAdmin run commands bellow:__
-- run `$ sudo wget https://raw.githubusercontent.com/totaljs/superadmin/master/install.sh && bash install.sh`
-- run `$ cd superadmin` and `$ bash run.sh`
+
+```bash
+$ sudo wget https://raw.githubusercontent.com/totaljs/superadmin/master/install.sh && bash install.sh
+```
+
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `/www/superadmin/config`)
+- manuall run (if you didn't register cron in the installation) `$ cd superadmin` and `$ bash run.sh`
+
 
 ---
 
