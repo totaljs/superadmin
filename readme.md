@@ -45,7 +45,7 @@ $ sudo wget https://raw.githubusercontent.com/totaljs/superadmin/master/install.
 ```
 
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `/www/superadmin/config`)
-- manually run (if you didn't register cron in the installation) `$ cd superadmin` and `$ bash run.sh`
+- manually run (if you didn't register cron in the installation) `$ cd /www/superadmin/` and `$ bash run.sh`
 
 
 ---
