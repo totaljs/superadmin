@@ -112,6 +112,8 @@ if [ "$userConsent" == "y" ]; then
     service nginx reload
 
     rm /www/superadmin/user.guid
+    echo ""
+    echo "---------------------------------------------------"
     read -p $'Which user should SuperAdmin use to run your applications ? (default \e[104mroot\e[0m) : ' user
     if id "$user" >/dev/null 2>&1; then
         printf "Using user -> %s\n" "$user"
@@ -136,9 +138,11 @@ if [ "$userConsent" == "y" ]; then
     fi
 
     echo ""
-    echo -e "\e[100m-->\e[0m SuperAdmin uses these commands:"
+    echo "---------------------------------------------------"
+    echo -e "\e[100m--> SuperAdmin uses these commands:\e[0m"
     echo "lsof, ps, netstat, du, cat, free, df, tail, last, ifconfig, uptime, tar, git, npm,"
     echo "wc, grep, cp, mkdir"
+    echo "---------------------------------------------------"
     echo ""
 
     # Starting
