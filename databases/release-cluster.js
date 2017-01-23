@@ -9,12 +9,10 @@ function master() {
 	console.log('Forks        : {0} threads');
 	console.log('====================================================');
 
-	for (var i = 0; i < {0}; i++) {
-		var fork = Cluster.fork();
-		fork.send({ type: 'id', id: i });
-	}
+	for (var i = 0; i < {0}; i++)
+		Cluster.fork().send({ type: 'id', id: i });
 
-	process.title = 'total.js cluster';
+	process.title = 'total: cluster';
 }
 
 function fork() {
@@ -25,7 +23,7 @@ function fork() {
 			framework.id = message.id;
 	});
 
-	F.http('release');
+	F.http('release', { ip: '0.0.0.0' });
 }
 
 Cluster.isMaster ? master() : fork();

@@ -1,1 +1,1 @@
-require('total.js').http('release');
+require('total.js').http('release', { ip: '0.0.0.0' });
