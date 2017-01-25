@@ -11,8 +11,8 @@ echo -e "\e[100m-->\e[0m \e[90mThis installation installs: Nginx, Node.js, Graph
 
 # Root check
 if [[ $EUID -ne 0 ]]; then
-    echo -e "\e[91mYou must be a root user.\e[0m" 2>&1
-    exit 1
+	echo -e "\e[91mYou must be a root user.\e[0m" 2>&1
+	exit 1
 fi
 
 # User Consent
@@ -21,138 +21,138 @@ read -p $'Do you wish to permit this? \e[104m(y/n)\e[0m : ' userConsent
 
 if [ "$userConsent" == "y" ]; then
 
-    read -p $'Do you want to provide SuperAdmin via HTTPS? \e[104m(y/n)\e[0m : ' httpsEn
-    echo ""
+	read -p $'Do you want to provide SuperAdmin via HTTPS? \e[104m(y/n)\e[0m : ' httpsEn
+	echo ""
 
-    if [ "$httpsEn" == "n" ]; then
-        httpEn="y"
-    fi
+	if [ "$httpsEn" == "n" ]; then
+		httpEn="y"
+	fi
 
-    #User Input
-    read -p $'Domain name without protocol (e.g. \e[100msuperadmin.yourdomain.com\e[0m): ' domain
+	#User Input
+	read -p $'Domain name without protocol (e.g. \e[100msuperadmin.yourdomain.com\e[0m): ' domain
 
-    echo ""
-    echo "---------------------------------------------------"
-    echo -e "SuperAdmin URL address will be:"
+	echo ""
+	echo "---------------------------------------------------"
+	echo -e "SuperAdmin URL address will be:"
 
-    if [ "$httpsEn" == "y" ]; then
-        echo -e "\e[44mhttps://$domain\e[0m"
-    else
-        echo -e "\e[44mhttp://$domain\e[0m"
-    fi
-    echo "---------------------------------------------------"
-    echo ""
+	if [ "$httpsEn" == "y" ]; then
+		echo -e "\e[44mhttps://$domain\e[0m"
+	else
+		echo -e "\e[44mhttp://$domain\e[0m"
+	fi
+	echo "---------------------------------------------------"
+	echo ""
 
-    read -p $'Are you sure you want to continue? \e[104m(y/n)\e[0m : ' next
+	read -p $'Are you sure you want to continue? \e[104m(y/n)\e[0m : ' next
 
-    if [ "$next" == "n" ]; then
-        exit 1;
-    fi
+	if [ "$next" == "n" ]; then
+		exit 1;
+	fi
 
-    #Prerequisits
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-    apt-get install python-software-properties
-    apt-get install software-properties-common
-    curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-    apt-get update
-    apt-get install -y nginx
-    apt-get install -y nodejs
-    apt-get install -y graphicsmagick
-    curl https://get.acme.sh | sh
-    mkdir /www/
-    mkdir /www/logs/
-    mkdir /www/nginx/
-    mkdir /www/acme/
-    mkdir /www/ssl/
-    mkdir /www/www/
-    mkdir /www/superadmin/
-    mkdir /www/node_modules/
-    cd /www/
-    npm install total.js
-    npm install -g total.js
+	#Prerequisits
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+	apt-get install python-software-properties
+	apt-get install software-properties-common
+	curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+	apt-get update
+	apt-get install -y nginx
+	apt-get install -y nodejs
+	apt-get install -y graphicsmagick
+	curl https://get.acme.sh | sh
+	mkdir /www/
+	mkdir /www/logs/
+	mkdir /www/nginx/
+	mkdir /www/acme/
+	mkdir /www/ssl/
+	mkdir /www/www/
+	mkdir /www/superadmin/
+	mkdir /www/node_modules/
+	cd /www/
+	npm install total.js
+	npm install -g total.js
 
-    # Configuration
-    cd
-    apt-get install -y git
+	# Configuration
+	cd
+	apt-get install -y git
 
-    # Total.js downloads package and unpack
-    cd /www/superadmin/
-    tpm install https://cdn.totaljs.com/superadmin.package
+	# Total.js downloads package and unpack
+	cd /www/superadmin/
+	tpm install https://cdn.totaljs.com/superadmin.package
 
-    cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
-    cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf
-    cp /www/superadmin/superadmin.conf /www/nginx/
+	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
+	cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf
+	cp /www/superadmin/superadmin.conf /www/nginx/
 
-    repexp=s/#domain#/$domain/g
-    httpenexp=s/#disablehttp#//g
-    httpsenexp=s/#disablehttps#//g
+	repexp=s/#domain#/$domain/g
+	httpenexp=s/#disablehttp#//g
+	httpsenexp=s/#disablehttps#//g
 
-    if [ "$httpEn" == "y" ]; then
-        sed -i -e $httpenexp /www/nginx/superadmin.conf
-	    sed -i -e $repexp /www/nginx/superadmin.conf
-        nginx -s reload
-    fi
+	if [ "$httpEn" == "y" ]; then
+		sed -i -e $httpenexp /www/nginx/superadmin.conf
+		sed -i -e $repexp /www/nginx/superadmin.conf
+		nginx -s reload
+	fi
 
-    if [ "$httpsEn" == "y" ]; then
+	if [ "$httpsEn" == "y" ]; then
 
-        echo "Generating SSL ..."
+		echo "Generating SSL ..."
 
-	    sed -i -e $repexp /www/nginx/superadmin.conf
-        sed -i -e $httpenexp /www/nginx/superadmin.conf
-        nginx -s reload
+		sed -i -e $repexp /www/nginx/superadmin.conf
+		sed -i -e $httpenexp /www/nginx/superadmin.conf
+		nginx -s reload
 
-        # Generates SSL
-        bash /www/superadmin/ssl.sh $domain
+		# Generates SSL
+		bash /www/superadmin/ssl.sh $domain
 
-        # Copies NGINX configuration file again
-        cp /www/superadmin/superadmin.conf /www/nginx/
+		# Copies NGINX configuration file again
+		cp /www/superadmin/superadmin.conf /www/nginx/
 
-        sed -i -e $httpsenexp /www/nginx/superadmin.conf
-        sed -i -e $repexp /www/nginx/superadmin.conf
-        nginx -s reload
-    fi
+		sed -i -e $httpsenexp /www/nginx/superadmin.conf
+		sed -i -e $repexp /www/nginx/superadmin.conf
+		nginx -s reload
+	fi
 
-    rm /www/superadmin/user.guid
-    echo ""
-    echo "---------------------------------------------------"
-    read -p $'Which user should SuperAdmin use to run your applications ? (default \e[104mroot\e[0m) : ' user
-    if id "$user" >/dev/null 2>&1; then
-        printf "Using user -> %s\n" "$user"
-        uid=$(id -u ${user})
-        gid=$(id -g ${user})
-        echo "$user:$uid:$gid" >> /www/superadmin/user.guid
-    else
-        printf "User %s does not exist. Using root instead.\n" "$user"
-        echo "root:0:0" >> /www/superadmin/user.guid
-    fi
+	rm /www/superadmin/user.guid
+	echo ""
+	echo "---------------------------------------------------"
+	read -p $'Which user should SuperAdmin use to run your applications ? (default \e[104mroot\e[0m) : ' user
+	if id "$user" >/dev/null 2>&1; then
+		printf "Using user -> %s\n" "$user"
+		uid=$(id -u ${user})
+		gid=$(id -g ${user})
+		echo "$user:$uid:$gid" >> /www/superadmin/user.guid
+	else
+		printf "User %s does not exist. Using root instead.\n" "$user"
+		echo "root:0:0" >> /www/superadmin/user.guid
+	fi
 
-    read -p $'Do you wish to install cron job to start SuperAdmin automatically after server restarts? \e[104m(y/n)\e[0m :' autorestart
+	read -p $'Do you wish to install cron job to start SuperAdmin automatically after server restarts? \e[104m(y/n)\e[0m :' autorestart
 
-    if [ "$autorestart" == "y" ]; then
+	if [ "$autorestart" == "y" ]; then
 
-        # Writes out current crontab
-        crontab -l > mycron
+		# Writes out current crontab
+		crontab -l > mycron
 
-        # Checks a cron job exists if not add it
+		# Checks a cron job exists if not add it
 
-        crontab -l | grep '@reboot /bin/bash /www/superadmin/run.sh' || echo '@reboot /bin/bash /www/superadmin/run.sh' >> mycron
-        crontab mycron
-        rm mycron
-        echo "Cron job added."
-    fi
+		crontab -l | grep '@reboot /bin/bash /www/superadmin/run.sh' || echo '@reboot /bin/bash /www/superadmin/run.sh' >> mycron
+		crontab mycron
+		rm mycron
+		echo "Cron job added."
+	fi
 
-    echo ""
-    echo "---------------------------------------------------"
-    echo -e "\e[100m--> SuperAdmin uses these commands:\e[0m"
-    echo "lsof, ps, netstat, du, cat, free, df, tail, last, ifconfig, uptime, tar, git, npm,"
-    echo "wc, grep, cp, mkdir"
-    echo "---------------------------------------------------"
-    echo ""
+	echo ""
+	echo "---------------------------------------------------"
+	echo -e "\e[100m--> SuperAdmin uses these commands:\e[0m"
+	echo "lsof, ps, netstat, du, cat, free, df, tail, last, ifconfig, uptime, tar, git, npm,"
+	echo "wc, grep, cp, mkdir"
+	echo "---------------------------------------------------"
+	echo ""
 
-    # Starting
-    echo -e "\e[42mSTARTING...\e[0m"
-    /bin/bash /www/superadmin/run.sh
+	# Starting
+	echo -e "\e[42mSTARTING...\e[0m"
+	/bin/bash /www/superadmin/run.sh
 
 else
-    echo -e "\e[41mSorry, this installation cannot continue.\e[0m"
+	echo -e "\e[41mSorry, this installation cannot continue.\e[0m"
 fi
