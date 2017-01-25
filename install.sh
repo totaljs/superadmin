@@ -77,7 +77,7 @@ if [ "$userConsent" == "y" ]; then
 
 	# Total.js downloads package and unpack
 	cd /www/superadmin/
-	tpm install https://cdn.totaljs.com/superadmin.package
+	tpm install "https://cdn.totaljs.com/superadmin.package?ts=$(date +%s)"
 
 	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf
