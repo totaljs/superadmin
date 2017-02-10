@@ -6,6 +6,7 @@
 
 - __SuperAdmin__ (v5.0.0) needs latest Total.js from NPM `+v2.3.0`
 - __License__: [MIT](license.txt)
+- [__Live chat with professional support__](https://messenger.totaljs.com)
 - [__HelpDesk with professional support__](https://helpdesk.totaljs.com)
 
 __IMPORTANT__
