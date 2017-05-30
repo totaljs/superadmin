@@ -1,29 +1,14 @@
-const Cluster = require('cluster');
-const Os = require('os');
+// ===================================================
+// FOR PRODUCTION
+// Total.js - framework for Node.js platform
+// https://www.totaljs.com
+// ===================================================
 
-function master() {
+const options = {};
 
-	console.log('==================== CLUSTER =======================');
-	console.log('PID          : ' + process.pid);
-	console.log('Node.js      : ' + process.version);
-	console.log('Forks        : {0} threads');
-	console.log('====================================================');
+options.ip = '0.0.0.0';
+// options.port = parseInt(process.argv[2]);
+// options.config = { name: 'Total.js' };
+// options.sleep = 3000;
 
-	for (var i = 0; i < {0}; i++)
-		Cluster.fork().send({ type: 'id', id: i });
-
-	process.title = 'total: cluster';
-}
-
-function fork() {
-	require('total.js');
-
-	F.on('message', function(message) {
-		if (message.type === 'id')
-			framework.id = message.id;
-	});
-
-	F.http('release', { ip: '0.0.0.0' });
-}
-
-Cluster.isMaster ? master() : fork();
+require('total.js').cluster.http({0}, 'release', options);
