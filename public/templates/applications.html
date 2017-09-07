@@ -959,7 +959,7 @@
 						return;
 					var length = sub.length - 1;
 					sub.forEach(function(item, index) {
-						memory += item.memory.parseFloat();
+						memory += item.memory;
 						builder.push(self.template(item, { last: index === length }));
 					});
 				});
