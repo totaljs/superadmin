@@ -42,7 +42,7 @@ __SuperAdmin requirements:__
 __To install SuperAdmin run commands bellow:__
 
 ```bash
-$ sudo wget https://cdn.totaljs.com/superadmin.sh && bash superadmin.sh
+$ wget https://cdn.totaljs.com/superadmin.sh && sudo bash superadmin.sh
 ```
 
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `/www/superadmin/config`)

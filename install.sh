@@ -51,13 +51,10 @@ if [ "$userConsent" == "y" ]; then
 
 	#Prerequisits
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-	apt-get install -y python-software-properties
-	apt-get install -y software-properties-common
+	apt-get install -y curl python-software-properties software-properties-common
 	curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 	apt-get update
-	apt-get install -y nginx
-	apt-get install -y nodejs
-	apt-get install -y graphicsmagick
+	apt-get install -y git graphicsmagick nginx nodejs
 	curl https://get.acme.sh | sh
 	mkdir /www/
 	mkdir /www/logs/
@@ -70,10 +67,6 @@ if [ "$userConsent" == "y" ]; then
 	cd /www/
 	npm install total.js
 	npm install -g total.js
-
-	# Configuration
-	cd
-	apt-get install -y git
 
 	# Total.js downloads package and unpack
 	cd /www/superadmin/
