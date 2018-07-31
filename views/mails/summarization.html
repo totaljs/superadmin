@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Summarization</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="format-detection" content="date=no" />
+	<meta name="format-detection" content="address=no" />
+	<meta name="format-detection" content="email=no" />
+	<style type="text/css">
+		body { -webkit-font-smoothing: antialiased; -webkit-text-size-adjust:none; height: 100%; background-color: white; margin: 0; padding: 0; }
+		.key {width:49%;position:relative;display:inline-block;vertical-align:top;}
+		@media(max-width: 767px) {
+		 	.key { width: 100%; }
+		}
+	</style>
+</head>
+<body style="margin:0;padding:0">
+	<div style="background-color:#F0F0F0;padding:20px;font-family:Arial;font-size:14px;margin:0">
+		<table align="center" style="margin:0 auto;max-width:600px;font-size:14px;width:100%">
+			<tr>
+				<td>
+					<div style="font-size:20px;font-weight:bold;margin-bottom:15px">@{config.name}: @(Daily summarization)</div>
+					<div style="padding:30px;background-color:white;border-radius:4px;color:gray;line-height:18px">
+						<div style="padding-bottom:3px;color:black">@{model.date.format('@(dd. MMMM yyyy)')}</div>
+						<div style="border-bottom:2px solid #E0E0E0;padding-bottom:15px">@(Yesterday were running:) <b>@{model.length.pluralize(@('# applications', '# application', '# applications', '# applications'))}</b></div>
+						@{foreach m in model}
+							<div style="border-bottom:1px solid #E0E0E0;padding:15px 0;line-height:13px;">
+								<div><a href="@{m.url}" style="color:#3BAFDA;text-decoration:none"><b>@{m.url}</b></a></div>
+								<div style="background-color:#F0F0F0;margin:10px 0 2px;line-height:11px"><div style="width:@{m.cpu}%;text-align:right;font-size:9px;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 5px;background-color:#@{if m.cpu<20}8CC152@{else if m.cpu < 50}F6BB42@{else}E9573F@{fi}">CPU</div></div>
+								<div style="background-color:#F0F0F0;margin:0 0 10px;line-height:11px"><div style="width:@{(m.memory / 1000000000) * 100}%;text-align:right;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;padding:0 5px;background-color:#@{if m.memory<100000000}8CC152@{else if m.memory < 500000000}F6BB42@{else}E9573F@{fi}">RSS</div></div>
+								<div class="key">
+									<div style="height:17px;font-size:11px;">
+										<div style="float:left;width:120px">@(Restarts)</div>
+										<div style="float:left;@{if m.restarts}color:red@{fi}">: @{m.restarts || 0}x</div>
+									</div>
+									<div style="height:17px;font-size:11px">
+										<div style="float:left;width:120px">@(Errors)</div>
+										<div style="float:left;@{if m.errors}color:red@{fi}">: @{m.errors || 0}x</div>
+									</div>
+									<div style="height:17px;font-size:11px">
+										<div style="float:left;width:120px">@(Max. CPU)</div>
+										<div style="float:left">: @{m.cpu.format(1)}%</div>
+									</div>
+									<div style="height:17px;font-size:11px">
+										<div style="float:left;width:120px">@(Max. RSS)</div>
+										<div style="float:left">: @{m.memory.filesize()}</div>
+									</div>
+									@{if m.online}
+										<div style="height:17px;font-size:11px;border-top:1px solid #F0F0F0;padding-top:10px;margin-top:10px">
+											<div style="float:left;width:120px">@(Max. online visitors)</div>
+											<div style="float:left">: @{m.online.format(0)}x</div>
+										</div>
+										<div style="height:17px;font-size:11px">
+											<div style="float:left;width:120px">@(Visitors)</div>
+											<div style="float:left">: @{m.visitors.format(0)}x</div>
+										</div>
+										<div style="height:17px;font-size:11px">
+											<div style="float:left;width:120px">@(Unique month visitors)</div>
+											<div style="float:left">: @{m.uniquemonth.format(0)}x</div>
+										</div>
+									@{fi}
+								</div>
+								<div class="key">
+									<div style="height:17px;font-size:11px">&nbsp;</div>
+									<div style="height:17px;font-size:11px">
+										<div style="float:left;width:120px">@(Max. connections)</div>
+										<div style="float:left">: @{m.connections.format(0)}x</div>
+									</div>
+									<div style="height:17px;font-size:11px">
+										<div style="float:left;width:120px">@(Max. open files)</div>
+										<div style="float:left">: @{m.openfiles.format(0)}x</div>
+									</div>
+									<div style="height:17px;font-size:11px">
+										<div style="float:left;width:120px">@(Disk usage)</div>
+										<div style="float:left">: @{m.hdd.filesize()}</div>
+									</div>
+									@{if m.online}
+										<div style="height:17px;font-size:11px;border-top:1px solid #F0F0F0;padding-top:10px;margin-top:10px">
+											<div style="float:left;width:120px">@(Unique visitors)</div>
+											<div style="float:left">: @{m.unique.format(0)}x</div>
+										</div>
+										<div style="height:17px;font-size:11px">
+											<div style="float:left;width:120px">@(New users)</div>
+											<div style="float:left">: @{(m.users || 0).format(0)}x</div>
+										</div>
+										<div style="height:17px;font-size:11px">
+											<div style="float:left;width:120px">@(New orders)</div>
+											<div style="float:left">: @{(m.orders || 0).format(0)}x</div>
+										</div>
+									@{fi}
+								</div>
+							</div>
+						@{end}
+					</div>
+					<div style="text-align:center;font-size:11px;margin:15px 0 0;color:gray">&copy; 2017 @{config.name}</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

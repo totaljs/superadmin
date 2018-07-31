@@ -1,4 +1,4 @@
-<div data-jc="form" data-title="@(Upload a new application)" data-jc-path="common.form" data-if="value === 'applications-upload'" data-width="700px" data-jc-id="applications.upload" class="hidden">
+<div data-jc="form" data-jc-path="common.form" data-jc-config="if:applications-upload;width:700;title:@(Upload a new application)" data-jc-id="applications.upload" class="hidden">
 	<div class="padding npb">
 		<h2 class="black nmb"><i class="fa fa-globe mr5"></i><b data-jc="" data-jc-path="applications.upload.name"></b></h2>
 		<div class="help mt10">@(<b>SuperAdmin</b> supports uploading packages. It's very easy to create a package, just install Total.js as a global module, then open your application directory in the terminal and type <code>$ tpm create myapp.package</code>.)</div>
@@ -7,10 +7,10 @@
 	<div class="padding npt">
 		<div class="row">
 			<div class="col-md-6">
-				<div data-jc="dropdown" data-jc-id="applications.template" data-jc-path="applications.upload.template" data-icon="fa fa-globe" data-source="applications.templates" data-source-value="url" data-empty="">@(Select template)</div>
+				<div data-jc="dropdown" data-jc-id="applications.template" data-jc-path="applications.upload.template" data-jc-config="icon:globe;datasource:applications.templates;value:url;empty:">@(Source)</div>
 			</div>
 			<div class="col-md-6">
-				<div data-jc="fileupload" data-jc-id="applications.package" data-jc-path="applications.upload.filename" data-icon="fa fa-search" data-placeholder="myapplication.package" data-url="/api/apps/upload/" data-singlefile="true">@(Browse device)</div>
+				<div data-jc="fileupload" data-jc-id="applications.package" data-jc-path="applications.upload.filename" data-icon="fa fa-search" data-placeholder="@(myapp.package or myapp.zip)" data-url="/api/apps/upload/" data-singlefile="true">@(Browse device)</div>
 			</div>
 		</div>
 		<div data-jc="template" data-jc-path="applications.upload">
@@ -26,13 +26,14 @@
 			<div data-jc="checkbox" data-jc-path="applications.upload.npm" class="inline mr5">@(Performs NPM install)</div>
 			<div class="inline middle"><span class="badge badge-blue">package.json</span></div>
 		</div>
+		<div data-jc="checkbox" data-jc-path="applications.upload.backup">@(Create a backup)</div>
 		<div data-jc="checkbox" class="b red" data-jc-path="applications.upload.remove">@(Removes all files in application directory)</div>
-		<div class="help">@(When is this option checked then SuperAdmin removes all <i class="fa fa-trash nmr"></i> files before unpacking package.)</div>
+		<div class="help">@(SuperAdmin removes all <i class="fa fa-trash nmr"></i> files before unpacking package when this option is checked.)</div>
 	</div>
 
 	<div data-jc="error" data-jc-path="applications.upload.response"></div>
 	<div class="ui-form-buttons">
-		<div data-jc="validation" data-jc-path="applications.upload" data-if="applications.upload.filename || applications.upload.template ? true : false">
+		<div data-jc="validation" data-jc-path="applications.upload" data-jc-config="if:applications.upload.filename || applications.upload.template ? true \: false">
 			<button name="submit">@(SUBMIT)</button>
 		</div>
 		<button name="cancel">@(Cancel)</button>
@@ -46,21 +47,32 @@
 
 	function applications_upload_refresh() {
 		var id = applications.id;
-		FIND('#applications.package').custom(id);
-		SET('applications.upload', { id: id, filename: '', remove: false, name: applications.grid.findItem('id', id).url });
-		AJAXCACHE('GET /api/templates/', null, 'applications.templates', '3 minutes');
+		var app = applications.grid.findItem('id', id);
+		SETTER(true, '#applications.package', 'custom', id);
+		SET('applications.upload', { id: id, filename: '', remove: false, name: app.url });
+		AJAXCACHE('GET /api/templates/', null, function(response) {
+			applications.templates = CLONE(response);
+			app.git && applications.templates.unshift({ name: '@(Download from Git)', url: 'git' });
+			applications.templates.unshift({ name: '@(Restore a backup)', url: 'restore' });
+			NOTIFY('applications.templates');
+		}, '3 minutes');
 	}
 
 	WATCH('applications.upload.template', function(path, value) {
-		if (value) {
+		if (value === 'restore') {
 			SET('applications.upload.remove', true);
+			SET('applications.upload.npm', false);
+			SET('applications.upload.backup', false);
+		} else if (value) {
+			SET('applications.upload.remove', true);
+			SET('applications.upload.backup', true);
 			SET('applications.upload.npm', true);
 		}
 	});
 
 	ON('#applications.upload', function(component) {
 		component.submit = function(hide) {
-			FIND('confirm').confirm('@(Are you sure you want to unpack uploaded package?)', ['@(Yes)', '@(Cancel)'], function(index) {
+			SETTER('confirm', 'confirm', '@(Are you sure you want to unpack uploaded package?)', ['@(Yes)', '@(Cancel)'], function(index) {
 				if (index)
 					return;
 				var loading = FIND('loading');

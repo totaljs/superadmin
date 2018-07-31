@@ -1,5 +1,8 @@
 var common = {};
 
+// Current layers
+common.layer = [];
+
 // Current page
 common.page = '';
 
@@ -7,33 +10,45 @@ common.page = '';
 common.form = '';
 
 $(document).ready(function() {
-	jR.clientside('.jrouting');
-	FIND('loading', FN('() => this.hide(500)'));
+	NAVIGATION.clientside('.jrouting');
+	SETTER(true, 'loading', 'hide', 500);
 	$('.mainmenu-logo').on('click', function() {
-		jR.redirect('/');
+		REDIRECT('/');
 	});
 });
 
 // Because of login form
 if (window.su) {
-	jR.route('/', function() {
+	ROUTE('/', function() {
 		SET('common.page', 'applications');
+	});
+	ROUTE('/alarms/', function() {
+		SET('common.page', 'alarms');
+	});
+	ROUTE('/settings/', function() {
+		SET('common.page', 'settings');
+	});
+	ROUTE('/stats/', function() {
+		SET('common.page', 'stats');
 	});
 }
 
-jR.on('location', function(url) {
+ON('location', function(url) {
 	var nav = $('header nav');
-	nav.find('.selected').removeClass('selected');
-	nav.find('a[href="' + url + '"]').addClass('selected');
-	$('header nav').removeClass('mainmenu-visible');
+	nav.find('.selected').rclass('selected');
+	nav.find('a[href="' + url + '"]').aclass('selected');
+	var el = $('header nav').rclass('mainmenu-visible-animate');
+	setTimeout(function() {
+		el.rclass('mainmenu-visible ');
+	}, 500);
 });
 
 function success() {
 	var el = $('#success');
 	el.show();
-	el.addClass('success-animation');
+	el.aclass('success-animation');
 	setTimeout(function() {
-		el.removeClass('success-animation');
+		el.rclass('success-animation');
 		setTimeout(function() {
 			el.hide();
 		}, 1000);
@@ -44,6 +59,10 @@ function success() {
 function can(name) {
 	return su.roles.length ? su.roles.indexOf(name) !== -1 : true;
 }
+
+Tangular.register('strip', function(value) {
+	return value ? value.replace(/\n/g, '. ') : '';
+});
 
 Tangular.register('default', function(value, def) {
 	return value == null || value === '' ? def : value;
@@ -65,9 +84,21 @@ Tangular.register('uptime', function(value) {
 	return days ? Math.round(days).pluralize('# days', '# day', '# days', '# days') : hours.padLeft(2) + ':' + minutes.padLeft(2);
 });
 
+function statsmenu(el) {
+	$('.panelstats').tclass('panelstats-visible');
+	el.parent().tclass('statsmenu-visible');
+}
 
 function mainmenu() {
-	$('header nav').toggleClass('mainmenu-visible');
+	var c1 = 'mainmenu-visible';
+	var c2 = 'mainmenu-visible-animate';
+	var el = $('header nav').tclass(c1);
+	if (el.hclass(c1)) {
+		setTimeout(function() {
+			el.aclass(c2);
+		}, 50);
+	} else
+		el.rclass(c2);
 }
 
 Number.prototype.filesize = function(decimals, type) {
@@ -137,3 +168,11 @@ function filesizehelper(number, count) {
 	}
 	return number;
 }
+
+Tangular.register('counter', function(value) {
+	if (value > 999999)
+		return (value / 1000000).format(2) + ' M';
+	if (value > 9999)
+		return (value / 10000).format(2) + ' K';
+	return value.format(0);
+});

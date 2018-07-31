@@ -4,8 +4,11 @@
 
 # Installation
 
-- __SuperAdmin__ (v5.0.0) needs latest Total.js from NPM `+v2.6.0`
+- __SuperAdmin__ (v8.0.0) needs latest Total.js from NPM `+v2.8.0`
 - __License__: [MIT](license.txt)
+- [NEW: __Documentation__](https://wiki.totaljs.com/superadmin/)
+
+__Services__:
 - [__Live chat with professional support__](https://messenger.totaljs.com)
 - [__HelpDesk with professional support__](https://helpdesk.totaljs.com)
 
@@ -15,39 +18,66 @@ __IMPORTANT__
 - SuperAdmin __must be run__ as `root`
 
 __Install requirements:__
+- __Ubuntu Server +v14__
 - `curl`
 - `openssl`
 
 __SuperAdmin requirements:__
-- `bash`
-- `lsof`
-- `ps`
-- `netstat`
-- `ifconfig`
-- `uptime`
-- `grep`
 - `awk`
-- `wc`
-- `du`
+- `bash`
 - `cat`
-- `free`
-- `df`
-- `tail`
-- `last`
-- `tar`
 - `cp`
+- `df`
+- `du`
+- `free`
+- `ftp`
+- `grep`
+- `ifconfig`
+- `last`
+- `lsof`
 - `mkdir`
+- `netstat`
 - `npm`
+- `ps`
+- `tail`
+- `tar`
+- `unzip`
+- `uptime`
+- `wc`
+- `zip`
 
 __To install SuperAdmin run commands bellow:__
 
 ```bash
-$ wget https://cdn.totaljs.com/superadmin.sh && sudo bash superadmin.sh
+# UBUNTU
+$ sudo wget https://cdn.totaljs.com/2017xc9db052e/superadmin.sh && bash superadmin.sh
+```
+
+```bash
+# CENTOS
+$ sudo wget https://cdn.totaljs.com/2017xc9db052e/superadmin-centos.sh && bash superadmin-centos.sh
+```
+
+```bash
+# ALPINE
+$ sudo wget https://cdn.totaljs.com/2017xc9db052e/superadmin-alpine.sh && bash superadmin-alpine.sh
 ```
 
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `/www/superadmin/config`)
 - manually run (if you didn't register cron in the installation) `$ cd /www/superadmin/` and `$ bash run.sh`
 
+__To install and run SuperAdmin with Docker:__
+
+```bash
+# CLONE this repository to the current folder
+git clone https://github.com/totaljs/superadmin.git .
+
+# BUILD with tag superadmin
+docker build -t superadmin .
+
+# RUN tag superadmin (you can also map any of the exposed ports)
+docker run -p 8080:80 -it superadmin
+```
 
 ---
 
@@ -66,11 +96,13 @@ $ wget https://cdn.totaljs.com/superadmin.sh && sudo bash superadmin.sh
 
 All data are stored in `/superadmin/databases/` directory. Applications are stored in `application.json`.
 
+__IMPORTANT__: NGINX access logs are stored as `/www/logs/[appname]--access.log`
+
 ---
 
 ## How to upload my application?
 
-__SuperAdmin__ uses a Total.js package mechanism. The mechanism creates a package file with a complete directory structure and all files.
+__SuperAdmin__ uses a Total.js package mechanism. The mechanism creates a package file with a complete directory structure and all files. __IMPORTANT__ the latest version supports uploading of `.zip` files.
 
 - first you have to install Total.js framework as a global module `$ npm install -g total.js`
 - then perform a command below:
@@ -91,14 +123,17 @@ $ tpm create myapp.package
 
 Don't worry, it's very easy.
 
-- backup file `/databases/applications.json`
-- backup your credentials in `/config` file (only credentials, nothing more)
+- back up file `/databases/applications.json`
+- back up your credentials in `/config` file (only credentials, nothing more)
 - copy all directories and files from a new version of SuperAdmin to your server
 - restore your backup file `/databases/applications.json`
 - restore your credentials in `/config`
+- install `ftp` helper via `$ apt-get install -y ftp`
 - you have to update `SSL generator` to latest version via `bash /www/superadmin/ssl.sh --update`
 - restart SuperAdmin `bash run.sh`
-- clear cache in your web browser
+- __clear cache__ in your web browser
+
+__IMPORTANT__: if you have lower version than `v7.0.0` then replace `/etc/nginx/nginx.conf` for `/superadmin/nginx.conf`.
 
 ## Nice to know
 
@@ -110,6 +145,19 @@ $ bash ssl.sh superadmin.mydomain.com
 
 # RENEW:
 $ bash ssl.sh superadmin.mydomain.com --renew
+```
+
+Bash script `superadmin/reconfigure.sh` can reconfigure SuperAdmin from/to HTTPS:
+
+```bash
+# SET TO HTTPS AND GENERATE SSL:
+$ bash reconfigure.sh y superadmin.mydomain.com y
+
+# SET TO HTTPS WITHOUT GENERATING SSL:
+$ bash reconfigure.sh y superadmin.mydomain.com
+
+# SET TO HTTP:
+$ bash reconfigure.sh n superadmin.mydomain.com
 ```
 
 ## Uninstall SuperAdmin
@@ -124,11 +172,12 @@ $ bash ssl.sh superadmin.mydomain.com --renew
 - to remove nginx run `$ apt-get remove -y nginx`
 - to remove graphicsmagick run `$ apt-get remove -y graphicsmagick`
 
-## Contributors
+## Contributors
 
 - Peter Širka (author) <petersirka@gmail.com>
-- Martin Smola (support)  <smola.martin@gmail.com>
-- Athul B Raj <https://github.com/Athuli7>
+- Martin Smola (support) <smola.martin@gmail.com>
+- Pedro Costa (contributor) <pedro@pmcdigital.pt>
+- Jonathan Dumont (contributor) <totaljs@jodumont.com>
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat
 [license-url]: license.txt

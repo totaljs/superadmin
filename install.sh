@@ -51,10 +51,18 @@ if [ "$userConsent" == "y" ]; then
 
 	#Prerequisits
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-	apt-get install -y curl python-software-properties software-properties-common
-	curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+	apt-get install python-software-properties
+	apt-get install software-properties-common
+	curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 	apt-get update
-	apt-get install -y git graphicsmagick nginx nodejs
+	apt-get install -y nginx
+	apt-get install -y nodejs
+	apt-get install -y graphicsmagick
+	apt-get install -y zip
+	apt-get install -y ftp
+	apt-get install -y unzip
+	apt-get install -y lsof
+	apt-get install -y socat
 	curl https://get.acme.sh | sh
 	mkdir /www/
 	mkdir /www/logs/
@@ -68,9 +76,13 @@ if [ "$userConsent" == "y" ]; then
 	npm install total.js
 	npm install -g total.js
 
+	# Configuration
+	cd
+	apt-get install -y git
+
 	# Total.js downloads package and unpack
 	cd /www/superadmin/
-	tpm install "https://cdn.totaljs.com/superadmin.package?ts=$(date +%s)"
+	tpm install "https://cdn.totaljs.com/2017xc9db052e/superadmin.package?ts=$(date +%s)"
 
 	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf
@@ -97,12 +109,21 @@ if [ "$userConsent" == "y" ]; then
 		# Generates SSL
 		bash /www/superadmin/ssl.sh $domain
 
-		# Copies NGINX configuration file again
-		cp /www/superadmin/superadmin.conf /www/nginx/
+		# Check if certificate was created successfully
+		if [ -f "/www/ssl/$domain/fullchain.cer" ]; then
 
-		sed -i -e $httpsenexp /www/nginx/superadmin.conf
-		sed -i -e $repexp /www/nginx/superadmin.conf
-		nginx -s reload
+			# Copies NGINX configuration file again
+			cp /www/superadmin/superadmin.conf /www/nginx/
+
+			sed -i -e $httpsenexp /www/nginx/superadmin.conf
+			sed -i -e $repexp /www/nginx/superadmin.conf
+			nginx -s reload
+
+			echo "Configured superadmin with https://$domain"
+		else
+			echo "Failed to generate SSL properly, try 'bash /www/superadmin/reconfigure.sh y $domain y' again later..." 2>&1
+		fi
+
 	fi
 
 	rm /www/superadmin/user.guid

@@ -1,3 +1,3 @@
 cd $1
 mkdir node_modules
-npm install
+npm install --no-bin-links

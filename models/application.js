@@ -1,7 +1,7 @@
 const Fs = require('fs');
 const Path = require('path');
 const Exec = require('child_process').exec;
-const Spawn = require('child_process').spawn;
+const FLAGS = ['get', 'dnscache'];
 
 NEWSCHEMA('Application').make(function(schema) {
 
@@ -12,9 +12,9 @@ NEWSCHEMA('Application').make(function(schema) {
 	schema.define('redirect',      '[String]');
 	schema.define('allow',         '[String]');
 	schema.define('disallow',      '[String]');
-	schema.define('monitor',       'String(50)');              // URL to monitoring
 	schema.define('ssl_key',       'String');
 	schema.define('ssl_cer',       'String');
+	schema.define('git',           'String');                  // URL to GIT repository
 	schema.define('notes',         'String');
 	schema.define('startscript',   'String');                  // A start script
 	schema.define('nginx',         'String');                  // Additional NGINX settings (lua)
@@ -25,10 +25,13 @@ NEWSCHEMA('Application').make(function(schema) {
 	schema.define('cluster',        Number);                   // Thread count
 	schema.define('ddos',           Number);                   // Maximum count of request per second
 	schema.define('size',           Number);                   // Maximum size of request body (upload size)
+	schema.define('proxytimeout',   Number);                   // Sets the "proxy_read_timeout"
 	schema.define('debug',          Boolean);                  // Enables debug mode
 	schema.define('subprocess',     Boolean);
 	schema.define('npm',            Boolean);                  // Performs NPM install
 	schema.define('renew',          Boolean);                  // Performs renew
+	schema.define('accesslog',      Boolean);                  // Enables access_log
+	schema.define('backup',         Boolean);                  // Enables backup
 
 	schema.setQuery(function(error, options, callback) {
 		callback(APPLICATIONS);
@@ -41,12 +44,7 @@ NEWSCHEMA('Application').make(function(schema) {
 		plain.linker = model.linker = model.url.superadmin_linker(model.path);
 		plain.renew = undefined;
 
-		if (!model.id) {
-			plain.id = model.id = UID();
-			APPLICATIONS.push(plain);
-			F.emit('applications.create', plain);
-			model.$repository('restart', true)
-		} else {
+		if (model.id) {
 			var index = APPLICATIONS.findIndex('id', model.id);
 
 			if (index === -1) {
@@ -55,7 +53,6 @@ NEWSCHEMA('Application').make(function(schema) {
 			}
 
 			var app = APPLICATIONS[index];
-
 			if (app.linker !== model.linker) {
 				error.push('error-app-linker');
 				return callback();
@@ -63,10 +60,18 @@ NEWSCHEMA('Application').make(function(schema) {
 
 			model.$repository('restart', app.cluster !== model.cluster || model.debug !== app.debug);
 			APPLICATIONS[index] = plain;
-			F.emit('applications.update', plain, index);
+			plain.dateupdated = F.datetime;
+			EMIT('superadmin.app.update', plain, index);
+
+		} else {
+			plain.id = model.id = UID();
+			plain.datecreated = F.datetime;
+			APPLICATIONS.push(plain);
+			EMIT('superadmin.app.create', plain);
+			model.$repository('restart', true);
 		}
 
-		SuperAdmin.save();
+		SuperAdmin.save(null, true);
 		model.renew && model.$push('workflow', 'renew');
 		callback(SUCCESS(true, model.id));
 	});
@@ -79,29 +84,23 @@ NEWSCHEMA('Application').make(function(schema) {
 
 	// Reads info
 	schema.addWorkflow('info', function(error, model, options, callback) {
-
-		var output = [];
-
 		APPLICATIONS.wait(function(item, next) {
-			SuperAdmin.pid(item.port, function(err, pid) {
 
-				if (err)
-					return next();
+			if (item.stopped || F.global.RESTARTING)
+				return next();
 
-				SuperAdmin.appinfo(pid, function(err, response) {
-
-					if (response) {
-						response.cluster = item.cluster;
-						response.port = item.port;
-						response.pid = pid;
-						output.push(response);
-					}
-
-					next();
-				});
+			SuperAdmin.pid2(item, function(err, pid) {
+				if (err) {
+					SuperAdmin.run(item.port, () => next());
+					SuperAdmin.notify(item, 0);
+					EMIT('superadmin.app.restart', item);
+				} else
+					SuperAdmin.appinfo(pid, next, item);
 			});
-
-		}, () => callback(output), 2);
+		}, function() {
+			SuperAdmin.savestats();
+			callback(SUCCESS(true));
+		}, 2);
 	});
 
 	// Reads logs
@@ -135,9 +134,9 @@ NEWSCHEMA('Application').make(function(schema) {
 
 	// Checks port number
 	schema.addWorkflow('port', function(error, model, options, callback) {
-		if (model.port) {
+		if (model.port)
 			port_check(APPLICATIONS, model.id, model.port) && error.push('error-port');
-		} else
+		else
 			model.port = port_create(APPLICATIONS);
 		callback(SUCCESS(true));
 	});
@@ -145,7 +144,7 @@ NEWSCHEMA('Application').make(function(schema) {
 	// Checks directory
 	schema.addWorkflow('directory', function(error, model, options, callback) {
 		var filename = Path.join(CONFIG('directory-www'), model.linker, 'release.js');
-		F.path.exists(filename, function(e) {
+		F.path.exists(filename, function() {
 			model.$repository('restart', true);
 			callback(SUCCESS(true));
 		});
@@ -164,21 +163,27 @@ NEWSCHEMA('Application').make(function(schema) {
 			var linker = app.linker;
 			var directory = Path.join(CONFIG('directory-www'), linker);
 
-			Exec('rm -r ' + directory, function(err) {
-				callback(SUCCESS(true));
-				APPLICATIONS.splice(index, 1);
-				SuperAdmin.save();
+			// Backups application's data
+			Exec('bash {0} {1} {2}'.format(F.path.databases('backup.sh'), Path.join(CONFIG('directory-www'), linker), Path.join(CONFIG('directory-dump'), linker + '-removed-backup.tar.gz')), function(err, response) {
+				Exec('rm -r ' + directory, function() {
 
-				if (app.subprocess) {
-					var master = APPLICATIONS.findItem(n => n.url === app.url && !n.subprocess);
-					master && schema.workflow('nginx', master, NOOP);
-				}
+					callback(SUCCESS(true));
+					EMIT('superadmin.app.remove', app);
 
-				// Removes app directory
-				Exec('rm ' + directory, NOOP);
+					APPLICATIONS.splice(index, 1);
+					SuperAdmin.save(null, true);
 
-				// Removes nginx config
-				!app.subprocess && F.unlink([Path.join(CONFIG('directory-nginx'), linker + '.conf')], NOOP);
+					if (app.subprocess) {
+						var master = APPLICATIONS.findItem(n => n.url === app.url && !n.subprocess);
+						master && schema.workflow('nginx', master, NOOP);
+					}
+
+					// Removes app directory
+					Exec('rm ' + directory, NOOP);
+
+					// Removes nginx config
+					!app.subprocess && F.unlink([Path.join(CONFIG('directory-nginx'), linker + '.conf')], NOOP);
+				});
 			});
 		});
 	});
@@ -196,17 +201,21 @@ NEWSCHEMA('Application').make(function(schema) {
 			second = undefined;
 
 		SuperAdmin.ssl(url, model.ssl_cer ? false : true, function(err) {
-			SuperAdmin.reload(function(err) {
 
-				var app = APPLICATIONS.findItem('id', model.id);
-				if (app) {
-					app.cache_sslexpire = null;
-					app.appinfo = undefined;
-				}
+			if (err) {
+				error.push(err);
+				return callback();
+			}
 
-				err && error.push('nginx', err.toString());
-				callback(SUCCESS(true));
-			});
+			var app = APPLICATIONS.findItem('id', model.id);
+
+			if (app) {
+				app.sslexpire = null;
+				EMIT('superadmin.app.renew', app);
+			}
+
+			callback(SUCCESS(true));
+
 		}, true, second);
 	});
 
@@ -214,7 +223,7 @@ NEWSCHEMA('Application').make(function(schema) {
 	schema.addWorkflow('analyzator', function(error, model, controller, callback) {
 
 		var output = [];
-		var search = controller.query.q ? [controller.query.q.toLowerCase()] : ['======= ', 'obsolete', 'error'];
+		var search = controller && controller.query.q ? [controller.query.q.toLowerCase()] : ['\n======= ', 'obsolete', 'error', 'port is already in use', 'deprecationwarning'];
 		var length = search.length;
 
 		APPLICATIONS.wait(function(item, next) {
@@ -226,22 +235,32 @@ NEWSCHEMA('Application').make(function(schema) {
 			var filename = item.debug ? Path.join(CONFIG('directory-www'), item.linker, 'logs', 'debug.log') : Path.join(CONFIG('directory-console'), item.linker + '.log');
 			var stream = Fs.createReadStream(filename);
 
-			stream.on('data', function(chunk) {
+			stream.on('data', U.streamer('\n', function(chunk) {
 
 				if (type)
-					return;
+					return false;
 
-				chunk = chunk.toString('utf8').toLowerCase();
+				chunk = chunk.toLowerCase();
+
 				for (var i = 0; i < length; i++) {
 					if (chunk.indexOf(search[i]) !== -1) {
-						type = search[i].startsWith('===') ? 'error' : search[i];
-						break;
+						type = search[i].startsWith('\n===') ? 'error' : search[i];
+						return false;
 					}
 				}
-			});
+			}));
 
 			CLEANUP(stream, function() {
-				type && output.push({ id: item.id, type: type });
+
+				if (type) {
+					item.analyzatoroutput !== type && EMIT('superadmin.app.analyzator', item);
+					item.analyzatoroutput = type;
+					output.push({ id: item.id, type: type });
+					// @TODO: send sms
+					// !controller && SuperAdmin.notify(item, 3);
+				} else
+					item.analyzatoroutput = null;
+
 				next();
 			});
 
@@ -260,16 +279,12 @@ NEWSCHEMA('Application').make(function(schema) {
 			}
 
 			// Reconfigure main application NGINX settings
-			schema.workflow('nginx', item, function(err, response) {
-
+			schema.workflow('nginx', item, function(err) {
 				if (err) {
 					error.push(err);
-					return callback();
-				}
-
-				if (model.$repository('restart'))
-					return run(model, () => callback(SUCCESS(true)));
-				return callback(SUCCESS(true));
+					callback();
+				} else
+					model.$repository('restart') ? run(model, () => callback(SUCCESS(true))) : callback(SUCCESS(true));
 			});
 
 			return;
@@ -291,10 +306,14 @@ NEWSCHEMA('Application').make(function(schema) {
 		data.allow = model.allow;
 		data.disallow = model.disallow;
 		data.nginx = model.nginx;
+		data.proxytimeout = model.proxytimeout;
 		data.version = SuperAdmin.nginx;
 		data.redirect = [];
 		data.size = model.size || 1;
 		data.subprocesses = [];
+		data.accesslog = model.accesslog;
+		data.linker = model.linker;
+		data.acmethumbprint = SuperAdmin.options.acmethumbprint;
 
 		// load all subprocesses
 

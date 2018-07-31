@@ -1,3 +1,29 @@
+======= 8.0.0
+
+- added stateless mode for ACME
+- added backup of `applications.json`
+- addef Filebrowser
+- added FTP
+- added Quick Access, just press F1
+- improved UI
+- improved code
+
+======= 7.0.0
+
+- added auto-renew SSL certificates
+- added nice charts with monthly statistics
+- added option for enabling NGINX access logging
+- updated version of all client-side libraries (jQuery, jComponent and CodeMirror)
+- improved code
+- fixed analyzator for deprecated warnings
+- fixed a problem with determination of `nginx` binary
+- added support for Total.js components (group `superadmin`)
+
+======= 6.0.0
+
+- add backend monitoring
+- add statistics
+
 ======= 5.0.0
 
 - add logs analyzator

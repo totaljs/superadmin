@@ -1,0 +1,160 @@
+<div data-jc="form" data-jc-path="common.form" data-jc-config="if:alarms;width:640;title:@(Edit alarm)" data-jc-id="alarms.form" class="hidden">
+	<div class="padding">
+		<div data-jc="textbox" data-jc-path="alarms.form.name" data-jc-value="''" class="m" data-jc-config="placeholder:@(An alarm name);required:true">@(Name)</div>
+		<div data-jc="dropdown" data-jc-path="alarms.form.idapplication" data-jc-config="datasource:alarms.applications;text:url;empty:@(All applications)" data-jc-value="''" class="m">@(Application)</div>
+		<div data-jc="checkbox" data-jc-path="alarms.form.isenabled" class="b mr5 red" data-jc-value="true">@(Alarm is activated)</div>
+		<div data-jc="checkbox" data-jc-path="alarms.form.debug" class="b mr5 black" data-jc-value="true">@(Enables for all debug modes)</div>
+	</div>
+	<div class="bg-smoke m">
+		<br />
+		<div data-jc="rules" data-jc-path="alarms.form.rules" data-jc-value="[]"></div>
+		<br />
+	</div>
+	<div class="padding npt npb">
+		<div data-jc="textbox" data-jc-path="alarms.form.message" data-jc-value="''" data-jc-config="placeholder:@(High CPU and memory consumption.);required:true">@(Warning message)</div>
+		<div class="help">@(A message above will be sent when rules are validated. SuperAdmin replaces <code>{0}</code> char for application's name.)</div>
+		<br />
+		<div data-jc="textboxlist" data-jc-path="alarms.form.phone" class="m" data-jc-value="[]" data-jc-config="icon:phone;maxlength:50;placeholder:@(Type an international phone number and press enter, e.g. +421903163302)">@(Phone numbers)</div>
+		<div data-jc="textboxlist" data-jc-path="alarms.form.email" data-jc-value="[]" data-jc-config="icon:envelope-o;maxlength:50;placeholder:@(Type a valid email address and press enter)">@(Email addresses)</div>
+	</div>
+	<hr />
+	<div class="padding npt">
+		<div class="row">
+			<div class="col-md-5">
+				<div data-jc="textbox" data-jc-path="alarms.form.delay" data-required="true" data-placeholder="5 minutes" data-jc-value="'5 minutes'" data-align="center" data-maxlength="20" data-icon="fa-clock-o">@(A delay for next alarm)</div>
+				<div data-jc="checkbox" data-jc-path="alarms.form.each" data-jc-value="true" class="b mt10 mr5 black">@(For each applications)</div>
+			</div>
+		</div>
+		<div class="help">@(A delay value can contain <code>1 week</code> or <code>50 seconds</code> or <code>5 minutes</code>, etc..)</div>
+	</div>
+	<div data-jc="error" data-jc-path="alarms.form.response"></div>
+	<div class="ui-form-buttons">
+		<div data-jc="validation" data-jc-path="alarms.form">
+			<button name="submit">@(SUBMIT)</button>
+		</div>
+		<button name="cancel">@(Cancel)</button>
+	</div>
+</div>
+
+<script>
+
+	ON('#alarms.form', function(component) {
+		component.submit = function(hide) {
+			SETTER('loading', 'show');
+			AJAX('POST /api/alarms/', alarms.form, function(response) {
+
+				SETTER('loading', 'hide', 1000);
+
+				// Error handling
+				SET('alarms.form.response', response);
+				if (response instanceof Array)
+					return;
+
+				hide();
+				setTimeout(alarms_refresh, 100);
+				success();
+			});
+		};
+	});
+
+	COMPONENT('rules', function() {
+		var self = this;
+		var types = [];
+		var fields = [];
+		var analyzator = [];
+		var skip = false;
+
+		fields.push({ text: '@(CPU)', value: 'current.cpu', placeholder: '@(Type a number (value in %))', format: '%' });
+		fields.push({ text: '@(Memory (RSS))', value: 'current.memory', placeholder: '@(Type a number (value in MB))', format: ' MB' });
+		fields.push({ text: '@(Directory size)', value: 'current.hdd', placeholder: '@(Type a number (value in MB))', format: ' MB' });
+		fields.push({ text: '@(Count of open files)', value: 'current.openfiles', placeholder: '@(Type a number)', format: 'x' });
+		fields.push({ text: '@(Count of open connections)', value: 'current.connections', placeholder: '@(Type a number)', format: 'x' });
+		fields.push({ text: '@(Analyzator output contains)', value: 'analyzatoroutput', T: 1 });
+
+		types.push({ text: '>', value: '>' });
+		types.push({ text: '<', value: '<' });
+		types.push({ text: '>=', value: '>=' });
+		types.push({ text: '<=', value: '<=' });
+		types.push({ text: '=', value: '=' });
+
+		analyzator.push({ text: 'error', value: 'error' });
+		analyzator.push({ text: 'obsolete code', value: 'obsolete' });
+
+		self.template = Tangular.compile('<div class="rule" data-path="{{ value }}"><div class="rule-field"><label><input type="checkbox" value="{{ value }}" /><span>{{ text }}</span></label></div><div class="rule-type">{{ if T === 1 }}<select name="type"><option></option>{{ foreach m in analyzator }}<option value="{{ m.value }}">{{ m.text }}</option>{{ end }}</select></div>{{ else }}<select name="type"><option></option>{{ foreach m in types }}<option value="{{ m.value }}">{{ m.text }}</option>{{ end }}</select></div><div class="rule-name"><input type="text" autocomplete="off" name="name" maxlength="10" class="rule-name-value" placeholder="{{ placeholder }}" data-format="{{ format }}" /></div>{{ fi }}</div>');
+		self.readonly();
+
+		self.validate = function() {
+			var val = self.get();
+			return val && val.length > 0;
+		};
+
+		self.make = function() {
+			var builder = [];
+			fields.forEach(function(item) {
+				item.types = types;
+				item.analyzator = analyzator;
+				builder.push(self.template(item));
+			});
+
+			self.html(builder.join(''));
+
+			self.element.on('change', 'select,input', function() {
+
+				var output = [];
+
+				self.find('.rule').each(function() {
+					var el = $(this);
+					var obj = {};
+					var can = false;
+					el.find('input').each(function() {
+						if (this.type === 'text')
+							obj.value = this.value.parseFloat();
+						else if (this.checked) {
+							obj.path = this.value;
+							can = true;
+						}
+					});
+
+					if (!can)
+						return;
+
+					obj.type = el.find('select').val();
+					output.push(obj);
+				});
+
+				skip = true;
+				self.set(output);
+				self.change(true);
+			});
+
+			self.element.on('change', '.rule-name-value', function() {
+				var number = this.value.parseFloat();
+				this.value = number + this.getAttribute('data-format');
+			});
+		};
+
+		self.setter = function(value) {
+
+			if (skip) {
+				skip = false;
+				return;
+			}
+
+			self.find('input[type="text"],select').val('');
+			self.find('input[type="checkbox"]').prop('checked', false);
+
+			value && value.forEach(function(item) {
+				var field = fields.findItem('value', item.path);
+				var el = self.find('.rule[data-path="{0}"]'.format(item.path));
+				el.find('input').each(function() {
+					if (this.type === 'text')
+						this.value = item.value + field.format;
+					else
+						this.checked = true;
+				});
+				el.find('select').val(item.type);
+			});
+		};
+	});
+
+</script>

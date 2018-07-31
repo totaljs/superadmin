@@ -1,0 +1,332 @@
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/javascript/javascript.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/xml/xml.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/css/css.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/shell/shell.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/sql/sql.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/addon/mode/simple.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/addon/mode/multiplex.min.js"></script>
+<script src="/js/syntax.js"></script>
+
+<input type="file" class="hidden" id="filebrowserfile" />
+
+<div data-jc="layer" data-jc-path="common.layer" class="hidden" data-jc-config="if:filebrowser;title:@(File Browser);resize:filebrowser_resize;reload:filebrowser_reload" data-jc-id="filebrowser">
+	<div class="ui-layer-body">
+		<div class="filebrowser-tree">
+			<div class="filebrowser-toolbar">
+				<nav>
+					<button class="exec" data-exec="filebrowser_click" name="createdirectory" title="@(Create a directory)"><i class="fa fa-folder-o"></i></button>
+					<button class="exec" data-exec="filebrowser_click" name="createfile" title="@(Create a file)"><i class="fa fa-file-text-o"></i></button>
+					<button class="exec" data-exec="filebrowser_click" name="upload" title="@(Upload a file)"><i class="fa fa-cloud-upload"></i><span>@(Upload)</span></button>
+				</nav>
+			</div>
+			<div id="filebrowsertree">
+				<div data-jc="tree" data-jc-path="filebrowser.tree" data-jc-config="exec:filebrowser_open;remove:filebrowser_remove" data-jc-id="filebrowsertree"></div>
+			</div>
+		</div>
+		<div class="filebrowser-editor">
+			<div class="filebrowser-toolbar">
+				<nav data-b="filebrowser.file" data-b-visible="value !== null" class="hidden">
+					<button class="exec" data-exec="filebrowser_click" name="save" title="@(Save content)"><i class="fa fa-floppy-o"></i><span>@(Save content)</span></button>
+					<button class="exec" data-exec="filebrowser_click" name="replace" title="@(Replace file)"><i class="fa fa-cloud-upload"></i><span>@(Replace file)</span></button>
+				</nav>
+			</div>
+			<div class="padding">
+				<div data-b="filebrowser.file" data-b-visible="filebrowser.file !== null" class="hidden">
+					<div data-jc="codemirror" data-jc-path="filebrowser.file" data-jc-config="height:100%;linenumbers:true" data-jc-id="filebrowsereditor"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div data-jc="inlineform" data-jc-config="if:filebrowser-createfile;width:300;enter:true;title:@(Create file);default:filebrowser.createfile.*;submit:filebrowser_createfile_submit" class="hidden" data-jc-id="filebrowser_createfile">
+	<div class="padding">
+		<div data-jc="textbox" data-jc-path="filebrowser.createfile.path" data-jc-config="required:true;placeholder:@(filename.js)" data-jc-value="''">@(New file name with extension)</div>
+		<div class="help">@(Only text files can be modified. A file is analyses according to its extension.)</div>
+	</div>
+	<div class="padding bg-yellow black fs12">
+		<div><i class="fa fa-folder-o mr5"></i>@(Path:) <span class="b" data-b="filebrowser.treefolder" data-b-html="value ? value.path + '/' : '/root/'">...</span></div>
+	</div>
+	<div data-jc="error" data-jc-path="filebrowser.createfile.response"></div>
+	<div class="ui-inlineform-buttons">
+		<div data-jc="validation" data-jc-path="filebrowser.createfile" class="w100p">
+			<button name="submit">@(Create file)</button>
+			<button name="cancel">@(Cancel)</button>
+		</div>
+	</div>
+</div>
+
+<div data-jc="inlineform" data-jc-config="if:filebrowser-createdirectory;width:300;enter:true;title:@(Create directory);default:filebrowser.createdirectory.*;submit:filebrowser_createdirectory_submit" class="hidden" data-jc-id="filebrowser_createdirectory">
+	<div class="padding">
+		<div data-jc="textbox" data-jc-path="filebrowser.createdirectory.path" data-jc-config="required:true;placeholder:@(public)" data-jc-value="''">@(New directory name)</div>
+		<div class="help">@(Directory will be created into the current place:)</div>
+	</div>
+	<div class="padding bg-yellow black fs12">
+		<div><i class="fa fa-folder-o mr5"></i>@(Path:) <span class="b" data-b="filebrowser.treefolder" data-b-html="value ? value.path + '/' : '/root/'">...</span></div>
+	</div>
+	<div data-jc="error" data-jc-path="filebrowser.createdirectory.response"></div>
+	<div class="ui-inlineform-buttons">
+		<div data-jc="validation" data-jc-path="filebrowser.createdirectory" class="w100p">
+			<button name="submit">@(Create directory)</button>
+			<button name="cancel">@(Cancel)</button>
+		</div>
+	</div>
+</div>
+
+<script>
+
+	MAKE('filebrowser', function(obj) {
+		obj.treefolder = null;
+		obj.treefile = null;
+	});
+
+	function treeappend(tree, path, is) {
+
+		var filename;
+
+		if (is) {
+			var index = path.lastIndexOf('/');
+			filename = path.substring(index + 1);
+			path = path.substring(0, index);
+		}
+
+		var arr = path.substring(1).split('/');
+
+		if (!arr[0])
+			arr[0] = '#';
+
+		var item = tree.findItem('name', arr[0]);
+
+		if (item == null) {
+			item = { name: arr[0], children: [], path: '/' + arr[0] };
+			tree.push(item);
+		}
+
+		var tmp = item;
+		var apath = (arr[0] ? '/' : '') + arr[0];
+
+		for (var i = 1, length = arr.length; i < length; i++) {
+			var name = arr[i];
+			if (!name)
+				continue;
+
+			apath += '/' + name;
+
+			tmp = item.children.findItem('name', name);
+			if (tmp == null) {
+				tmp = { name: name, children: [], path: apath };
+				item.children.push(tmp);
+			}
+			item = tmp;
+		}
+
+		is && tmp.children.push({ name: filename, path: path + '/' + filename, children: null });
+	}
+
+	function filebrowser_reload(is) {
+		SETTER('#filebrowsertree', 'reconfigure', 'autoreset:' + (is === true ? 'false' : 'true'));
+		AJAX('GET /api/filebrowser/?id=' + filebrowser.id, function(response) {
+			SET('filebrowser.data', response);
+			filebrowser_refresh();
+		});
+	}
+
+	function filebrowser_refresh() {
+		var tree = [];
+
+		filebrowser.data.directories.forEach(function(path) {
+			treeappend(tree, path);
+		});
+
+		filebrowser.data.files.forEach(function(path) {
+			treeappend(tree, path, true);
+		});
+
+		var item = tree.findItem('name', '#');
+		tree = tree.remove('name', '#');
+
+		item.children.forEach(function(item) {
+			tree.push(item);
+		});
+
+		SET('filebrowser.tree', tree);
+		SETTER('#filebrowser', 'reconfigure', { title: '@(File Browser:) <a href="{0}" target="_blank">{0}</a>'.format(filebrowser.data.url) });
+	}
+
+	function filebrowser_open(node, isGroup, expanded) {
+
+		if (!node)
+			return;
+
+		if (isGroup) {
+			SET('filebrowser.treefolder', expanded ? node : null);
+			return;
+		}
+
+		SET('filebrowser.treefile', node);
+		SETTER('loading', 'show');
+		AJAX('GET /api/filebrowser/{0}/'.format(filebrowser.data.id) + '?filename=' + encodeURIComponent(node.path), function(response) {
+
+			SETTER('loading', 'hide', 1000);
+
+			if (response instanceof Array) {
+				SET('filebrowser.file', null);
+				// invalid file
+				return;
+			}
+
+			SET('filebrowser.file', response.value);
+			var editor = FIND('#filebrowsereditor').editor;
+			var ext = node.path.substring(node.path.lastIndexOf('.') + 1).toLowerCase();
+			switch (ext) {
+				case 'src/config':
+				case 'src/config-release':
+				case 'src/config-debug':
+				case 'src/config-test':
+				case 'src/versions':
+				case 'src/dependencies':
+				case 'src/sitemap':
+				case 'src/workflows':
+				case '/config':
+				case '/config-release':
+				case '/config-debug':
+				case '/config-test':
+				case '/versions':
+				case '/dependencies':
+				case '/sitemap':
+				case '/workflows':
+				case 'resource':
+					editor.setOption('mode', 'totaljsresources');
+					break;
+				case 'js':
+					editor.setOption('mode', 'javascript');
+					break;
+				case 'json':
+				case 'nosql':
+					editor.setOption('mode', 'application/ld+json');
+					break;
+				case 'css':
+					editor.setOption('mode', 'css');
+					break;
+				case 'sh':
+					editor.setOption('mode', 'shell');
+					break;
+				case 'sql':
+					editor.setOption('mode', 'sql');
+					break;
+				case 'md':
+					editor.setOption('mode', 'markdown');
+					break;
+				case 'xml':
+					editor.setOption('mode', 'xml');
+					break;
+				case 'html':
+				case 'htm':
+				default:
+					editor.setOption('mode', { name: 'totaljs', base: 'htmlmixed' });
+					break;
+			}
+		});
+	}
+
+	function filebrowser_resize(h) {
+		var com = FIND('#filebrowsereditor');
+		com && com.editor.setSize('100%', h - 100);
+		$('#filebrowsertree').css('height', h - 60);
+	}
+
+	function filebrowser_click(el) {
+		var name = el.attr('name');
+		switch (name) {
+			case 'upload':
+			case 'replace':
+				filebrowser.uploadtype = name;
+				$('#filebrowserfile').trigger('click');
+				break;
+			case 'createfile':
+			case 'createdirectory':
+				SETTER('#filebrowser_' + name, 'toggle', el, 'left');
+				break;
+			case 'save':
+				filebrowser_save();
+				break;
+		}
+	}
+
+	function filebrowser_remove(node) {
+		if (!node)
+			return;
+		SETTER('confirm', 'confirm', '@(Are you sure you want to remove: <b>{0}</b>?)'.format(node.name), ['@(Yes)', '@(No)'], function(index) {
+			if (index)
+				return;
+			SETTER('loading', 'show');
+			AJAX('POST /api/filebrowser/', { id: filebrowser.id, type: 'remove', filename: node.path, directory: node.children != null }, function(response) {
+				success();
+				filebrowser_reload(true);
+			});
+		});
+	}
+
+	function filebrowser_createfile_submit(component) {
+		SETTER('loading', 'show');
+		AJAX('POST /api/filebrowser/', { id: filebrowser.id, type: 'create', filename: (filebrowser.treefolder ? (filebrowser.treefolder.path + '/') : '/') + filebrowser.createfile.path, body: '' }, function(response) {
+			SETTER('loading', 'hide', 1000);
+			if (response.success) {
+				component.hide();
+				success();
+				filebrowser_reload(true);
+			}
+		});
+	}
+
+	function filebrowser_createdirectory_submit(component) {
+		SETTER('loading', 'show');
+		AJAX('POST /api/filebrowser/', { id: filebrowser.id, type: 'create', filename: (filebrowser.treefolder ? (filebrowser.treefolder.path + '/') : '/') + filebrowser.createdirectory.path, body: '', directory: true }, function(response) {
+			SETTER('loading', 'hide', 1000);
+			if (response.success) {
+				component.hide();
+				success();
+				filebrowser_reload(true);
+			}
+		});
+	}
+
+	$(document).on('change', '#filebrowserfile', function(e) {
+
+		var data = new FormData();
+		var self = this;
+		var file = self.files[0];
+
+		data.append('id', filebrowser.id);
+		data.append('file', file);
+
+		if (filebrowser.uploadtype === 'upload') {
+			data.append('path', ((filebrowser.treefolder ? filebrowser.treefolder.path : '') + '/' + file.name).replace(/\/{2,}/g, '/'));
+		} else
+			data.append('path', filebrowser.treefile.path);
+
+		SETTER('loading', 'show');
+		UPLOAD('/api/filebrowser/', data, function(response) {
+			self.value = '';
+			if (response.success) {
+				success();
+				filebrowser_reload(true);
+			}
+		})
+	});
+
+	function filebrowser_save() {
+		if (filebrowser.file) {
+			SETTER('loading', 'show');
+			AJAX('POST /api/filebrowser/', { id: filebrowser.id, type: 'update', filename: filebrowser.treefile.path, body: FIND('#filebrowsereditor').editor.getValue() }, function(response) {
+				SETTER('loading', 'hide', 1000);
+				response.success && success();
+			});
+		}
+	}
+
+	SETTER(true, 'shortcuts', 'register', 'cmd+s', filebrowser_save, true);
+	SETTER(true, 'shortcuts', 'register', 'ctrl+s', filebrowser_save, true);
+
+</script>
