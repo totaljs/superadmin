@@ -50,17 +50,17 @@ __To install SuperAdmin run commands bellow:__
 
 ```bash
 # UBUNTU
-$ sudo wget https://cdn.totaljs.com/2017xc9db052e/superadmin.sh && bash superadmin.sh
+$ sudo wget https://cdn.totaljs.com/superadmin.sh && bash superadmin.sh
 ```
 
 ```bash
 # CENTOS
-$ sudo wget https://cdn.totaljs.com/2017xc9db052e/superadmin-centos.sh && bash superadmin-centos.sh
+$ sudo wget https://cdn.totaljs.com/superadmin-centos.sh && bash superadmin-centos.sh
 ```
 
 ```bash
 # ALPINE
-$ sudo wget https://cdn.totaljs.com/2017xc9db052e/superadmin-alpine.sh && bash superadmin-alpine.sh
+$ sudo wget https://cdn.totaljs.com/superadmin-alpine.sh && bash superadmin-alpine.sh
 ```
 
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `/www/superadmin/config`)
