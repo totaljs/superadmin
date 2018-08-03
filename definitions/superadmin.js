@@ -471,7 +471,7 @@ SuperAdmin.run = function(port, callback) {
 	var linker = app.linker;
 	var log = app.debug ? Path.join(CONFIG('directory-www'), linker, 'logs', 'debug.log') : Path.join(CONFIG('directory-console'), linker + '.log');
 
-	!app.debug && Exec('bash {0} {1} {2}'.format(F.path.databases('backuplogs.sh'), log, log.replace(/\.log$/, '-' + F.datetime.format('yyyyMMdd-HHmm.log'))), NOOP);
+	!app.debug && Exec('bash {0} {1} {2}'.format(F.path.databases('backuplogs.sh'), log, log.replace(/\.log$/, '#' + NOW.format('yyyyMMdd-HHmm.log'))), NOOP);
 
 	// Reset output of analyzator
 	app.analyzatoroutput = null;
