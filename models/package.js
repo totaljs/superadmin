@@ -154,7 +154,7 @@ NEWSCHEMA('Package').make(function(schema) {
 		var filename = Path.join(directory, model.app.id + '.' + ext);
 
 		if (ext === 'zip') {
-			Exec('unzip {0}.zip'.format(model.app.id), { cwd: directory }, function() {
+			Exec('unzip -o {0}.zip'.format(model.app.id), { cwd: directory }, function() {
 				if (model.app.stats) {
 					if (model.app.stats.template)
 						model.app.stats.template++;
