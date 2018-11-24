@@ -16,4 +16,5 @@ then
 else
         echo "SUPERADMIN IS CURRENTLY NOT RUNNING."
         start_superadmin
+        exit 1
 fi
