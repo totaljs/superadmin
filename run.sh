@@ -8,7 +8,7 @@ start_superadmin() {
         /usr/bin/node --nouse-idle-notification --expose-gc /www/superadmin/release.js 9999 > /www/logs/superadmin.log &
 }
 
-if [ $SA_PID ]
+if [[ $SA_PID ]]
 then
         echo "KILLING OLD INSTANCE OF SUPERADMIN"
         kill -9 $SA_PID
