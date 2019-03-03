@@ -75,7 +75,7 @@ if [ "$userConsent" == "y" ]; then
 	echo "baseurl=http://nginx.org/packages/centos/\$releasever/\$basearch/" >> /etc/yum.repos.d/nginx.repo
 	echo "gpgcheck=0" >> /etc/yum.repos.d/nginx.repo
 	echo "enabled=1" >> /etc/yum.repos.d/nginx.repo
-	curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
+	curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
 	yum update -y -q
 	yum install -y -q nodejs
 	yum install -y -q nginx
