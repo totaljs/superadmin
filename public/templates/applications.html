@@ -436,21 +436,6 @@
 						return;
 					}
 
-					if (value === 'stop') {
-						FIND('confirm').confirm('@(Are you sure you want to stop all applications?)', ['@(Yes)', '@(Cancel)'], function(index) {
-							if (index)
-								return;
-							SETTER('loading', 'show');
-							applications.waiting = true;
-							AJAX('GET /api/apps/stop/', function(response) {
-								applications.waiting = false;
-								applications_info();
-								success();
-							});
-						});
-						return;
-					}
-
 					AJAX('GET /api/{0}/'.format(value), 'applications.stdout.lines');
 					SET('common.form', 'applications-stdout');
 				}, -5);
@@ -630,13 +615,13 @@
 				if (diff < 0) {
 					has = true;
 					applications.sslexpire[item.port].type = 2;
-					SETTER('notifications', 'append', 'fa-warning', '@(<b class="red">The certificate is expired</b> for domain <a href="{0}" target="_blank">{0}</a>, you have to renew it.)'.format(app.url), item.sslexpire, function() {
+					SETTER('notifications', 'append', 'fa-warning', '@(<b class="red">The certificate for domain <a href="{0}" target="_blank">{0}</a> has expired</b> , you need to renew it.)'.format(app.url), item.sslexpire, function() {
 						applications_edit(app.id, -1);
 					}, '#D53F39');
 				} else if (diff <= 259200) {
 					has = true;
 					applications.sslexpire[item.port].type = 3;
-					SETTER('notifications', 'append', 'fa-clock-o', '@(<b>The certificate will expire</b> for domain <a href="{0}" target="_blank">{0}</a> in short time, you have to renew it.)'.format(app.url), item.sslexpire, function() {
+					SETTER('notifications', 'append', 'fa-clock-o', '@(<b>The certificate</b> for domain <a href="{0}" target="_blank">{0}</a> <b>will expire</b> shortly, you have to renew it.)'.format(app.url), item.sslexpire, function() {
 						applications_edit(app.id, -1);
 					}, '#E9573F');
 				}
@@ -914,7 +899,7 @@
 
 	if (!CACHE('analyzator')) {
 		CACHE('analyzator', '1', '4 days');
-		SETTER('notifications', 'append', 'fa-bug', '@(More than 3 days you don\'t have launched <b>Logs analyzator</b>. Run it now.)', function() {
+		SETTER('notifications', 'append', 'fa-bug', '@(You haven\'t launched <b>Logs analyzator</b> for more than 3 days. Run it now.)', function() {
 			SET('common.form', 'applications-analyzator');
 		});
 	}
