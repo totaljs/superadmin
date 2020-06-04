@@ -53,7 +53,8 @@ if [ "$userConsent" == "y" ]; then
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 	apt-get install python-software-properties
 	apt-get install software-properties-common
-	curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+	apt-get install -y curl
+	curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 	apt-get update
 	apt-get install -y nginx
 	apt-get install -y nodejs
