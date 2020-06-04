@@ -426,7 +426,7 @@ SuperAdmin.pid = function(port, callback) {
 		return;
 	}
 
-	Exec('lsof -i :' + port + ' | grep \'total\'', function(err, response) {
+	Exec('lsof -i :' + port + ' | grep \'LISTEN\'', function(err, response) {
 		var pid = response.match(REG_PID);
 		if (pid) {
 			item.pid = pid.toString().trim();
