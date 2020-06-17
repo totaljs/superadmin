@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SA_PID=$(lsof -i :9999 | grep "total" | awk {'print $2'})
+SA_PID=$(lsof -i :9999 | grep "LISTEN" | awk {'print $2'})
 
 start_superadmin() {
         echo "STARTING SUPERADMIN ON PORT 9999"
