@@ -15,7 +15,7 @@ NEWSCHEMA('Operations', function(schema) {
 	});
 
 	schema.addWorkflow('updatetotal', function($) {
-		Exec(PATH.databases('update-total.sh'), $.done());
+		Exec(PATH.private('update-total.sh'), $.done());
 	});
 
 });

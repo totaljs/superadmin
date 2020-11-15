@@ -80,7 +80,7 @@ NEWSCHEMA('Templates', function(schema) {
 
 	schema.addWorkflow('backup', function($, model) {
 		if (model.backup)
-			Exec('bash {0} {1} {2}'.format(PATH.databases('backup.sh'), Path.join(CONF.directory_www, model.app.linker), Path.join(CONF.directory_dump, model.id + '-backup.tar.gz')), $.done());
+			Exec('bash {0} {1} {2}'.format(PATH.private('backup.sh'), Path.join(CONF.directory_www, model.app.linker), Path.join(CONF.directory_dump, model.id + '-backup.tar.gz')), $.done());
 		else
 			$.success();
 	});

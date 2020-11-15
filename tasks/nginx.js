@@ -84,7 +84,7 @@ NEWTASK('nginx', function(push) {
 
 	// Creates NGINX configuration
 	push('create', function($, value) {
-		Fs.readFile(PATH.databases('nginx.conf'), function(err, response) {
+		Fs.readFile(PATH.private('nginx.conf'), function(err, response) {
 			response = response.toString('utf8');
 			Fs.writeFile(value.filename, VIEWCOMPILE(response, value.model).trim().replace(/\n\t\n/g, '\n').replace(/\n{3,}/g, '\n'), $.next2('test'));
 		});

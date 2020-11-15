@@ -348,7 +348,7 @@ NEWSCHEMA('Apps', function(schema) {
 			var directory = Path.join(CONF.directory_www, linker);
 
 			// Backups application's data
-			Exec('bash {0} {1} {2}'.format(PATH.databases('backup.sh'), Path.join(CONF.directory_www, linker), Path.join(CONF.directory_dump, linker + '-removed-backup.tar.gz')), function() {
+			Exec('bash {0} {1} {2}'.format(PATH.private('backup.sh'), Path.join(CONF.directory_www, linker), Path.join(CONF.directory_dump, linker + '-removed-backup.tar.gz')), function() {
 				Exec('rm -r ' + directory, function() {
 
 					EMIT('superadmin_app_remove', app);

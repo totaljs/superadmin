@@ -543,7 +543,7 @@ SuperAdmin.run_BK = function(port, callback) {
 	var linker = app.linker;
 	var log = app.debug ? Path.join(CONF.directory_www, linker, 'logs', 'debug.log') : Path.join(CONF.directory_console, linker + '.log');
 
-	!app.debug && Exec('bash {0} {1} {2}'.format(PATH.databases('backuplogs.sh'), log, log.replace(/\.log$/, '#' + NOW.format('yyyyMMdd-HHmm.log'))), NOOP);
+	!app.debug && Exec('bash {0} {1} {2}'.format(PATH.private('backuplogs.sh'), log, log.replace(/\.log$/, '#' + NOW.format('yyyyMMdd-HHmm.log'))), NOOP);
 
 	// Reset output of analyzator
 	app.analyzatoroutput = null;
@@ -552,7 +552,7 @@ SuperAdmin.run_BK = function(port, callback) {
 		SuperAdmin.makescripts(app, function() {
 			// Creates a log directory
 			if (app.debug)
-				Exec('bash {0} {1}'.format(PATH.databases('mkdir.sh'), Path.join(CONF.directory_www, linker, 'logs')), callback);
+				Exec('bash {0} {1}'.format(PATH.private('mkdir.sh'), Path.join(CONF.directory_www, linker, 'logs')), callback);
 			else
 				callback();
 		});
@@ -619,7 +619,7 @@ SuperAdmin.run = function(port, callback) {
 	var linker = app.linker;
 	var log = Path.join(CONF.directory_www, linker, 'logs', 'debug.log');
 
-	!app.debug && Exec('bash {0} {1} {2}'.format(PATH.databases('backuplogs.sh'), log, Path.join(CONF.directory_console, linker + NOW.format('yyyyMMdd-HHmm') + '.log')), NOOP);
+	!app.debug && Exec('bash {0} {1} {2}'.format(PATH.private('backuplogs.sh'), log, Path.join(CONF.directory_console, linker + NOW.format('yyyyMMdd-HHmm') + '.log')), NOOP);
 
 	// Reset output of analyzator
 	app.analyzatoroutput = null;
@@ -627,7 +627,7 @@ SuperAdmin.run = function(port, callback) {
 	var fn = function(callback) {
 		SuperAdmin.makescripts(app, function() {
 			// Creates a log directory
-			Exec('bash {0} {1}'.format(PATH.databases('mkdir.sh'), Path.join(CONF.directory_www, linker, 'logs')), callback);
+			Exec('bash {0} {1}'.format(PATH.private('mkdir.sh'), Path.join(CONF.directory_www, linker, 'logs')), callback);
 		});
 	};
 
@@ -683,7 +683,7 @@ SuperAdmin.npminstall = function(app, callback) {
 	var directory = Path.join(CONF.directory_www, app.linker);
 	F.path.exists(Path.join(directory, 'package.json'), function(e) {
 		if (e)
-			Exec('bash {0} {1}'.format(F.path.databases('npminstall.sh'), directory), (err) => callback(err));
+			Exec('bash {0} {1}'.format(PATH.private('npminstall.sh'), directory), (err) => callback(err));
 		else
 			callback();
 	});
@@ -941,7 +941,7 @@ SuperAdmin.versions = function(callback) {
 
 SuperAdmin.backup = function(callback) {
 	var filename = NOW.format('yyyyMMdd') + '-backup.tar.gz';
-	Exec('bash {0} {1} {2}'.format(PATH.databases('backup.sh'), CONF.directory_dump, filename), function(err) {
+	Exec('bash {0} {1} {2}'.format(PATH.private('backup.sh'), CONF.directory_dump, filename), function(err) {
 		callback(err, Path.join(CONF.directory_dump, filename));
 	});
 };
@@ -954,7 +954,7 @@ SuperAdmin.backupapp = function(app, callback) {
 	}
 
 	var filename = Path.join(CONF.directory_dump, NOW.format('yyyyMMddHHmmss') + '_' + app.linker + '-backup.tar.gz');
-	Exec('bash {0} {1} {2}'.format(PATH.databases('backup.sh'), CONF.directory_www + app.linker + '/', filename), function(err) {
+	Exec('bash {0} {1} {2}'.format(PATH.private('backup.sh'), CONF.directory_www + app.linker + '/', filename), function(err) {
 		SuperAdmin.ftp(filename, function() {
 			SuperAdmin.logger('backuped: ' + filename, null, app);
 			EMIT('superadmin_app_backup', app, filename);
@@ -971,7 +971,7 @@ SuperAdmin.ftp = function(filename, callback) {
 	var password = auth[1];
 	var target = U.getName(filename);
 
-	Exec('bash {0} {1} {2} {3} {4} {5}'.format(PATH.databases('ftp.sh'), ftp.hostname, username, password, filename, target), function(err) {
+	Exec('bash {0} {1} {2} {3} {4} {5}'.format(PATH.private('ftp.sh'), ftp.hostname, username, password, filename, target), function(err) {
 		Fs.unlink(filename, NOOP);
 		callback && callback(err);
 	});
@@ -1156,7 +1156,7 @@ SuperAdmin.makescripts = function(app, callback) {
 	var directory = Path.join(CONF.directory_www, linker);
 	Exec('mkdir -p ' + directory, function() {
 		Exec('chmod 777 {0}'.format(directory), function() {
-			SuperAdmin.copy(PATH.databases('index.js'), Path.join(directory, 'index.js'), function(err) {
+			SuperAdmin.copy(PATH.private('index.js'), Path.join(directory, 'index.js'), function(err) {
 				callback(err);
 			}, (response) => response.toString('utf8').format(app.version === 'total3' ? 'total.js' : app.version));
 		});
@@ -1205,8 +1205,8 @@ SuperAdmin.defaultssl = function(callback) {
 	Fs.lstat(filename, function(err) {
 
 		if (err) {
-			Fs.copyFile(PATH.databases('superadmin.key'), filename, NOOP);
-			Fs.copyFile(PATH.databases('superadmin.csr'), Path.join(CONF.directory_ssl, 'superadmin.csr'), NOOP);
+			Fs.copyFile(PATH.private('superadmin.key'), filename, NOOP);
+			Fs.copyFile(PATH.private('superadmin.csr'), Path.join(CONF.directory_ssl, 'superadmin.csr'), NOOP);
 		}
 
 		callback();
