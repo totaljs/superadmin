@@ -88,7 +88,7 @@ if [ "$userConsent" == "y" ]; then
 
 	if [ "$httpsEn" == "y" ]; then
 
-		echo "Generating SSL ..."
+		echo "Generating of SSL ..."
 
 		sed -i -e $repexp /www/nginx/superadmin.conf
 		sed -i -e $httpenexp /www/nginx/superadmin.conf
