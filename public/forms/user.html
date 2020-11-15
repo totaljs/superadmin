@@ -37,7 +37,7 @@
 
 		exports.submit = function(hide) {
 			var model = GET('? @reset');
-			DAPI('users_' + (model.id ? ('update/' + model.id) : 'insert') + ' @showloading', model, ASETTER('message/response', '@(User profile has been saved successfully.)', function() {
+			DAPI('users_' + (model.id ? ('update/' + model.id) : 'insert') + ' @showloading', model, ASETTER('notifybar/response', '@(User profile has been saved successfully.)', function() {
 				EXEC('users/refresh @hideloading');
 				hide();
 			}));

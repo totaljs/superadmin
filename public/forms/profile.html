@@ -41,7 +41,11 @@
 
 		exports.submit = function(hide) {
 			var model = GET('? @reset');
-			DAPI('account_save @showloading', model, ASETTER('message/response @hideloading', '@(Your profile has been saved successfully.)', hide));
+			DAPI('account_save @showloading', model, ASETTER('notifybar/response @hideloading', '@(Your profile has been saved successfully.)', function() {
+				if (common.page === 'users')
+					EXEC('users/refresh');
+				hide();
+			}));
 		};
 	});
 
