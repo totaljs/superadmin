@@ -10,7 +10,7 @@ NEWSCHEMA('Settings', function(schema) {
 
 	// SMTP
 	settings.push({ group: 'SMTP server', label: 'Hostname', name: 'mail_smtp', type: 'string', value: '' });
-	settings.push({ group: 'SMTP server', label: 'Options', name: 'mail_smtp_options', type: 'string', value: '{}', note: 'Follow: https://docs.totaljs.com/total4/4047c001sd51c/#4c10a001bl51c' });
+	settings.push({ group: 'SMTP server', label: 'Options', name: 'mail_smtp_options', type: 'string', value: {}, note: 'Follow: https://docs.totaljs.com/total4/4047c001sd51c/#4c10a001bl51c' });
 	settings.push({ group: 'SMTP server', label: 'Sender address', name: 'mail_address_from', type: 'string', value: '', placeholder: '@', note: 'Type sender e-mail address' });
 
 	// Backup
