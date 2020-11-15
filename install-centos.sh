@@ -75,7 +75,7 @@ if [ "$userConsent" == "y" ]; then
 	echo "baseurl=http://nginx.org/packages/centos/\$releasever/\$basearch/" >> /etc/yum.repos.d/nginx.repo
 	echo "gpgcheck=0" >> /etc/yum.repos.d/nginx.repo
 	echo "enabled=1" >> /etc/yum.repos.d/nginx.repo
-	curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
+	curl --silent --location https://rpm.nodesource.com/setup_14.x | bash -
 	yum update -y -q
 	yum install -y -q nodejs
 	yum install -y -q nginx
@@ -97,14 +97,19 @@ if [ "$userConsent" == "y" ]; then
 	mkdir /www/www/
 	mkdir /www/superadmin/
 	mkdir /www/node_modules/
-        touch /www/superadmin/superadmin.log
+    touch /www/superadmin/superadmin.log
 	cd /www/
+	npm install total4
+	npm install -g total4
 	npm install total.js
 	npm install -g total.js
+	npm install dbms
 
 	# Total.js downloads package and unpack
 	cd /www/superadmin/
-	tpm install "https://cdn.totaljs.com/superadmin.package?ts=$(date +%s)"
+	wget "https://raw.githubusercontent.com/totaljs/superadmin_templates/main/superadmin.zip"
+	unzip superadmin.zip
+	rm superadmin.zip
 
 	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf
@@ -170,10 +175,6 @@ if [ "$userConsent" == "y" ]; then
 		echo -e "\e[31mTo Run Manually:  $ cd /www/superadmin/ && $ bash run.sh\e[0m"
 
 	fi
-
-
-
-
 
 	# Starting
 	echo -e "\e[42mSTARTING SUPERADMIN...\e[0m"

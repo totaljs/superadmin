@@ -1657,8 +1657,11 @@ COMPONENT('searchinput', 'searchicon:fa fa-search;cancelicon:fa fa-times;align:l
 			prev && self.set('');
 		});
 
-		if (config.autofocus && !isMOBILE)
-			input.focus();
+		if (config.autofocus && !isMOBILE) {
+			setTimeout(function() {
+				input.focus();
+			}, config.autofocus == true ? 500 : config.autofocus);
+		}
 
 	};
 
@@ -7161,6 +7164,9 @@ COMPONENT('rules', 'dirsearch:Search', function(self, config, cls) {
 			skip = false;
 			return;
 		}
+
+		if (!value)
+			value = [];
 
 		items = value;
 		var builder = [];

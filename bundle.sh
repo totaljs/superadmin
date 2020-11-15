@@ -2,7 +2,6 @@ mkdir -p .bundle
 
 cd .bundle
 cp -a ../controllers/ controllers
-cp -a ../databases/ databases
 cp -a ../definitions/ definitions
 cp -a ../public/ public
 cp -a ../private/ private
