@@ -7,10 +7,11 @@
 	</header>
 	<div data---="viewbox__null__parent:.ui-layout2-section;visibleX:true;visibleY:true;scrollbar:true;margin:45">
 
-		<div data---="empty__?.items__parent:auto" class="hidden">@(No alarms defined)</div>
+		<div data---="empty__?.items__parent:auto">
 
-		<div class="padding">
-			<div class="listing" data-bind="?.items__template">
+			<template>@(SuperAdmin does not contain any alarms)</template>
+
+			<div class="listing padding" data-bind="?.items__template">
 				<script type="text/html">
 					{{ foreach m in value }}
 					<figure data-id="{{ m.id }}">

@@ -7234,20 +7234,37 @@ COMPONENT('tabmenu', 'class:selected;selector:li', function(self, config) {
 	};
 });
 
-COMPONENT('empty', 'icon:fa fa-database;parent:parent', function(self, config, cls) {
+COMPONENT('empty', 'icon:fa fa-database;parent:parent;margin:0', function(self, config, cls) {
 
 	var visible = false;
+	var special = false;
+	var table;
 
 	self.readonly();
-	self.nocompile();
 
 	self.make = function() {
-		self.aclass(cls + ' hidden');
-		self.element.wrapInner('<div class="{0}-table"><div class="{0}-cell"><div></div></div></div>'.format(cls)).find('> div > div').prepend('<i class="{0}"></i>'.format(config.icon));
+
+		self.aclass(cls);
+
+		var scr = self.find('> scri' + 'pt,> template');
+		var text = scr.length ? scr.html() : self.html();
+		var html = '<div class="{0}-table hidden"><div class="{0}-cell"><i class="{1}"></i><div>{2}</div></div></div>'.format(cls, config.icon, text);
+
+		if (scr.length) {
+			special = true;
+			scr.remove();
+			self.element.prepend(html);
+		} else
+			self.html(html);
+
+		table = self.find('> .' + cls + '-table');
+
 		self.on('resize2 + resize', function() {
 			if (!visible)
 				self.resize();
 		});
+
+		self.rclass('hidden');
 	};
 
 	self.resize = function() {
@@ -7256,8 +7273,8 @@ COMPONENT('empty', 'icon:fa fa-database;parent:parent', function(self, config, c
 
 	self.resizeforce = function() {
 		var parent = self.parent(config.parent);
-		var wh = parent.height();
-		self.css('height', wh < 100 ? 'auto' : wh);
+		var wh = parent.height() - 10;
+		table.css('height', wh < 100 ? 'auto' : wh - config.margin);
 	};
 
 	self.setter = function(value) {
@@ -7269,10 +7286,16 @@ COMPONENT('empty', 'icon:fa fa-database;parent:parent', function(self, config, c
 		else if (value)
 			visible = value.items && !!value.items.length;
 
-		self.tclass('hidden', visible);
+		table.tclass('hidden', visible);
 
 		if (!visible)
 			self.resizeforce();
+
+		if (special) {
+			for (var i = 1; i < self.dom.children.length; i++)
+				$(self.dom.children[i]).tclass('hidden', !visible);
+		}
+
 	};
 
 });
