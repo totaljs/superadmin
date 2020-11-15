@@ -1258,17 +1258,7 @@ SuperAdmin.version_update = function(callback) {
 		callback();
 		return;
 	}
-
-	var files_remove = ['release-cluster.js', 'release.js', 'debug.js', 'website-ssl.conf', 'website.conf'];
-	for (var i = 0; i < files_remove.length; i++)
-		files_remove[i] = PATH.databases(files_remove[i]);
-
 	var async = [];
-
-	async.push(function(next) {
-		// Remove useless files
-		PATH.unlink(files_remove, () => next());
-	});
 
 	// Upadte DB of alarms
 	async.push(function(next) {

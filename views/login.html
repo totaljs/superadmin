@@ -59,7 +59,7 @@
 		<h1><i class="fa fa-lock"></i>@{'%name'}</h1>
 		<div class="padding">
 
-			@{if PREF.credentials === '1'}
+			@{if PREF.credentials}
 				<div class="alert m">
 					<div class="m"><i class="fa fa-lock"></i>@(Your default credentials are below. You can change them after you signing in.)</div>
 					<div class="keyvalue">
