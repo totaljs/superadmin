@@ -3,121 +3,289 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>@{config.name} v@{config.version}</title>
+	<title>@{config.name}</title>
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=10" />
 	<meta name="format-detection" content="telephone=no" />
 	<meta name="robots" content="all,follow" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="#A0A0A0" />
-	<meta name="apple-mobile-web-app-title" content="@{config.name}" />
-	<link rel="apple-touch-icon" href="/icon.png" />
-	<link rel="stylesheet" href="//cdn.componentator.com/spa.min@14.css" />
+	<link href="//cdn.componentator.com/spa.min@18.css" rel="stylesheet" />
 	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700&subset=latin,latin-ext" />
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/codemirror.min.css" />
-	@{import('head', 'default.css', 'favicon.ico')}
-	<script>
-		var su=JSON.parse('@{json(user)}');
-	</script>
-</head>
-<body data-jc="exec,binder">
-
-	<div id="success"><span class="fa fa-check-circle"></span></div>
-	<div data-jc="message" data-jc-config="button:@(Close)"></div>
-	<div data-jc="notifications" data-jc-config="native:true"></div>
-	<div data-jc="loading" class="ui-loading"></div>
-	<div data-jc="audio"></div>
-	<div data-jc="confirm"></div>
-	<div data-jc="info"></div>
-	<div data-jc="contextmenu"></div>
-	<div data-jc="features" data-jc-config="placeholder:@(Search ...)"></div>
-	<div data-jc="shortcuts"></div>
-
-	<header>
-		<div class="mainmenu">
-			<div class="mainmenu-logo"><b>@{config.name}</b> v@{config.version}</div>
-			<a href="javascript:void(0)" class="mainmenu-button exec" data-exec="mainmenu"><span class="fa fa-navicon"></span></a>
-		</div>
-		<nav>
-			<a class="jrouting" href="/" title="@(Applications)" data-role="applications"><span class="fa fa-dashboard"></span></a>
-			<a class="jrouting" href="/stats/" title="@(Statistics)" data-role="applications"><span class="fa fa-area-chart"></span></a>
-			<a class="jrouting" href="/alarms/" title="@(Alarms)" data-role="applications"><span class="fa fa-bell-o"></span></a>
-			<a class="jrouting" href="/settings/" title="@(Settings)" data-role="applications"><span class="fa fa-cogs"></span></a>
-			<a class="logoff" href="/logoff/" title="@(Sign out)"><span class="fa fa-power-off"></span></a>
-		</nav>
-	</header>
-
-	<div id="body">
-		<div data-jc="page" data-jc-path="common.page" data-jc-config="if:applications;init:applications_init;template:/templates/applications.html"></div>
-		<div data-jc="page" data-jc-path="common.page" data-jc-config="if:alarms;reload:alarms_refresh;template:/templates/alarms.html"></div>
-		<div data-jc="page" data-jc-path="common.page" data-jc-config="if:stats;template:/templates/stats.html"></div>
-		<div data-jc="page" data-jc-path="common.page" data-jc-config="if:settings;reload:settings_refresh;template:/templates/settings.html"></div>
-		@{components('superadmin')}
-	</div>
-
-	<script src="//cdn.componentator.com/spa.min@14.js"></script>
+	<script src="//cdn.componentator.com/spa.min@18.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/codemirror.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/nginx/nginx.min.js"></script>
+	@{import('head', 'default.css + ui.css', 'ui.js + helpers.js + syntax.js', 'favicon.ico')}
+</head>
+<body data---="exec">
 
-	@{import('default.js')}
+	<div data---="loading" class="ui-loading"></div>
+	<div data---="websocket__null__url:/;encoder:false"></div>
+	<div data---="console__common.showlogs__datasource:common.logs"></div>
+	<div data---="mainprogress__common.progress"></div>
+	<div data---="shortcuts"></div>
+
+	<div data---="LAZY directory__null__placeholder:@(Search)"></div>
+	<div data---="LAZY fileuploader"></div>
+	<div data---="LAZY floatinginput"></div>
+	<div data---="LAZY message__null__style:2;button:@(Close)"></div>
+	<div data---="LAZY approve"></div>
+	<div data---="LAZY menu"></div>
+
+	<div data---="notificationspanel__common.shownotifications__exec:common/notifications_load;autoremove:0;clear:common/notifications_clear">
+		<script type="text/html">
+			<div class="notification">
+				<span{{ if type === 'warning' }} class="red"{{ fi }}><i class="far fa-calendar mr5"></i><strong>{{ dtcreated | format('[ts]') }}</strong></span> - {{ body | raw }}
+			</div>
+		</script>
+	</div>
+
+	<div class="ui-dark">
+		<div data---="LAZY notifybar"></div>
+	</div>
+
+	<div data---="layout2__null__parent:window" class="invisible">
+		<div data-type="left" data-size="230,230,200,0" data-scrollbar="selector:main;margin:0">
+			<main>
+				<div class="stats" data-scope="sysinfo">
+					<div class="padding npb">
+						<div data---="gauge__?.cpu__colors:30 #8CC152 25,40 #EDBC5A 35,30 #DB3737 45"></div>
+						<div class="center mt10" data-bind="?.processes__text:Thelpers.pluralize(value, @('# processes', '# process', '# processes', '# processes'))__empty"></div>
+						<div class="center" data-bind="?.version_server__text__empty"></div>
+					</div>
+					<div data---="livestats__?.live__max:100;colors:cpu=#E73323,memory=#68B25B,storage=#2E67C5" class="mt10"></div>
+					<div class="padding">
+						<div class="keyvalue-group">
+							<div data-bind="?.live.memory__html__helper:progress"></div>
+							<i class="fa fa-microchip" style="color:#68B25B"></i>@(Memory)
+						</div>
+						<div class="keyvalue">
+							<div class="value" data-bind="?.memused__text__helper:filesize"></div>
+							<div class="key">@(Used)</div>
+						</div>
+						<div class="keyvalue">
+							<div class="value" data-bind="?.memtotal__text__helper:filesize"></div>
+							<div class="key">@(Total)</div>
+						</div>
+						<hr />
+						<div class="keyvalue-group">
+							<div data-bind="?.live.storage__html__helper:progress"></div>
+							<i class="far fa-hdd" style="color:#2E67C5"></i>@(Storage)
+						</div>
+						<div class="keyvalue">
+							<div class="value" data-bind="?.hddused__text__helper:filesize"></div>
+							<div class="key">@(Used)</div>
+						</div>
+						<div class="keyvalue m">
+							<div class="value" data-bind="?.hddtotal__text__helper:filesize"></div>
+							<div class="key">@(Total)</div>
+						</div>
+						<hr />
+						<div>@(IP address): <b data-bind="?.ip__text__empty">---</b></div>
+						<div class="gray">
+							<div>@(Uptime): <span data-bind="?.uptime__text__!helper:uptime__empty"></span></div>
+						</div>
+					</div>
+				</div>
+
+				<br />
+				<ul class="nav" data---="selected__common.page__selector:li">
+					<li class="exec" data-exec="common/page" data-if="apps"><span data-bind="apps.apps.length__text__show"></span><i class="fa fa-navicon"></i>@(Applications)</li>
+					<!-- <li class="exec" data-exec="common/page" data-if="stats"><i class="fa fa-area-chart"></i>@(Statistics)</li>
+					<li class="exec" data-exec="common/page" data-if="alarms"><i class="fa fa-bell"></i>@(Alarms)</li>
+					<li class="exec" data-exec="common/page" data-if="settings"><i class="fa fa-wrench"></i>@(Settings)</li> -->
+					<li class="exec" data-exec="common/notifications">@{if PREF.notifications}<span>@{PREF.notifications}</span>@{fi}<i class="far fa-bell"></i>@(Notifications)</li>
+					<li class="exec" data-exec="common/more"><i class="fas fa-plus"></i>@(More)</li>
+				</ul>
+				<!--
+				<hr />
+				<ul class="nav">
+					<li class="exec b" data-exec="common/profile" data-if="profile"><i class="far fa-user-circle"></i>@{user.name}</li>
+					<li class="exec" data-exec="common/logout"><i class="fa fa-power-off red"></i>@(Logout)</li>
+				</ul>-->
+			</main>
+		</div>
+		<div data-type="main">
+			<div data---="part__common.page__if:apps;init:applications_init;url:/parts/apps.html;reload:apps/reload"></div>
+			<div data---="part__common.page__if:settings;reload:settings/reload;url:/parts/settings.html"></div>
+			<div data---="part__common.page__if:alarms;reload:alarms/reload;url:/parts/alarms.html"></div>
+			<div data---="part__common.page__if:users;reload:users/reload;url:/parts/users.html"></div>
+			<!--<div data---="part__common.page__if:stats;url:/templates/stats.html"></div>-->
+		</div>
+	</div>
+
+	<div data---="importer__common.form__if:profileform;url:/forms/profile.html"></div>
+	@{json(user, 'userdata')}
 
 	<script>
-	SETTER(true, 'shortcuts', 'register', 'F1', function(e) {
 
-		var items = [];
-		items.push({ name: '@(Search)', value: 99, icon: 'search' });
-		items.push({ name: '@(Logs analyzator)', value: 10, icon: 'bug' });
-		items.push({ name: '@(Summarization)', value: 11, icon: 'bar-chart' });
-		items.push({ name: '@(Add application)', value: 12, icon: 'plus-circle', keywords: 'new create' });
-		items.push({ name: '@(Applications)', value: '/', icon: 'database', keywords: 'apps' });
-		items.push({ name: '@(Statistics)', value: '/stats/', icon: 'area-chart', keywords: 'stats' });
-		items.push({ name: '@(Alarms)', value: '/alarms/', icon: 'bell-o', keywords: 'debug' });
+		var common = { shownotifications: +('@{PREF.notifications || 0}') > 0 };
+		var user = PARSE('#userdata');
 
-		window.applications && window.applications.grid.forEach(function(item) {
-			var name = item.url.replace(/(https|http)\:\/\//, '');
-			items.push({ name: '<b>@(Restart:)</b> ' + name, value: 1, icon: 'refresh', id: item.id });
-			!isMOBILE && su.filebrowser && items.push({ name: '<b>@(File Browser:)</b> ' + name, value: 3, icon: 'folder', id: item.id });
-			items.push({ name: '<b>@(Edit:)</b> ' + name, value: 2, icon: 'cog', id: item.id });
+		DEF.dateformat = '@(yyyy-MM-dd)';
+		DEF.api = '/apiv1/';
+
+		ENV('date', '@(yyyy-MM-dd)');
+		ENV('ts', '@(yyyy-MM-dd HH:mm)');
+
+		// Current page
+		common.page = 'apps';
+
+		// Current form
+		common.form = '';
+
+		common.logs = {};
+		common.logs.apps = { icon: 'fas fa-list', name: '@(Applications)', items: [] };
+
+		NAV.clientside('.jR');
+
+		ON('ready', function() {
+			SETTER(true, 'loading/hide', 500);
 		});
 
-		SETTER('features', 'show', items, function(item) {
+		ON('@flag showloading', function() {
+			SETTER('loading/show');
+		});
 
-			if (typeof(item.value) === 'string') {
-				REDIRECT(item.value);
-				return;
+		ON('@flag hideloading', function() {
+			SETTER('loading/hide', 1000);
+		});
+
+		ON('online', function(is) {
+			SETTER('loading/' + (is ? 'hide' : 'show'), is ? 1000 : 'Connecting to the server ...');
+		});
+
+		PLUGIN('common', function(exports) {
+
+			exports.refresh = function() {
+			};
+
+			exports.page = function(el) {
+				SET('common.page', el.attrd('if'));
+			};
+
+			exports.more = function(el) {
+				var opt = {};
+				opt.element = el;
+				opt.large = true;
+				opt.items = [];
+
+				if (user.sa) {
+					opt.items.push({ id: 'alarms', name: '@(Alarms)', icon: 'fas fa-bell' });
+					opt.items.push({ id: 'users', name: '@(Users)', icon: 'fas fa-user-friends' });
+					opt.items.push({ id: 'settings', name: '@(Settings)', icon: 'fas fa-cog' });
+				}
+
+				opt.items.push({ id: 'console', name: '@(Toggle console)', icon: 'fas fa-terminal' });
+				opt.items.push('-');
+				opt.items.push({ id: 'profile', name: '@(My profile)', icon: 'far fa-user-circle' });
+				opt.items.push({ id: 'logout', name: '@(Logout)', icon: 'fas fa-power-off red' });
+				opt.callback = function(item) {
+
+					switch (item.id) {
+						case 'alarms':
+						case 'users':
+						case 'settings':
+							SET('common.page', item.id);
+							break;
+						case 'console':
+							TOGGLE('common.showlogs');
+							break;
+						case 'profile':
+							SET('common.form', 'profileform');
+							break;
+						case 'logout':
+							DAPI('logout @showloading', function() {
+								location.reload();
+							});
+							break;
+					}
+
+
+				};
+				SETTER('menu/show', opt);
+			};
+
+			exports.notifications_load = function(next) {
+				DAPI('notifications_query', next);
+			};
+
+			exports.notifications = function(el) {
+				el.find('span').remove();
+				TOGGLE('common.shownotifications');
+			};
+
+			exports.notifications_clear = function() {
+				DAPI('notifications_clear', NOOP);
+			};
+
+		});
+
+		function makelog(msg) {
+			var name = '';
+			switch (msg.TYPE) {
+				case 'app_create':
+					name = '@(Created:)';
+					break;
+				case 'app_update':
+					name = '@(Updated:)';
+					break;
+				case 'app_restart':
+					name = '@(Restarted:)';
+					break;
+				case 'app_stop':
+					name = '@(Stopped:)';
+					break;
+				case 'app_renew':
+					name = '@(SSL renewed:)';
+					break;
+				case 'app_template':
+					name = '@(Uploaded new source-code:)';
+					break;
 			}
+			name && PUSH('^common.logs.apps.items', { type: 'info', body: name + ' ' + msg.url });
+		}
 
-			switch (item.value) {
-				case 99:
-					FIND('.applications.filter.search').element.find('input').focus();
+		ON('message', function(msg) {
+			switch (msg.TYPE) {
+				case 'sysinfo':
+				case 'appsinfo':
+
+					if (msg.TYPE === 'sysinfo')
+						msg.live = { cpu: msg.cpu, memory: (msg.memused / msg.memtotal) * 100 >> 0, storage: (msg.hddused / msg.hddtotal) * 100 >> 0 };
+
+					SET(msg.TYPE, msg);
+
+					if (msg.TYPE === 'appsinfo')
+						EXEC(true, 'apps/refreshstats_force');
+
 					break;
-				case 1:
-					applications_restart(item.id, NOOP);
+				case 'appinfo':
+					SET('appsinfo.app' + msg.id, msg);
+					EXEC('apps/refreshstats');
 					break;
-				case 2:
-					applications_edit(item.id, -1);
+				case 'refresh':
+					EXEC('apps/refresh');
 					break;
-				case 3:
-					SETTER('loading', 'show');
-					SET('filebrowser.id', item.id);
-					PUSH('common.layer', 'filebrowser');
-					SETTER('loading', 'hide', 1000);
+
+				case 'apps_restart':
 					break;
-				case 10:
-					SET('common.form', 'applications-analyzator', 100);
-					break;
-				case 11:
-					PUSH('common.layer', 'applications-summary', 100);
-					break;
-				case 12:
-					EXEC('applications_new');
+				case 'app_create':
+				case 'app_update':
+				case 'app_restart':
+				case 'app_stop':
+				case 'app_template':
+					makelog(msg);
 					break;
 			}
 		});
-	}, true);
+
+		WATCH('common.logs.apps', function() {
+			if (common.showlogs == null)
+				SET('common.showlogs', true);
+		});
+
 	</script>
-
 
 </body>
 </html>

@@ -1,0 +1,250 @@
+<div data---="form__common.form__if:summary;title:@(Trending);width:1024;reload:?/reload;icon:fas fa-chart-line;closeesc:1;closeoutside:1" class="hidden" data-scope="summaryform">
+	<div class="padding npb" data-bind="?__template">
+		<script type="text/html">
+			{{ if value && value.is }}
+			<div class="row">
+				<div class="col-md-6 m">
+					<h2><i class="fa fa-server"></i>@(Memory consumption)</h2>
+					<table class="table table-bordered table-small">
+						<tbody>
+							{{ foreach m in value.memory }}
+							<tr>
+								{{ if m.empty }}
+									<td class="col-xs-9">&nbsp;</td>
+									<td class="col-xs-3 right active">&nbsp;</td>
+								{{ else }}
+									<td class="col-xs-9"><span class="badge {{ $index | summarycolor }} mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+									<td class="col-xs-3 right b black active">{{ m.value }}</td>
+								{{ fi }}
+							</tr>
+							{{ end }}
+						</tbody>
+					</table>
+				</div>
+
+				{{ if value.cpu && value.cpu.length }}
+					<div class="col-md-6 m">
+						<h2><i class="fa fa-calculator"></i>@(CPU consumption)</h2>
+						<table class="table table-bordered table-small">
+							<tbody>
+								{{ foreach m in value.cpu }}
+								<tr>
+									{{ if m.empty }}
+										<td class="col-xs-9">&nbsp;</td>
+										<td class="col-xs-3 right active">&nbsp;</td>
+									{{ else }}
+										<td class="col-xs-9"><span class="badge {{ $index | summarycolor }} mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+										<td class="col-xs-3 right b black active">{{ m.value }} %</td>
+									{{ fi }}
+								</tr>
+								{{ end }}
+							</tbody>
+						</table>
+					</div>
+				{{ fi }}
+
+				<div class="col-md-6 m">
+					<h2><i class="fa fa-hdd-o"></i>@(HDD consumption)</h2>
+					<table class="table table-bordered table-small">
+						<tbody>
+							{{ foreach m in value.hdd }}
+							<tr>
+								{{ if m.empty }}
+									<td class="col-xs-9">&nbsp;</td>
+									<td class="col-xs-3 right active">&nbsp;</td>
+								{{ else }}
+									<td class="col-xs-9"><span class="badge {{ $index | summarycolor }} mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+									<td class="col-xs-3 right b black active">{{ m.value }}</td>
+								{{ fi }}
+							</tr>
+							{{ end }}
+						</tbody>
+					</table>
+				</div>
+
+				<div class="col-md-6 m">
+					<h2><i class="fa fa-folder-o"></i>@(Open files)</h2>
+					<table class="table table-bordered table-small">
+						<tbody>
+							{{ foreach m in value.openfiles }}
+							<tr>
+								{{ if m.empty }}
+									<td class="col-xs-9">&nbsp;</td>
+									<td class="col-xs-3 right active">&nbsp;</td>
+								{{ else }}
+									<td class="col-xs-9"><span class="badge {{ $index | summarycolor }} mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+									<td class="col-xs-3 right b black active">{{ m.value | counter }}</td>
+								{{ fi }}
+							</tr>
+							{{ end }}
+						</tbody>
+					</table>
+				</div>
+
+				<div class="col-md-6 m">
+					<h2><i class="fa fa-globe"></i>@(Open connections)</h2>
+					<table class="table table-bordered table-small">
+						<tbody>
+							{{ foreach m in value.connections }}
+							<tr>
+								{{ if m.empty }}
+									<td class="col-xs-9">&nbsp;</td>
+									<td class="col-xs-3 right active">&nbsp;</td>
+								{{ else }}
+									<td class="col-xs-9"><span class="badge {{ $index | summarycolor }} mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+									<td class="col-xs-3 right b black active">{{ m.value | counter }}</td>
+								{{ fi }}
+							</tr>
+							{{ end }}
+						</tbody>
+					</table>
+				</div>
+
+				<div class="col-md-6 m">
+					<h2><i class="fa fa-globe"></i>@(SSL expiration)</h2>
+					<table class="table table-bordered table-small">
+						<tbody>
+							{{ foreach m in value.sslexpire }}
+							<tr>
+								{{ if m.empty }}
+									<td class="col-xs-9">&nbsp;</td>
+									<td class="col-xs-3 right active">&nbsp;</td>
+								{{ else }}
+									<td class="col-xs-9"><span class="badge {{ $index | summarycolor }} mr5">{{ $index | indexer }}</span><a href="{{ m.url }}" class="gray" target="_blank">{{ m.url }}</a></td>
+									<td class="col-xs-3 right b black active">{{ m.value }}</td>
+								{{ fi }}
+							</tr>
+							{{ end }}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		{{ fi }}
+		</script>
+	</div>
+	<nav>
+		<button name="cancel" style="width:100%">@(Close)</button>
+	</nav>
+</div>
+
+<script>
+
+	PLUGIN('summaryform', function(exports) {
+
+		exports.reload = function() {
+			var output = {};
+			var take = 5;
+			output.is = true;
+			output.cpu = applications_summary_find(take, 0, true);
+			output.memory = applications_summary_find(take, 1, true);
+			output.hdd = applications_summary_find(take, 2, true);
+			output.openfiles = applications_summary_find(take, 3, true);
+			output.connections = applications_summary_find(take, 4, true);
+			output.sslexpire = applications_summary_find(take, 5, false);
+			output.online = applications_summary_find(take, 6, true);
+			output.visitors = applications_summary_find(take, 7, true);
+			output.previous = applications_summary_find(take, 8, true);
+			output.current = applications_summary_find(take, 9, true);
+			SET('?', output);
+		};
+
+	});
+
+	function applications_summary_find(max, type, desc) {
+
+		var output = [];
+
+		for (var i = 0; i < apps.apps.length; i++) {
+			var app = apps.apps[i];
+			var item = appsinfo['app' + app.id];
+			if (!item)
+				continue;
+
+			var obj = {};
+			obj.url = app.url;
+
+			switch (type) {
+				case 0: // cpu
+
+					if (item.cpu == null)
+						continue;
+
+					obj.sorting = item.cpu;
+					obj.value = item.cpu;
+
+					if (!obj.sorting)
+						continue;
+
+					break;
+
+				case 1: // memory
+
+					if (item.memory == null)
+						continue;
+
+					obj.sorting = item.memory;
+					obj.value = item.memory.filesize(1);
+					break;
+
+				case 2: // hdd
+
+					if (item.hdd == null)
+						continue;
+
+					obj.sorting = item.hdd;
+					obj.value = item.hdd.filesize(1);
+					break;
+
+				case 3: // openfiles
+
+					if (item.openfiles == null)
+						continue;
+
+					obj.sorting = item.openfiles;
+					obj.value = item.openfiles;
+					break;
+
+				case 4: // connections
+
+					if (item.connections == null)
+						continue;
+
+					obj.sorting = item.connections;
+					obj.value = item.connections;
+					break;
+
+				case 5: // ssl expire
+
+					if (!item.sslexpire || app.url.substring(0, 6) !== 'https:')
+						continue;
+
+					var days = Math.ceil((item.sslexpire - Date.now()) / 86400000);
+
+					obj.sorting = days;
+					obj.value = days.pluralize(@('# days', '# day', '# days', '# days'));
+					break;
+			}
+
+			output.push(obj);
+		}
+
+		output.sort(function(a, b) {
+			if (desc)
+				return a.sorting > b.sorting ? -1 : a.sorting === b.sorting ? 0 : 1;
+			return a.sorting > b.sorting ? 1 : a.sorting === b.sorting ? 0 : -1;
+		});
+
+		return applications_summary_fill(output.take(max), max);
+	}
+
+	function applications_summary_fill(arr, count) {
+		for (var i = arr.length; i < count; i++)
+			arr.push({ empty: true });
+		return arr;
+	}
+
+	Thelpers.summarycolor = function(value) {
+		return 'badge-green' + value;
+	};
+
+</script>

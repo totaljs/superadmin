@@ -1,0 +1,445 @@
+<div data-scope="apps" class="apps invisible" data-bind="?.apps__visible">
+
+	<header>
+		<div data---="searchinput__?.search__placeholder:@(Search apps or use keywords @errors or @offline);autofocus:1;$id:appssearch"></div>
+		<nav>
+			<button class="exec" data-exec="?/create"><i class="fa fa-plus-circle"></i>@(Add)</button>
+			<button class="exec" data-exec="?/analyzator"><i class="fa fa-bug"></i>@(Analyzator)</button>
+			<button class="exec" data-exec="?/summary"><i class="fas fa-chart-line"></i>@(Trending)</button>
+			<button class="exec" data-exec="?/options"><i class="fa fa-wrench"></i>@(Options)</button>
+		</nav>
+	</header>
+
+	<div data---="viewbox__common.page__margin:45;parent:window;scrollbar:1;visibleY:1">
+		<div class="help" style="margin:10px 0 0 20px"><i class="far fa-bookmark"></i>@(Quick search:) <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@debug</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@release</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total3</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total4</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@errors</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@stopped</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@running</span> <span class="link exec badge badge-yellow badge-small" data-exec="?/searchtype">@highpriority</span></div>
+		<div data-bind="?.apps.length__visible" class="invisible">
+			<div class="statsbar">
+				<figure>
+					<div>
+						<div class="icon"><i class="fa fa-refresh fa-spin"></i></div>
+						<div class="value">
+							<span data-bind="?.stats.online__text__empty" title="@(Running)" class="green"></span> <i class="fas fa-arrows-alt-h"></i> <span data-bind="?.stats.offline__text__empty" title="@(Stopped)" class="red"></span>
+						</div>
+						<div class="name">@(Apps)</div>
+					</div>
+				</figure>
+				<figure data-bind="?.stats.errors__.warning">
+					<div>
+						<div class="icon"><i class="fa fa-bug"></i></div>
+						<div class="value" data-bind="?.stats.errors__text__empty">0</div>
+						<div class="name">@(Errors)</div>
+					</div>
+				</figure>
+				<figure>
+					<div>
+						<div class="icon"><i class="fas fa-microchip"></i></div>
+						<div class="value" data-bind="?.stats.memory__text__exec:?/statsbar" data-id="memory">0</div>
+						<div class="name">@(Used memory)</div>
+					</div>
+				</figure>
+				<figure>
+					<div>
+						<div class="icon"><i class="far fa-hdd"></i></div>
+						<div class="value" data-bind="?.stats.hdd__exec:?/statsbar" data-id="hdd">0</div>
+						<div class="name">@(Used storage)</div>
+					</div>
+				</figure>
+				<figure>
+					<div>
+						<div class="icon"><i class="far fa-clone"></i></div>
+						<div class="value" data-bind="?.stats.files__exec:?/statsbar" data-id="files">0</div>
+						<div class="name">@(Open files)</div>
+					</div>
+				</figure>
+				<figure>
+					<div>
+						<div class="icon"><i class="fas fa-network-wired"></i></div>
+						<div class="value" data-bind="?.stats.connections__exec:?/statsbar" data-id="connections">0</div>
+						<div class="name">@(Open HTTP connections)</div>
+					</div>
+				</figure>
+			</div>
+
+			<div class="list" data---="search__?.search__selector:.search;datasource:?.items">
+				<div data-bind="?.items__template">
+					<script type="text/html">
+						{{ foreach m in value }}
+							{{ if $index }}
+							<hr class="search nmt" />
+							{{ fi }}
+							{{ if m.name }}
+							<h2 class="search">{{ if m.items && m.items.length > 3 }}<span>{{ m.items.length }}</span>{{ fi }}<i class="far fa-folder"></i>{{ m.name }}</h2>
+							{{ else }}
+							<h2 class="search" style="margin-top:15px">{{ if m.items && m.items.length > 3 }}<span>{{ m.items.length }}</span>{{ fi }}<i class="fas fa-list"></i>@(Uncategorized apps)</h2>
+							{{ fi }}
+							<div>
+								{{ foreach n in m.items }}
+									<div class="item search" data-bind="appsinfo.app{{ n.id }}__.offline:!value||!value.is__.iserror:value&&value.analyzator==='error'__delay:100__exec:?/makesearch" data-id="{{ n.id }}" data-search="{{ n.url }}" data-url="{{ n.url }} {{ if n.debug }}@debug{{ else }}@release{{ fi }} @{{ n.version }}{{ if n.highpriority }} @highpriority{{ fi }}">
+										<div class="controls">
+											<button class="exec" data-exec="?/menu" name="menu" title="@(Settings)"><i class="fas fa-ellipsis-h"></i></button>
+											<button class="exec" data-exec="?/restart" name="restart" title="@(Restart)"><i class="fa fa-refresh"></i></button>
+											<a href="/logs/{{ n.id }}/" target="_blank" title="@(Show logs)" class="blue"><i class="fa fa-search"></i></a>
+										</div>
+										<div class="stats" data-bind="appsinfo.app{{ n.id }}__template:{#appstats}"></div>
+										{{ if n.debug }}<div class="debug"><i class="fas fa-flask"></i><span class="badge badge-purple">@(debug)</span></div>{{ fi }}
+										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.https }}<span class="badge badge-green badge-small mr5">SSL</span>{{ fi }}<a href="{{ n.url }}" target="_blank">{{ n.domain }}</a>{{ if n.highpriority }} <span class="badge badge-yellow">@(high priority)</span>{{ fi }} <span class="port">{{ n.port }}</span><b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
+									</div>
+								{{ end }}
+							</div>
+						{{ end }}
+					</script>
+				</div>
+			</div>
+
+			<br />
+		</div>
+	</div>
+</div>
+
+<script type="text/html" id="appstats">
+	{{ if value && value.is }}
+		<div class="info">{{ value.time | app_uptime }}<i class="fas fa-clock"></i></div>
+		<div class="info">{{ value.hdd | filesize | app_trending('hdd') }}<i class="fas fa-hdd"></i></div>
+		<div class="info">{{ value.memory | filesize | app_trending('memory') }}<i class="fas fa-microchip"></i></div>
+		<div class="info info2">{{ value.cpu | format(1) | app_trending('cpu') }}%<i class="fas fa-dashboard"></i></div>
+	{{ fi }}
+</script>
+
+<div data---="importer__common.form__if:applications-analyzator;reload:applications_analyzator_refresh;url:/templates/applications-form-analyzator.html"></div>
+<div data---="importer__common.form__if:applications-logs;reload:applications_logs_refresh;url:/templates/applications-form-logs.html"></div>
+<div data---="importer__common.form__if:applications-backup;url:/templates/applications-form-backup.html"></div>
+<div data---="importer__common.form__if:applications-upload;reload:applications_upload_refresh;url:/templates/applications-form-upload.html"></div>
+<div data---="importer__common.form__if:applications-subprocess;reload:applications_subprocess_refresh;url:/templates/applications-form-subprocess.html"></div>
+<div data---="importer__common.form__if:applications-stdout;url:/templates/applications-stdout.html"></div>
+
+<div data---="importer__common.form__if:filebrowser;url:/forms/filebrowser.html"></div>
+<div data---="importer__common.form__if:analyzator;url:/forms/analyzator.html"></div>
+<div data---="importer__common.form__if:app;url:/forms/app.html"></div>
+<div data---="importer__common.form__if:summary;url:/forms/summary.html"></div>
+<div data---="importer__common.form__if:upload;url:/forms/upload.html"></div>
+
+<script>
+
+	var apps = { trending: {}, ready: false };
+
+	PLUGIN('apps', function(exports) {
+
+		exports.statsbar = function(value, path, el) {
+
+			if (value == null) {
+				el.html(DEF.empty);
+				return;
+			}
+
+			var id = el.attrd('id');
+			var val = '';
+			var key = 'statsbar_' + id;
+			var plus = '';
+
+			var prev = apps.trending[key];
+			if (prev != null) {
+				if (prev !== value)
+					plus = '<i class="mr5 fas fa-long-arrow-alt-' + (prev > value ? 'down green' : 'up red') + '"></i>';
+			}
+
+			apps.trending[key] = value;
+
+			switch (id) {
+				case 'memory':
+				case 'hdd':
+					val = Thelpers.filesize(value);
+					break;
+				case 'files':
+				case 'connections':
+					val = value;
+					break;
+			}
+
+			el.html(plus + val + '');
+		};
+
+		exports.reload = function() {
+
+		};
+
+		exports.refresh = function() {
+			DAPI('apps_query @hideloading', function(response) {
+
+				var groups = {};
+				for (var i = 0; i < response.length; i++) {
+					var item = response[i];
+
+					item.domain = item.url.substring(item.url.indexOf('/') + 2);
+					item.https = item.url.substring(0, 8) === 'https://';
+
+					if (groups[item.category])
+						groups[item.category].items.push(item);
+					else
+						groups[item.category] = { name: item.category, items: [item] };
+				}
+
+				var keys = Object.keys(groups);
+				var output = [];
+
+				keys.quicksort();
+
+				for (var i = 0; i < keys.length; i++)
+					output.push(groups[keys[i]]);
+
+				exports.scope();
+
+				var categories = [];
+				for (var i = 0; i < keys.length; i++) {
+					if (keys[i])
+						categories.push({ id: keys[i], name: keys[i] });
+				}
+
+				apps.ready = true;
+				SET('?.categories', categories);
+				SET('?.apps', response);
+				SET('?.items', output);
+
+				exports.refreshstats();
+			});
+		};
+
+		exports.restart = function(el) {
+			var id = el instanceof jQuery ? el.closest('.item').attrd('id') : el;
+			var appdomain = GET('?.apps').findValue('id', id, 'domain');
+			DAPI('apps_restart/{0} @showloading'.format(id), ASETTER('notifybar/success @hideloading', '@(Application "<b>{0}</b>" has been restarted successfully)'.format(appdomain)));
+		};
+
+		exports.menu = function(el) {
+
+			var id = el.closest('.item').attrd('id');
+			var app = apps.apps.findItem('id', id);
+			var opt = {};
+
+			opt.element = el;
+			opt.items = [];
+			opt.align = 'right';
+			opt.offsetY = -5;
+
+			if (!isMOBILE) {
+				opt.items.push({ name: '@(Open File Browser)', icon: 'folder', id: 'filebrowser', classname: 'b' });
+				opt.items.push('-');
+			}
+
+			opt.items.push({ name: '@(Settings)', icon: 'cog', id: 'edit', classname: 'b' });
+			opt.items.push({ name: '@(Restart)', icon: 'refresh', id: 'restart' });
+			opt.items.push({ name: '@(Stop)', icon: 'fa fa-stop-circle red', id: 'stop' });
+			opt.items.push('-');
+			opt.items.push({ name: '@(Upload source-code)', icon: 'cloud-upload green', id: 'upload', classname: 'b' });
+			opt.items.push({ name: '@(Download)', icon: 'cloud-download', id: 'download' });
+			opt.items.push('-');
+			opt.items.push({ name: '@(Remove)', icon: 'fa fa-trash-o red', id: 'remove' });
+
+			opt.callback = function(item) {
+
+				if (item.id === 'stop') {
+					DAPI('apps_stop/' + id + ' @showloading', ASETTER('notifybar/response @hideloading', '@(Application <b>"{0}"</b> has been stopped sucessfully.)'.format(app.url)));
+					return;
+				}
+
+				if (item.id === 'edit') {
+					DAPI('apps_read/{0} @showloading'.format(id), ASETTER('message/response', function(response) {
+
+						if (response.memory === 0)
+							response.memory = undefined;
+
+						/*
+						if (response.subprocess) {
+							SET('applications.subprocess', $.extend({ $index: index }, response), true);
+							SET('common.form', 'applications-subprocess');
+						} else {*/
+
+						// response.sslexpire = apps.apps.findValue('id', response.id, 'sslexpire', null);
+						response.sslcustom = !!response.ssl_key;
+						SET('appform @reset', response);
+						SET('common.form @hideloading', 'app');
+
+					}));
+
+					return;
+				}
+
+				if (item.id === 'remove') {
+					SETTER('approve/show', '@(Are you sure you want to remove <b>"{0}"</b>?)'.format(app.url.encode()), '"fa fa-trash" @(Remove)', function() {
+						DAPI('apps_remove/' + id, ASETTER('notifybar/response @hideloading', '@(Application <b>"{0}"</b> has been removed successfully)'.format(app.url.encode()), function() {
+							exports.refresh();
+						}));
+					});
+					return;
+				}
+
+				if (item.id === 'filebrowser') {
+					SET('filebrowser.id @showloading', id);
+					SET('common.form @hideloading', 'filebrowser');
+					return;
+				}
+
+				if (item.id === 'download') {
+					location.href = '/download/{0}/'.format(id);
+					return;
+				}
+
+				if (item.id === 'upload') {
+					SET('uploadform.app', app);
+					SET('common.form', 'upload');
+					return;
+				}
+
+			};
+
+			SETTER('menu/show', opt);
+		};
+
+		exports.makesearch = function(value, path, el) {
+
+			var plus = '';
+
+			if (value) {
+				if (value.analyzator)
+					plus = '@errors';
+
+				plus += (plus ? ' ' : '') + '@running';
+			} else
+				plus = '@stopped';
+
+			el.attrd('search', el.attrd('url') + (plus ? (' ' + plus) : ''));
+		};
+
+		exports.create = function() {
+			SET('appform @default', {});
+			SET('common.form', 'app');
+		};
+
+		exports.refreshstats = function() {
+			setTimeout2('apps_refreshstats', exports.refreshstats_force, 1500);
+		};
+
+		exports.searchtype = function(el) {
+			SET('?.search', el.html());
+		};
+
+		exports.refreshstats_force = function() {
+
+			if (!W.apps.ready) {
+				setTimeout(exports.refreshstats_force, 100);
+				return;
+			}
+
+			var keys = Object.keys(W.appsinfo || EMPTYOBJECT);
+			var stats = {};
+
+			stats.memory = 0;
+			stats.hdd = 0;
+			stats.files = 0;
+			stats.connections = 0;
+			stats.online = 0;
+			stats.errors = 0;
+
+			for (var i = 0; i < keys.length; i++) {
+				var key = keys[i];
+				if (key !== 'TYPE') {
+					var item = appsinfo[key];
+					if (item.is) {
+						stats.memory += (item.memory || 0);
+						stats.hdd += (item.hdd || 0);
+						stats.files += (item.openfiles || 0);
+						stats.connections += (item.connections || 0);
+						if (item.analyzator === 'error')
+							stats.errors++;
+						stats.online++;
+					}
+				}
+			}
+
+			stats.offline = apps.apps.length - stats.online;
+			exports.scope();
+			SET('?.stats', stats);
+
+			if (common.form === 'summary')
+				EXEC('summaryform/reload');
+
+		};
+
+		exports.analyzator = function() {
+			SET('common.form', 'analyzator');
+		};
+
+		exports.summary = function() {
+			SET('common.form', 'summary');
+		};
+
+		exports.options = function(el) {
+			var opt = {};
+
+			opt.element = el;
+			opt.items = [];
+			opt.align = 'right';
+			opt.offsetY = -5;
+
+			opt.items.push({ name: '@(Restart all apps)', icon: 'fas fa-retweet', id: 'restart' });
+			opt.items.push('-');
+
+			if (user.sa)
+				opt.items.push({ name: '@(Make a backup)', icon: 'far fa-save', id: 'backup' });
+
+			opt.items.push({ name: '@(Stop applications)', icon: 'far fa-stop-circle red', id: 'stop' });
+			opt.items.push({ name: '@(Fix permissions)', icon: 'fa fa-wrench', id: 'fixpermissions' });
+
+			opt.items.push({ name: '@(Update Total.js from NPM)', icon: 'fab fa-node-js', id: 'updatetotal' });
+
+			opt.callback = function(item) {
+
+				if (item.id === 'restart') {
+					SETTER('approve/show', '@(Are you sure you want to restart all applications?)', '"far fa-play-circle" @(restart)', function() {
+						DAPI('apps_restart_all @showloading', ASETTER('notifybar/response @hideloading', '@(Applications have been restarted successfully.)'));
+					});
+					return;
+				}
+
+				if (item.id === 'backup') {
+					SETTER('approve/show', '@(Are you sure you want to backup all applications?)', '"far fa-save" @(Backup)', function() {
+						SETTER('loading/show', '@(Backing up ...)');
+						SETTER('loading/hide', 10000);
+						location.href = '/backup/';
+					});
+					return;
+				}
+
+				if (item.id === 'stop') {
+					SETTER('approve/show', '@(Are you sure you want to stop all applications?)', '"far fa-save" @(Stop)', function() {
+						DAPI('apps_stop_all @showloading', ASETTER('loading/hide'));
+					});
+					return;
+				}
+
+				if (item.id === 'fixpermissions') {
+					SETTER('approve/show', '@(Are you sure you want to fix /www/ permissions?)', '"fa fa-angle-right" @(Continue)', function() {
+						DAPI('fixpermissions @showloading', ASETTER('notifybar/response @hideloading', '@(Permissions have been fixed successfully)'));
+					});
+					return;
+				}
+
+				if (item.id === 'updatetotal') {
+					SETTER('approve/show', '@(Are you sure you want to update Total.js from NPM?)', '"fa fa-angle-right" @(Continue)', function() {
+						DAPI('updatetotal @showloading', ASETTER('notifybar/response @hideloading', '@(Total.js has been updated from NPM successfully)'));
+					});
+					return;
+				}
+
+			};
+
+			SETTER('menu/show', opt);
+		};
+
+		WAIT('appsinfo', exports.refresh);
+	});
+
+	SETTER(true, 'shortcuts/register', 'CMD+F,CTRL+F', function() {
+		SETTER('#appssearch/focus');
+	}, true);
+
+</script>

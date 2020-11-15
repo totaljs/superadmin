@@ -1,0 +1,135 @@
+<div data---="largeform___common.form__if:app;width:900;icon:fas fa-box;submit:?/submit;reload:?/reload;autofocus:1" class="hidden" data-scope="appform">
+	<div>
+		<div data-bind="appform.id___hide" class="hidden">
+			<div class="alert"><i class="fa fa-warning"></i>@(<b>Uploading of source-code</b> is possible after registration.)</div>
+		</div>
+		<div class="padding">
+			<div data---="input__?.url__placeholder:https\://www.totaljs.com;required:true;type:url__'https://'">@(URL address)</div>
+			<div class="help m"><i class="fa fa-info-circle"></i>@(The URL address must contain the protocol <code>http</code> or <code>https</code>.)</div>
+			<div data---="input__?.category__dirsource:apps.categories;dircustom:true;dirempty:@(Without category);placeholder:@(Choose a category);dirplaceholder:@(Search or create new)" class="m">@(Category)</div>
+			<div data--="checkbox__?.debug" class="inline b mr5 black">@(Enable debug mode)</div>
+			<div class="inline middle mr15"><span class="badge badge-red">@(debug)</span></div>
+			<div data--="checkbox__?.highpriority" class="inline mr15 black">@(High priority)</div>
+			<div data--="checkbox__?.accesslog" class="inline mr15">@(Enable access logging)</div>
+			<div data--="checkbox__?.backup" class="inline">@(Enable backing up)</div>
+		</div>
+		<hr class="nmb nmt" />
+		<div data-bind="?.url__show:value&&value.substring(0,8)==='https://'" class="hidden">
+			<div class="bg-smoke m">
+				<div class="padding">
+					<div><span class="badge badge-green b mr5"><i class="fa fa-lock"></i>@(Security)</span><b>@(SSL configuration)</b></div>
+					<div class="help m"><b>@(Good to know:)</b> @(SSL certificates are generated automatically via Let's Encrypt service. DNS records must be redirected on IP address of this server.)</div>
+					<div data--="checkbox__?.sslcustom">@(Add own SSL certificates)</div>
+					<div data-bind="?.sslcustom__show" class="hidden">
+						<br />
+						<div class="row">
+							<div class="col-md-6 m">
+								<div data---="input__?.ssl_key__icon:key;placeholder:@(absolute path to .key file)">@(SSL key)</div>
+							</div>
+							<div class="col-md-6 m">
+								<div data---="input__?.ssl_cer__placeholder:@(absolute path to .pem file)">@(SSL certificate)</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div data-bind="?.current.sslexpire__template__show" class="alert hidden">
+					<script type="text/html">
+						@(The certificate expires:) <b class="black">{{ value | format }}</b> / {{ value | expiredays(@('# days', '# day', '# days', '# days', 'expired')) }}
+					</script>
+				</div>
+			</div>
+		</div>
+		<div class="padding npb">
+			<div class="row">
+				<div class="col-md-3 m">
+					<div data---="input__?.cluster__align:center;increment:true;maxlength:4;type:number__1">@(Cluster)</div>
+				</div>
+				<div class="col-md-3 m">
+					<div data---="input__?.ddos__align:center;increment:true;maxlength:4;type:number__50">@(DDOS protection)</div>
+				</div>
+				<div class="col-md-3 m">
+					<div data---="input__?.memory__align:center;increment:true;maxlength:4;placeholder:@(auto);type:number__'auto'">@(Memory limit)</div>
+				</div>
+				<div class="col-md-3 m">
+					<div data---="input__?.priority__align:center;increment:true;maxlength:3;type:number__0">@(Process priority)</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3 m">
+					<div data---="input__?.size__align:center;icon:cloud-upload;increment:true;maxlength:5;placeholder:e.g. 5;type:number__20">@(Max. upload size)</div>
+					<div class="help">@(Must be defined in megabytes)</div>
+				</div>
+				<div class="col-md-3 m">
+					<div data---="input__?.proxytimeout__align:center;icon:sign-out;increment:true;maxlength:5;placeholder:@(e.g. 600);type:number__600">@(Max. request timeout)</div>
+					<div class="help">@(Must be defined in seconds)</div>
+				</div>
+				<div class="col-md-6 m">
+					<div data---="input__?.note__maxlength:200">@(Note)</div>
+				</div>
+			</div>
+			<hr />
+			<h3>@(Type of application)</h3>
+			<div data---="radiobuttonexpert__?.version__datasource:total4|Total.js v4|fa fa-cog,total3|Total.js v3|fa fa-cog,|Custom|fas fa-code__'total4'">
+				<script type="text/html">
+					<div class="iconbutton">
+						<i class="{{ icon }}"></i>
+						<span>{{ name }}</span>
+					</div>
+				</script>
+			</div>
+			<div class="clearfix m">&nbsp;</div>
+			<div data-bind="?.version__show:!value" class="hidden">
+				<div data---="input__?.startscript__icon:hourglass-start;maxlength:50;placeholder:index.js">@(Custom start script)</div>
+				<div class="help m">@(We don't recommend to use a custom start script. First argument is <code>port number</code> and second <code>--mode</code> (release or debug))</div>
+			</div>
+		</div>
+		<hr />
+		<div class="padding">
+			<div data---="textboxlist__?.redirect__maxlength:50;placeholder:@(e.g. www.totaljs.com and press enter)__[]" class="m">@(Redirects)</div>
+			<div data---="textboxlist__?.allow__maxlength:50;placeholder:@(e.g. 129.34.33.33 and press enter)__[]" class="m">@(Allowed IP addresses)</div>
+			<div data---="textboxlist__?.disallow__maxlength:50;placeholder:@(e.g. 129.34.33.33 and press enter)__[]" class="m">@(Blocked IP addresses)</div>
+		</div>
+	</div>
+	<nav data---="validation__?">
+		<button name="submit"><i class="fas fa-check-circle"></i>@(SUBMIT)</button>
+		<button name="cancel">@(Cancel)</button>
+	</nav>
+</div>
+
+<script>
+
+	PLUGIN('appform', function(exports) {
+
+		exports.reload = function(com) {
+			var model = GET('?');
+			com.reconfigure({ title: model.id ? '@(Edit application)' : '@(Create application)' });
+		};
+
+		exports.submit = function(hide) {
+			var model = GET('? @reset @showloading');
+			DAPI('apps_save', model, ASETTER('message/response', function(response) {
+
+				if (!model.id && response.value) {
+					setTimeout(function() {
+						var app = apps.apps.findItem('id', response.value);
+						if (app) {
+							SET('uploadform.app', app);
+							SET('common.form', 'upload');
+						}
+						SETTER('loading/hide', 1000);
+					}, 2500);
+				} else
+					SETTER('loading/hide', 1000);
+
+				hide();
+			}));
+		};
+
+	});
+
+	Tangular.register('expiredays', function(value, zero, one, two, many, expired) {
+		var diff = value.getTime() - Date.now();
+		return diff >= 0 ? Math.ceil(diff / 86400000).pluralize(zero, one, two, many) : '<b class="red">{0}</b>'.format(expired);
+	});
+
+</script>

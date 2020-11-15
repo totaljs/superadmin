@@ -1,0 +1,81 @@
+<div data-scope="users">
+	<header>
+		<label><i class="far fa-users"></i>@(Users)</label>
+		<nav>
+			<button class="exec" data-exec="?/create"><i class="fas fa-plus-circle green"></i>@(Create)</button>
+		</nav>
+	</header>
+	<div data---="viewbox__null__parent:.ui-layout2-section;visibleX:true;visibleY:true;scrollbar:true;margin:45">
+
+		<div class="padding">
+			<div class="listing" data-bind="?.items__template">
+				<script type="text/html">
+					{{ foreach m in value }}
+					<figure data-id="{{ m.id }}">
+						<div class="border{{ if m.id === user.id }} highlight{{ fi }}{{ if m.isdisabled }} disabled{{ fi }}">
+							<div class="header npb">
+								{{ if m.sa }}<div class="pull-right"><span class="badge badge-red">@(SuperAdmin)</span></div>{{ fi }}
+								<div class="b{{ if m.isdisabled }} strike{{ fi }}">{{ m.name }}{{ if m.isonline }}<span class="badge badge-green badge-small ml5">@(online)</span>{{ fi }}</div>
+							</div>
+							<hr class="nmb" style="margin-top:12px" />
+							<div class="padding">
+								<div>
+									<div class="keyvalue2 exec">
+										<div class="value">{{ m.dtlogged | format('[ts]') | def }}</div>
+										<div class="key">@(Logged)</div>
+									</div>
+									<div class="keyvalue2 exec">
+										<div class="value">{{ m.dtcreated | format('[ts]') }}</div>
+										<div class="key">@(Created)</div>
+									</div>
+								</div>
+								<div class="buttons small mt10">
+									<button class="exec" data-exec="?/update"{{ if m.id === user.id }} disabled{{ fi }}><i class="fas fa-pencil"></i>@(Edit)</button>
+									<button class="exec" data-exec="?/remove"{{ if m.id === user.id }} disabled{{ fi }}><i class="fas fa-trash-o red"></i>@(Remove)</button>
+								</div>
+							</div>
+						</div>
+					</figure>
+					{{ end }}
+				</script>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<div data---="importer__common.form__if:usersform;url:/forms/user.html"></div>
+
+<script>
+	PLUGIN('users', function(exports) {
+
+		exports.reload = function() {
+			exports.refresh();
+		};
+
+		exports.refresh = function() {
+			DAPI('users_query @showloading', '?.items @hideloading');
+		};
+
+		exports.create = function() {
+			SET('?form @default', {});
+			SET('common.form', 'usersform');
+		};
+
+		exports.update = function(el) {
+			var id = el.closest('figure').attrd('id');
+			DAPI('users_read/{0} @showloading'.format(id), ASETTER('message/response', function(response) {
+				SET('usersform @reset @hideloading', response);
+				SET('common.form', 'usersform');
+			}));
+		};
+
+		exports.remove = function(el) {
+			var id = el.closest('figure').attrd('id');
+			SETTER('approve/show', '@(Are you sure you want to remove selected user?)', '"far fa-trash-alt" Remove', function() {
+				DAPI('users_remove/{0} @showloading'.format(id), ASETTER('message/response @hideloading', '@(User has been removed sucessfully)', exports.refresh));
+			});
+		};
+
+	});
+</script>

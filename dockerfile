@@ -1,13 +1,13 @@
-FROM ubuntu:16.04
+FROM ubuntu:19.04
 
 ENV domain=localhost
 
-# Install Node.js 8 and npm 5
+# Install Node.js 14
 RUN apt-get update
 RUN apt-get -qq update
 RUN apt-get install -y build-essential
 RUN apt-get install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash
 RUN apt-get install -y nodejs
 
 # Install SuperAdmin dependencies
@@ -20,6 +20,7 @@ RUN apt-get install -y nginx \
 	socat \
 	git
 RUN curl https://get.acme.sh | sh
+RUN npm install -g total4
 RUN npm install -g total.js
 
 RUN rm -rf /var/cache/apk/*
@@ -33,7 +34,9 @@ RUN mkdir /www/ssl/
 RUN mkdir /www/www/
 RUN mkdir /www/superadmin/
 RUN mkdir /www/node_modules/
+RUN npm install total4
 RUN npm install total.js
+RUN npm install dbms
 ADD . /www/superadmin
 RUN echo "root:0:0" >> /www/superadmin/user.guid
 

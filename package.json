@@ -1,20 +1,21 @@
 {
-  "name": "SuperAdmin",
-  "description": "SuperAdmin can manage your Linux server for you. It creates NGINX conf files for your apps build on Total.js framework and runs them for you.",
-  "version": "8.0.0",
-  "dependencies": {
-    "total.js": "latest"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "linux",
-    "server",
-    "admin",
-    "nginx",
-    "total.js"
-  ],
-  "author": "Peter Širka",
-  "license": "MIT"
+    "name": "SuperAdmin",
+    "description": "SuperAdmin can manage your Linux server for you. It creates NGINX conf files for your apps build on Total.js framework and runs them for you.",
+    "version": "9.0.0",
+    "dependencies": {
+        "total4": "latest"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "linux",
+        "server",
+        "admin",
+        "nginx",
+        "total4",
+        "total.js"
+    ],
+    "author": "Peter Širka",
+    "license": "MIT"
 }

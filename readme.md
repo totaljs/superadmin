@@ -4,13 +4,9 @@
 
 # Installation
 
-- __SuperAdmin__ (v8.0.0) needs latest Total.js from NPM `+v2.8.0`
+- __SuperAdmin__ (v9.0.0) needs latest Total.js `v4` from NPM `$ npm install total4`
 - __License__: [MIT](license.txt)
-- [NEW: __Documentation__](https://wiki.totaljs.com/superadmin/)
-
-__Services__:
-- [__Live chat with professional support__](https://messenger.totaljs.com)
-- [__HelpDesk with professional support__](https://helpdesk.totaljs.com)
+- [__Documentation__](https://docs.totaljs.com/superadmin/)
 
 __IMPORTANT__
 - SuperAdmin is running on port 9999 which can be changed in `run.sh` script in `/www/superadmin/run.sh`

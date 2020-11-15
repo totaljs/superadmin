@@ -1,0 +1,329 @@
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/javascript/javascript.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/xml/xml.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/css/css.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/shell/shell.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/sql/sql.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/addon/mode/simple.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/addon/mode/multiplex.min.js"></script>
+<script src="/js/syntax.js"></script>
+
+<input type="file" class="hidden" id="filebrowserfile" />
+
+<div data---="window__common.form__if:filebrowser;title:@(File Browser);resize:?/resize;reload:?/reload;scrollbar:0;icon:far fa-clone" class="hidden filebrowser" data-scope="filebrowser">
+	<div>
+		<div class="filebrowser-tree">
+			<div class="toolbar">
+				<nav>
+					<button class="exec" data-exec="?/toolbar" name="createdirectory" title="@(Create a directory)"><i class="far fa-folder"></i></button>
+					<button class="exec" data-exec="?/toolbar" name="createfile" title="@(Create a file)"><i class="far fa-file-text-o"></i></button>
+					<button class="exec" data-exec="?/toolbar" name="upload" title="@(Upload a file)"><i class="fa fa-cloud-upload"></i><span>@(Upload)</span></button>
+				</nav>
+			</div>
+			<div id="filebrowsertree">
+				<div data---="tree__?.tree___exec:?/open;remove:/remove;$id:filebrowsertree;options:?/options"></div>
+			</div>
+		</div>
+		<div class="editor">
+			<div class="toolbar">
+				<nav data-bind="?.file__show:value!=null" class="hidden pull-right">
+					<!--<button class="exec" data-exec="?/toolbar" name="replace"><i class="fa fa-cloud-upload"></i><span>@(Replace file)</span></button>-->
+					<button class="exec b" data-exec="?/toolbar" name="save"><i class="fa fa-floppy-o"></i><span>@(Save content)</span></button>
+				</nav>
+			</div>
+			<div data-bind="?.file__visible:value!=null" class="invisible">
+				<div data---="codemirror__?.file__height:100%;linenumbers:1;$id:filebrowsereditor"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+
+	filebrowser.treefolder = null;
+	filebrowser.treefile = null;
+
+	PLUGIN('filebrowser', function(exports) {
+
+		var editor;
+
+		exports.reload = function(com) {
+
+			RECONFIGURE('#filebrowsertree', 'autoreset:' + (com === true ? 'false' : 'true'));
+			DAPI('filebrowser/' + filebrowser.id + ' @showloading', function(response) {
+				SET('?.data @hideloading', response);
+				exports.resize();
+				exports.refresh();
+			});
+
+			FIND('#filebrowsereditor', function(com) {
+				editor = com.editor;
+			});
+		};
+
+		exports.toolbar = function(el) {
+
+			exports.scope();
+
+			var model = GET('?');
+			var name = el.attr('name');
+			var opt;
+
+			switch (name) {
+				case 'createdirectory':
+				case 'createfile':
+					opt = {};
+					opt.element = el;
+					opt.offsetY = 30;
+					opt.placeholder = '@(Type a folder name)';
+					opt.summary = '<b>@(Path:)</b> ' + (model.treefolder ? (model.treefolder.path + '/') : '/root/');
+					opt.callback = function(val) {
+						val && DAPI('filebrowser_save/' + model.id, { type: 'create', filename: (model.treefolder ? (model.treefolder.path + '/') : '/') + val, body: '', directory: name === 'createdirectory' }, ASETTER('message/response', function() {
+							exports.reload(true);
+						}));
+					};
+					SETTER('floatinginput/show', opt);
+					break;
+				case 'save':
+					exports.save();
+					break;
+				case 'upload':
+					$('#filebrowserfile').trigger('click');
+					break;
+			}
+		};
+
+		exports.options = function(node, el) {
+
+			exports.scope();
+
+			var model = GET('?');
+			var opt = {};
+			opt.element = el;
+			opt.items = [];
+			opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'far fa-trash-o red' });
+			opt.align = 'right';
+			opt.callback = function(item) {
+				if (item.id === 'remove') {
+					SETTER('approve/show', '@(Are you sure you want to remove selected {0}?)'.format(node.children ? '@(directory)' : '@(file)'), '"far fa-trash-o" @(Remove)', function() {
+						var data = {};
+						data.type = 'remove';
+						data.filename = node.path;
+						data.directory = node.children != null;
+						DAPI('filebrowser_remove/' + node.id + ' @showloading', data, ASETTER('notifybar/response @hideloading', '@(File has been removed successfully)', exports.reload, true));
+					});
+					return;
+				}
+			};
+			SETTER('menu/show', opt);
+		};
+
+		exports.refresh = function() {
+
+			var tree = [];
+			var data = GET('?.data');
+
+			for (var i = 0; i < data.directories.length; i++)
+				treeappend(tree, data.directories[i]);
+
+			for (var i = 0; i < data.files.length; i++)
+				treeappend(tree, data.files[i], true);
+
+			var item = tree.findItem('name', '#');
+			tree = tree.remove('name', '#');
+
+			for (var i = 0; i < item.children.length; i++)
+				tree.push(item.children[i]);
+
+			SET('?.tree', tree);
+			RECONFIGURE('#filebrowser', { title: '@(File Browser:) <a href="{0}" target="_blank">{0}</a>'.format(data.url) });
+
+		};
+
+		exports.open = function(node, group, expanded) {
+
+			if (!node)
+				return;
+
+			exports.scope();
+
+			if (group) {
+				SET('?.treefolder', expanded ? node : null);
+				return;
+			}
+
+			var model = GET('?');
+
+			SET('?.treefile', node);
+			DAPI('filebrowser_read/' + model.data.id + '?filename=' + encodeURIComponent(node.path) + ' @showloading', function(response) {
+
+				if (response instanceof Array) {
+					SETTER('message/warning @hideloading', response[0].error);
+					return;
+				}
+
+				SET('?.file @hideloading', response);
+				FIND('#filebrowsereditor', function(com) {
+					var editor = com.editor;
+					var ext = node.path.substring(node.path.lastIndexOf('.') + 1).toLowerCase();
+					switch (ext) {
+						case 'src/config':
+						case 'src/config-release':
+						case 'src/config-debug':
+						case 'src/config-test':
+						case 'src/versions':
+						case 'src/dependencies':
+						case 'src/sitemap':
+						case 'src/workflows':
+						case '/config':
+						case '/config-release':
+						case '/config-debug':
+						case '/config-test':
+						case '/versions':
+						case '/dependencies':
+						case '/sitemap':
+						case '/workflows':
+						case 'resource':
+							editor.setOption('mode', 'totaljsresources');
+							break;
+						case 'js':
+							editor.setOption('mode', 'javascript');
+							break;
+						case 'json':
+						case 'nosql':
+							editor.setOption('mode', 'application/ld+json');
+							break;
+						case 'css':
+							editor.setOption('mode', 'css');
+							break;
+						case 'sh':
+							editor.setOption('mode', 'shell');
+							break;
+						case 'sql':
+							editor.setOption('mode', 'sql');
+							break;
+						case 'md':
+							editor.setOption('mode', 'markdown');
+							break;
+						case 'xml':
+							editor.setOption('mode', 'xml');
+							break;
+						case 'html':
+						case 'htm':
+						default:
+							editor.setOption('mode', { name: 'totaljs', base: 'htmlmixed' });
+							break;
+					}
+				});
+			});
+		};
+
+		exports.save = function() {
+
+			exports.scope();
+
+			var model = GET('?');
+
+			if (!model.treefile)
+				return;
+
+			var data = {};
+			data.type = 'update';
+			data.filename = model.treefile.path;
+			data.body = editor.getValue() || '';
+			DAPI('filebrowser_save/' + model.id + ' @hideloading', data, ASETTER('notifybar/response', '@(File has been updated successfully)'));
+		};
+
+		exports.remove = function(node) {
+
+			if (!node)
+				return;
+
+			exports.scope();
+			var model = GET('?');
+
+			SETTER('approve/show', '@(Are you sure you want to remove: <b>{0}</b>?)'.format(node.name), '"fas fa-trash-alt" @(Remove)', function() {
+				var data = {};
+				data.type = 'remove';
+				data.filename = node.path;
+				data.directory = node.children != null;
+				DAPI('filebrowser_remove/' + model.id + ' @showloading', data, ASETTER('notifybar/response @hideloading', '@(File has been removed successfully)', exports.reload, true));
+			});
+
+		};
+
+		exports.resize = function() {
+
+			FIND('#filebrowsereditor', function(com) {
+				com.editor.setSize('100%', WH - 95);
+			});
+
+			$('#filebrowsertree').css('height', WH - 95);
+		};
+
+		$(W).on('resize', exports.resize);
+	});
+
+	function treeappend(tree, path, is) {
+
+		var filename;
+
+		if (is) {
+			var index = path.lastIndexOf('/');
+			filename = path.substring(index + 1);
+			path = path.substring(0, index);
+		}
+
+		var arr = path.substring(1).split('/');
+
+		if (!arr[0])
+			arr[0] = '#';
+
+		var item = tree.findItem('name', arr[0]);
+
+		if (item == null) {
+			item = { name: arr[0], children: [], path: '/' + arr[0] };
+			tree.push(item);
+		}
+
+		var tmp = item;
+		var apath = (arr[0] ? '/' : '') + arr[0];
+
+		for (var i = 1, length = arr.length; i < length; i++) {
+			var name = arr[i];
+			if (!name)
+				continue;
+
+			apath += '/' + name;
+
+			tmp = item.children.findItem('name', name);
+			if (tmp == null) {
+				tmp = { name: name, children: [], path: apath };
+				item.children.push(tmp);
+			}
+			item = tmp;
+		}
+
+		is && tmp.children.push({ name: filename, path: path + '/' + filename, children: null });
+	}
+
+	$(document).find('#filebrowserfile').on('change', function(e) {
+
+		var data = new FormData();
+		var self = this;
+		var file = self.files[0];
+
+		data.append('file', file);
+
+		var path = ((filebrowser.treefolder ? filebrowser.treefolder.path : '') + '/' + file.name).replace(/\/{2,}/g, '/');
+
+		SETTER('loading/show');
+		UPLOAD('/api/filebrowser/?id={0}&path={1}'.format(filebrowser.id, encodeURIComponent(path)), data, function(response) {
+			self.value = '';
+			response.success && EXEC('filebrowser/reload', true);
+		})
+	});
+
+	SETTER(true, 'shortcuts/register', 'CMD+S,CTRL+S', AEXEC('filebrowser/save'), true);
+
+</script>

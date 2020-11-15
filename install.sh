@@ -53,8 +53,7 @@ if [ "$userConsent" == "y" ]; then
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 	apt-get install python-software-properties
 	apt-get install software-properties-common
-	apt-get install -y curl
-	curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+	curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 	apt-get update
 	apt-get install -y nginx
 	apt-get install -y nodejs
@@ -74,8 +73,11 @@ if [ "$userConsent" == "y" ]; then
 	mkdir /www/superadmin/
 	mkdir /www/node_modules/
 	cd /www/
+	npm install total4
+	npm install -g total4
 	npm install total.js
 	npm install -g total.js
+	npm install dbms
 
 	# Configuration
 	cd
@@ -83,7 +85,9 @@ if [ "$userConsent" == "y" ]; then
 
 	# Total.js downloads package and unpack
 	cd /www/superadmin/
-	tpm install "https://cdn.totaljs.com/superadmin.package?ts=$(date +%s)"
+	wget "https://raw.githubusercontent.com/totaljs/superadmin_templates/main/superadmin.zip"
+	unzip superadmin.zip
+	rm superadmin.zip
 
 	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf
@@ -107,7 +111,7 @@ if [ "$userConsent" == "y" ]; then
 		sed -i -e $httpenexp /www/nginx/superadmin.conf
 		nginx -s reload
 
-		# Generates SSL
+		# Generates SSL
 		bash /www/superadmin/ssl.sh $domain
 
 		# Check if certificate was created successfully

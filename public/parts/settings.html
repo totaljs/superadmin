@@ -1,0 +1,37 @@
+<div data-scope="settings" class="settings">
+	<header>
+		<label><i class="fa fa-cog"></i>@(Settings)</label>
+		<nav data---="validation__?">
+			<button name="submit" class="exec" data-exec="?/submit" disabled><i class="fa fa-play-circle green"></i>@(Apply)</button>
+		</nav>
+	</header>
+	<div data---="viewbox__common.page__margin:45;parent:window;scrollbar:1;visibleY:1">
+		<div class="padding" style="max-width:900px;margin:0 auto">
+			<div data---="properties2__?"></div>
+		</div>
+	</div>
+</div>
+
+<script>
+	PLUGIN('settings', function(exports) {
+
+		exports.reload = function() {
+			exports.refresh();
+		};
+
+		exports.refresh = function() {
+			DAPI('settings_read', '?');
+		};
+
+		exports.submit = function() {
+			var items = GET('? @reset');
+			var data = {};
+			for (var i = 0; i < items.length; i++) {
+				var item = items[i];
+				data[item.name] = item.value;
+			}
+			DAPI('settings_save @showloading', data, ASETTER('message/response @hideloading', '@(Settings have been applied successfully)'));
+		};
+
+	});
+</script>

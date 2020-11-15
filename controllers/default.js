@@ -2,7 +2,6 @@ exports.install = function() {
 	ROUTE('/*', 'index', ['authorize']);
 	ROUTE('/*', 'login', ['unauthorize']);
 	ROUTE('/logoff', redirect_logoff);
-	F.localize('/templates/*.html', ['compress']);
 };
 
 function redirect_logoff() {

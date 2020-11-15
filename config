@@ -1,28 +1,10 @@
-name                          : SuperAdmin
-version                       : 8.0.0
-author                        : Peter Širka
-cookie                        : __sa
-
-superadmin                    : admin:admin
+session_cookie    (generate)  : 4
+session_secret    (generate)  : 10
 
 // Server configuration
-directory-nginx               : /www/nginx/
-directory-ssl                 : /www/ssl/
-directory-acme                : /www/acme/
-directory-www                 : /www/www/
-directory-console             : /www/logs/
-directory-dump                : /www/
-
-// Custom SMTP settings
-mail-smtp                     : YOUR.SMTPSERVER.COM
-// mail-smtp-options             : {"user":"","password":"","timeout":2000}
-
-// Gmail SMTP settings
-// mail-smtp                     : smtp.gmail.com
-// mail-smtp-options             : {"port":465,"secure":true,"user":"ENTER_YOUR_EMAIL","password":"ENTER_YOUR_PASSWORD","rejectUnauthorized":true}
-
-// Office365 SMTP settings
-// mail-smtp                     : smtp.office365.com
-// mail-smtp-options             : {"port":587,"secure":false,"user":"ENTER_YOUR_EMAIL","password":"ENTER_YOUR_PASSWORD","tls":{"ciphers":"SSLv3"}}
-
-allow-filebrowser             : true
+directory_nginx               : /www/nginx/
+directory_ssl                 : /www/ssl/
+directory_acme                : /www/acme/
+directory_www                 : /www/www/
+directory_console             : /www/logs/
+directory_dump                : /www/

@@ -1,49 +1,37 @@
-const SA = { id: '0', name: 'SuperAdmin' };
-const MAXATTEMPTS = 3;
+var opt = {};
 
-var DDOS = {};
+opt.secret = CONF.session_secret;
+opt.cookie = CONF.session_cookie;
+opt.ddos = 10;
+opt.options = { samesite: 'lax', httponly: true };
 
-F.onAuthorize = function(req, res, flags, callback) {
+opt.onread = function(meta, next) {
 
-	if (req.headers['x-token']) {
-		var token = F.global.settings.tokens.findItem('id', req.headers['x-token']);
-		if (!token) {
+    // meta.sessionid {String}
+    // meta.userid {String}
+    // meta.ua {String} A user-agent
 
-			if (DDOS[req.ip] > MAXATTEMPTS) {
-				F.logger('blocked', req.ip, req.headers.useragent);
-				return callback(false);
-			}
+	NOSQL('sessions').read().id(meta.sessionid).where('userid', meta.userid).where('ua', meta.ua).callback(function(err, response) {
+		if (response) {
 
-			if (DDOS[req.ip])
-				DDOS[req.ip]++;
-			else
-				DDOS[req.ip] = 1;
-		}
+			// Updates session
+			NOSQL('sessions').modify({ '+logged': 1, dtlogged: NOW }).id(meta.sessionid);
 
-		return token ? callback(true, token) : callback(false);
-	}
+			// Reads & Updates user profile
+			var db = NOSQL('users');
+			db.mod({ '+logged': 1, dtlogged: NOW, isonline: true }).id(meta.userid).where('isdisabled', false);
+			db.one().fields('id,name,sa').id(meta.userid).where('isdisabled', false).callback(next);
 
-	var cookie = req.cookie(F.config.cookie);
-	if (!cookie || cookie.parseInt() !== F.config.superadmin.hash()) {
-
-		if (DDOS[req.ip] > MAXATTEMPTS) {
-			F.logger('blocked', req.ip, req.headers.useragent);
-			return callback(false);
-		}
-
-		if (DDOS[req.ip])
-			DDOS[req.ip]++;
-		else
-			DDOS[req.ip] = 1;
-
-		return callback(false);
-	}
-
-	SA.ip = req.ip;
-	SA.filebrowser = F.config['allow-filebrowser'];
-	callback(true, SA);
+		} else
+			next();
+	});
 };
 
-F.on('service', function(interval) {
-	interval % 10 === 0 && (DDOS = {});
-});
+opt.onfree = function(meta) {
+	if (meta.users.length)
+		NOSQL('users').mod({ isonline: false }).in('id', meta.users);
+};
+
+AUTH(opt);
+MAIN.session = opt;
+NOSQL('users').mod({ isonline: false }).where('isonline', true);

@@ -1,0 +1,153 @@
+<div data-scope="alarms" class="invisible" data-bind="?__visible">
+	<header>
+		<label><i class="far fa-bell"></i>@(Alarms)</label>
+		<nav>
+			<button class="exec" data-exec="?/create"><i class="fas fa-plus-circle green"></i>@(Create)</button>
+		</nav>
+	</header>
+	<div data---="viewbox__null__parent:.ui-layout2-section;visibleX:true;visibleY:true;scrollbar:true;margin:45">
+
+		<div class="padding">
+			<div class="listing" data-bind="?.items__template">
+				<script type="text/html">
+					{{ foreach m in value }}
+					<figure data-id="{{ m.id }}">
+						<div class="border{{ if !m.isenabled }} disabled{{ fi }}">
+							<div class="header npb">
+								<div class="b{{ if !m.isenabled }} strike{{ fi }}">{{ m.name }}</div>
+							</div>
+							<hr class="nmb" style="margin-top:12px" />
+							<div class="padding">
+								<div>
+									<div class="keyvalue2 exec">
+										<div class="value">{{ m.highpriority | checkbox }}</div>
+										<div class="key">@(High priority apps only)</div>
+									</div>
+									<div class="keyvalue2 exec">
+										<div class="value">{{ m.debug | checkbox }}</div>
+										<div class="key">@(Included debug modes)</div>
+									</div>
+									<div class="keyvalue2 exec">
+										<div class="value">{{ m.email.length | checkbox }}</div>
+										<div class="key">@(E-mail notifications)</div>
+									</div>
+									<div class="keyvalue2 exec">
+										<div class="value">{{ m.phone.length | checkbox }}</div>
+										<div class="key">@(SMS notifications)</div>
+									</div>
+									<hr style="margin:10px 0" />
+									<div class="keyvalue2 exec">
+										<div class="value">{{ m.dtnotified | format('[ts]') | def }}</div>
+										<div class="key">@(Last notification)</div>
+									</div>
+									<div class="keyvalue2 exec">
+										<div class="value">{{ m.datecreated | format('[ts]') }}</div>
+										<div class="key">@(Created)</div>
+									</div>
+								</div>
+								<div class="buttons small mt10">
+									<button class="exec" data-exec="?/update"><i class="fas fa-pencil"></i>@(Edit)</button>
+									<button class="exec" data-exec="?/remove"><i class="fas fa-trash-o red"></i>@(Remove)</button>
+								</div>
+							</div>
+						</div>
+					</figure>
+					{{ end }}
+				</script>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<div data---="importer__common.form__if:alarmsform;url:/forms/alarm.html"></div>
+
+<script>
+	PLUGIN('alarms', function(exports) {
+
+		exports.reload = function() {
+			exports.refresh();
+		};
+
+		exports.refresh = function() {
+			DAPI('alarms_query @showloading', '?.items @hideloading');
+		};
+
+		exports.prepare = function(item) {
+
+			var rules = [];
+			var sysrules = [];
+
+			if (!item.type)
+				item.type = 'apps';
+
+			if (!item.operator)
+				item.operator = 'or';
+
+			if (!item.sysoperator)
+				item.sysoperator = 'or';
+
+			rules.push({ enabled: false, label: '@(CPU)', name: 'app.current.cpu', value: 0, comparer: '>', type: 'number', note: '@(Type a value in %)' });
+			rules.push({ enabled: false, label: '@(Memory)', name: 'app.current.memory', value: 0, comparer: '>', type: 'number', note: '@(Type a value in MB)' });
+			rules.push({ enabled: false, label: '@(Directory size)', name: 'app.current.hdd', value: 0, comparer: '>', type: 'number', note: '@(Type a value in MB)' });
+			rules.push({ enabled: false, label: '@(Count of open files)', name: 'app.current.openfiles', value: 0, comparer: '>', type: 'number', note: '@(Type a value)' });
+			rules.push({ enabled: false, label: '@(Count of open connections)', name: 'app.current.connections', value: 0, comparer: '>', type: 'number', note: '@(Type a value)' });
+			rules.push({ enabled: false, label: '@(Analyzator output)', name: 'app.analyzatoroutput', type: 'string', comparer: '==', value: 'error', items: [{ id: 'error', name: '@(Error)' }, { id: 'obsolete', name: '@(Obsolete code)' }] });
+
+			if (item.rules) {
+				for (var i = 0; i < rules.length; i++) {
+					var rule = rules[i];
+					var m = item.rules.findItem('name', rule.name);
+					if (m) {
+						rule.enabled = true;
+						rule.comparer = m.comparer;
+						rule.value = m.value;
+					}
+				}
+			}
+
+			sysrules.push({ enabled: false, label: '@(CPU)', name: 'sys.cpu', value: 0, comparer: '>', type: 'number', note: '@(Type a value in %)' });
+			sysrules.push({ enabled: false, label: '@(Memory)', name: 'sys.memused', value: 0, comparer: '>', type: 'number', note: '@(Type a value in MB)' });
+			sysrules.push({ enabled: false, label: '@(Storage size)', name: 'sys.hddused', value: 0, comparer: '>', type: 'number', note: '@(Type a value in MB)' });
+			sysrules.push({ enabled: false, label: '@(Count of processes)', name: 'sys.processes', value: 0, comparer: '>', type: 'number', note: '@(Type a value)' });
+			// sysrules.push({ enabled: false, label: '@(Count of open connections)', name: 'sys.connections', value: 0, comparer: '>', type: 'number', note: '@(Type a value)' });
+
+			if (item.sysrules) {
+				for (var i = 0; i < sysrules.length; i++) {
+					var rule = sysrules[i];
+					var m = item.sysrules.findItem('name', rule.name);
+					if (m) {
+						rule.enabled = true;
+						rule.comparer = m.comparer;
+						rule.value = m.value;
+					}
+				}
+			}
+
+			item.rules = rules;
+			item.sysrules = sysrules;
+			return item;
+		};
+
+		exports.create = function() {
+			SET('?form @default', exports.prepare({}));
+			SET('common.form', 'alarmsform');
+		};
+
+		exports.update = function(el) {
+			var id = el.closest('figure').attrd('id');
+			var items = GET('?.items');
+			var item = items.findItem('id', id);
+			SET('alarmsform @reset', exports.prepare(CLONE(item)));
+			SET('common.form', 'alarmsform');
+		};
+
+		exports.remove = function(el) {
+			var id = el.closest('figure').attrd('id');
+			SETTER('approve/show', '@(Are you sure you want to remove selected alarm?)', '"far fa-trash-alt" Remove', function() {
+				DAPI('alarms_remove/{0} @showloading'.format(id), ASETTER('message/response @hideloading', '@(Alarm has been removed sucessfully)', exports.refresh));
+			});
+		};
+
+	});
+</script>
