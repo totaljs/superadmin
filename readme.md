@@ -77,17 +77,6 @@ docker run -p 8080:80 -it superadmin
 
 ---
 
-## How do I translate SuperAdmin?
-
-- install Total.js as global module `npm install -g total.js`
-- then open SuperAdmin directory `cd superadmin`
-- then perform this command `totaljs --translate`
-- translate translated file `translate.resource`
-- and copy the content to `/resources/default.resource`
-- run app
-
----
-
 ## Where does SuperAdmin store data?
 
 All data are stored in `/superadmin/databases/` directory. Applications are stored in `application.json`.
