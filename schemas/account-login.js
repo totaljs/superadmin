@@ -28,8 +28,7 @@ NEWSCHEMA('Account/Login', function(schema) {
 				session.ua = $.ua;
 				session.ip = $.ip;
 
-				// Uncomment:
-				// PREF.set('credentials', null);
+				PREF.set('credentials', null);
 
 				NOSQL('sessions').insert(session).callback(function() {
 					MAIN.session.authcookie($, session.id, session.userid, '1 week');
