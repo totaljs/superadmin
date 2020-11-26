@@ -7274,6 +7274,13 @@ COMPONENT('empty', 'icon:fa fa-database;parent:parent;margin:0', function(self, 
 	self.resizeforce = function() {
 		var parent = self.parent(config.parent);
 		var wh = parent.height() - 10;
+
+		if (config.topoffset)
+			wh -= self.element.offset().top;
+
+		if (config.topposition)
+			wh -= self.element.position().top;
+
 		table.css('height', wh < 100 ? 'auto' : wh - config.margin);
 	};
 
@@ -7299,3 +7306,4 @@ COMPONENT('empty', 'icon:fa fa-database;parent:parent;margin:0', function(self, 
 	};
 
 });
+

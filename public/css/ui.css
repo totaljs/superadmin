@@ -164,14 +164,14 @@
 .ui-form-title > span { font-weight: bold; }
 .ui-form-title > i { margin-right: 7px; }
 .ui-form > nav { padding: 0 20px 0; border-top: 1px solid #E0E0E0; background-color: #FFFFFF; border-radius: 0 0 2px 2px; line-height: 65px; height: 65px; display: block; float: none; position: relative; }
-.ui-form > nav button { border: 0; margin: 15px 0 0; background-color: #F0F0F0; height: 34px; padding: 0 20px; color: #000000; cursor: pointer; font-family: Arial; line-height: 34px; vertical-align: middle; outline: 0; font-size: 14px; text-decoration: none; transition: all 0.3s; float: left; }
+.ui-form > nav button { border: 0; margin: 15px 0 0; background-color: #F0F0F0; height: 34px; padding: 0 20px; color: #000000; cursor: pointer; font-family: Arial; line-height: 34px; vertical-align: middle; outline: 0; font-size: 14px; text-decoration: none; transition: all 0.3s; float: left; width: 50%; }
 .ui-form > nav button i { width: 14px; margin-right: 5px; }
 .ui-form > nav button:hover { opacity: 0.9; }
 .ui-form > nav button:active { background-color: #D0D0D0; }
 .ui-form > nav button:disabled { background-color: #F5F5F5 !important; border-color: #E0E0E0 !important; color: silver !important; cursor: not-allowed; box-shadow: none; }
 .ui-form > nav button:first-child { border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
 .ui-form > nav button:last-child { border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
-.ui-form > nav button[name='submit'] { max-width: 250px; width: 100%; font-weight: bold; background-color: #4285F4; color: #FFFFFF; font-size: 14px; }
+.ui-form > nav button[name='submit'] { font-weight: bold; background-color: #4285F4; color: #FFFFFF; font-size: 14px; }
 
 @media(max-width: 767px) {
 	.ui-form-container-padding { padding: 0; }
@@ -195,7 +195,7 @@
 .ui-largeform-title > span { font-weight: bold; }
 .ui-largeform-title i { margin-right: 7px; }
 .ui-largeform > nav { padding: 0 15px 0; border-top: 1px solid #E0E0E0; background-color: #FFFFFF; border-radius: 0 0 3px 3px; line-height: 65px; height: 65px; display: block; float: none; width: 100%; }
-.ui-largeform > nav button { border: 0; margin: 15px 0 0; background-color: #F0F0F0; height: 34px; padding: 0 20px; color: #000000; cursor: pointer; font-family: Arial; line-height: 34px; vertical-align: middle; outline: 0; font-size: 14px; text-decoration: none; transition: all 0.3s; float: left; }
+.ui-largeform > nav button { border: 0; margin: 15px 0 0; background-color: #F0F0F0; height: 34px; padding: 0 20px; color: #000000; cursor: pointer; font-family: Arial; line-height: 34px; vertical-align: middle; outline: 0; font-size: 14px; text-decoration: none; transition: all 0.3s; float: left; width: 50%; }
 .ui-largeform > nav button i { width: 15px; text-align: center; margin-right: 5px; }
 .ui-largeform > nav button:hover { opacity: 0.9; }
 .ui-largeform > nav button:active { background-color: #D0D0D0; }
@@ -203,7 +203,7 @@
 .ui-largeform > nav button:disabled i { color: silver !important; }
 .ui-largeform > nav button:first-child { border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
 .ui-largeform > nav button:last-child { border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
-.ui-largeform > nav button[name='submit'] { min-width: 180px; font-weight: bold; background-color: #4285F4; color: #FFFFFF; font-size: 14px; }
+.ui-largeform > nav button[name='submit'] { font-weight: bold; background-color: #4285F4; color: #FFFFFF; font-size: 14px; }
 .ui-largeform-style-2 .ui-largeform { border-bottom-right-radius: 0; border-bottom-left-radius: 0; }
 
 @media(max-width: 768px) {
