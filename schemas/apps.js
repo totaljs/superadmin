@@ -27,6 +27,7 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.define('subprocess',     Boolean);
 	schema.define('accesslog',      Boolean);                  // Enables access_log
 	schema.define('backup',         Boolean);                  // Enables backup
+	schema.define('watcher',        Boolean);                  // Enables Total.js watcher for release mode
 	schema.define('version',        String);                   // Total.js Version
 	schema.define('highpriority',   Boolean);                  // App with high priority
 

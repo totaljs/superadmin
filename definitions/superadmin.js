@@ -655,6 +655,9 @@ SuperAdmin.run = function(port, callback) {
 					options.push(app.port);
 					options.push(app.debug ? '--debug' : '--release');
 
+					if (!app.debug && app.watcher)
+						options.push('--watcher');
+
 					Spawn('node', options, {
 						stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
 						cwd: Path.join(CONF.directory_www, linker),
