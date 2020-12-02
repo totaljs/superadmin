@@ -16,7 +16,8 @@ __IMPORTANT__
 __Install requirements:__
 - __Ubuntu Server +v14__
 - `curl`
-- `openssl`
+- `openssl` Version `+1.1.1` (for TLSv1.3)
+- `nginx`
 
 __SuperAdmin requirements:__
 - `awk`
@@ -46,17 +47,17 @@ __To install SuperAdmin run commands bellow:__
 
 ```bash
 # UBUNTU
-$ sudo wget https://cdn.totaljs.com/superadmin.sh && bash superadmin.sh
+$ wget https://cdn.totaljs.com/superadmin.sh && sudo bash superadmin.sh
 ```
 
 ```bash
 # CENTOS
-$ sudo wget https://cdn.totaljs.com/superadmin-centos.sh && bash superadmin-centos.sh
+$ wget https://cdn.totaljs.com/superadmin-centos.sh && sudo bash superadmin-centos.sh
 ```
 
 ```bash
 # ALPINE
-$ sudo wget https://cdn.totaljs.com/superadmin-alpine.sh && bash superadmin-alpine.sh
+$ wget https://cdn.totaljs.com/superadmin-alpine.sh && sudo bash superadmin-alpine.sh
 ```
 
 - login __user:__ `admin`, __password:__ `admin` (credentials are stored in `/www/superadmin/config`)
