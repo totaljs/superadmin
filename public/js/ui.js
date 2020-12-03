@@ -3165,21 +3165,21 @@ COMPONENT('checkbox', function(self, config, cls) {
 	};
 
 	self.configure = function(key, value, init) {
-		if (init)
-			return;
-		switch (key) {
-			case 'label':
-				self.find('span').html(value);
-				break;
-			case 'required':
-				self.find('span').tclass(cls + '-label-required', value);
-				break;
-			case 'disabled':
-				self.tclass('ui-disabled', value);
-				break;
-			case 'checkicon':
-				self.find('i').rclass2('fa-').aclass('fa-' + value);
-				break;
+		if (!init) {
+			switch (key) {
+				case 'label':
+					self.find('span').html(value);
+					break;
+				case 'required':
+					self.find('span').tclass(cls + '-label-required', value);
+					break;
+				case 'disabled':
+					self.tclass('ui-disabled', value);
+					break;
+				case 'checkicon':
+					self.find('i').rclass2('fa-').aclass('fa-' + value);
+					break;
+			}
 		}
 	};
 
