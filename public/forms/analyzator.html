@@ -38,12 +38,19 @@
 		};
 
 		exports.restart = function(el) {
-			el.remove();
-			EXEC('apps/restart @showloading', el.attrd('id'));
-			setTimeout(function() {
-				exports.scope();
-				exports.reload();
-			}, 1500);
+			var id = el.attrd('id');
+			EXEC('apps/restart @showloading', id);
+
+			var items = GET('?.items');
+			SET('?.items', items.remove('id', id));
+
+			setTimeout2(exprots.name, function() {
+				if (common.form === exports.name) {
+					exports.scope();
+					exports.reload();
+				}
+			}, 3500);
+
 		};
 
 	});
