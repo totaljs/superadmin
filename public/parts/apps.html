@@ -11,7 +11,7 @@
 	</header>
 
 	<div data---="viewbox__common.page__margin:45;parent:window;scrollbar:1;visibleY:1">
-		<div class="help" style="margin:10px 0 0 20px"><i class="far fa-bookmark"></i>@(Quick search:) <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@debug</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@release</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total3</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total4</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@errors</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@stopped</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@running</span> <span class="link exec badge badge-yellow badge-small" data-exec="?/searchtype">@highpriority</span></div>
+		<div class="help" style="margin:10px 0 0 20px"><i class="far fa-bookmark"></i>@(Quick search:) <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@debug</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@release</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total3</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total4</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@errors</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@stopped</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@running</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@threads</span> <span class="link exec badge badge-yellow badge-small" data-exec="?/searchtype">@highpriority</span></div>
 		<div data-bind="?.apps.length__visible" class="invisible">
 			<div class="statsbar">
 				<figure>
@@ -82,7 +82,7 @@
 										</div>
 										<div class="stats" data-bind="appsinfo.app{{ n.id }}__template:{#appstats}"></div>
 										{{ if n.debug }}<div class="debug"><i class="fas fa-flask"></i><span class="badge badge-purple">@(debug)</span></div>{{ fi }}
-										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.https }}<span class="badge badge-green badge-small mr5">SSL</span>{{ fi }}<a href="{{ n.url }}" target="_blank">{{ n.domain }}</a>{{ if n.highpriority }} <span class="badge badge-yellow">@(high priority)</span>{{ fi }} <span class="port">{{ n.port }}</span><b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
+										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.https }}<span class="badge badge-green badge-small mr5">SSL</span>{{ fi }}<a href="{{ n.url }}" target="_blank">{{ n.domain }}</a>{{ if n.threads }}<i class="fa fa-cogs ml5" title="@(Threads are enabled)"></i>{{ fi }}{{ if n.highpriority }} <span class="badge badge-yellow">@(high priority)</span>{{ fi }} <span class="port">{{ n.port }}</span><b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
 									</div>
 								{{ end }}
 							</div>
@@ -301,10 +301,12 @@
 			if (value) {
 				if (value.analyzator)
 					plus = '@errors';
-
 				plus += (plus ? ' ' : '') + '@running';
 			} else
 				plus = '@stopped';
+
+			if (value.threads)
+				plus += ' @threads';
 
 			el.attrd('search', el.attrd('url') + (plus ? (' ' + plus) : ''));
 		};
