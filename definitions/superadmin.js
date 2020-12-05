@@ -1155,13 +1155,19 @@ SuperAdmin.makescripts = function(app, callback) {
 		return;
 	}
 
+	var data = {};
+
+	data.total = app.version === 'total3' ? 'total.js' : app.version;
+	data.threads = app.threads ? app.threads === '-' ? 'true' : ('\'' + app.threads + '\'') : '';
+	data.cluster = data.threads ? app.cluster <= 1 ? '\'auto\'' : app.cluster : 0;
+
 	var linker = app.linker;
 	var directory = Path.join(CONF.directory_www, linker);
 	Exec('mkdir -p ' + directory, function() {
 		Exec('chmod 777 {0}'.format(directory), function() {
 			SuperAdmin.copy(PATH.private('index.js'), Path.join(directory, 'index.js'), function(err) {
 				callback(err);
-			}, (response) => response.toString('utf8').format(app.version === 'total3' ? 'total.js' : app.version));
+			}, (response) => Tangular.render(response.toString('utf8'), { value: data }));
 		});
 	});
 	return SuperAdmin;

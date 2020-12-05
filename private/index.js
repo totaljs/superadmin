@@ -3,7 +3,7 @@
 // https://www.totaljs.com
 // ===================================================
 
-const total = '{0}';
+const total = '{{ value.total }}';
 const options = {};
 
 // options.ip = '127.0.0.1';
@@ -14,6 +14,14 @@ const options = {};
 // options.inspector = 9229;
 // options.watch = ['private'];
 // options.livereload = 'https://yourhostname';
+
+{{ if value.threads }}
+options.cluster = {{ value.cluster }};
+options.threads = {{ value.threads }};
+options.logs = 'isolated';
+{{ else if value.cluster }}
+options.cluster = {{ value.cluster }};
+{{ fi }}
 
 var type = process.argv.indexOf('--release', 1) !== -1 || process.argv.indexOf('release', 1) !== -1 ? 'release' : 'debug';
 

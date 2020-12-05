@@ -83,6 +83,10 @@
 				<div data---="input__?.startscript__icon:hourglass-start;maxlength:50;placeholder:index.js">@(Custom start script)</div>
 				<div class="help m">@(We don't recommend to use a custom start script. First argument is <code>port number</code> and second <code>--mode</code> (release or debug))</div>
 			</div>
+			<div data-bind="?.version__show:value==='total4'" class="hidden">
+				<hr />
+				<div data---="input__?.threads__dirsource:%threads;dircustom:1;dirplaceholder:@(Type a relative /endpoint/ or just enable threads)__''">@(Total.js threads)</div>
+			</div>
 		</div>
 		<hr />
 		<div class="padding">
@@ -98,6 +102,8 @@
 </div>
 
 <script>
+
+	SET('%threads', [{ id: '', name: '@(Do not use threads)', template: '<b>{{ name }}</b>' }, { id: '-', name: '@(Enable threads)' }]);
 
 	PLUGIN('appform', function(exports) {
 

@@ -12,6 +12,7 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.define('disallow',      '[String]');
 	schema.define('ssl_key',        String);
 	schema.define('ssl_cer',        String);
+	schema.define('threads',        String);
 	schema.define('notes',          String);
 	schema.define('startscript',    String);                   // A start script
 	schema.define('nginx',          String);                   // Additional NGINX settings (lua)
@@ -274,6 +275,9 @@ NEWSCHEMA('Apps', function(schema) {
 			$.invalid('url');
 			return;
 		}
+
+		if (item.version === 'total3')
+			item.threads = '';
 
 		item.restart = undefined;
 		item.ssl = model.ssl = item.url.startsWith('https://');
