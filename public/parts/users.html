@@ -30,7 +30,7 @@
 									</div>
 								</div>
 								<div class="buttons small mt10">
-									<button class="exec" data-exec="?/update"{{ if m.id === user.id }} disabled{{ fi }}><i class="fas fa-pencil"></i>@(Edit)</button>
+									<button class="exec" data-exec="?/update"><i class="fas fa-pencil"></i>@(Edit)</button>
 									<button class="exec" data-exec="?/remove"{{ if m.id === user.id }} disabled{{ fi }}><i class="fas fa-trash-o red"></i>@(Remove)</button>
 								</div>
 							</div>
@@ -64,6 +64,12 @@
 
 		exports.update = function(el) {
 			var id = el.closest('figure').attrd('id');
+
+			if (user.id === id) {
+				SET('common.form', 'profileform');
+				return;
+			}
+
 			DAPI('users_read/{0} @showloading'.format(id), ASETTER('message/response', function(response) {
 				SET('usersform @reset @hideloading', response);
 				SET('common.form', 'usersform');

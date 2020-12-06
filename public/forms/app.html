@@ -41,9 +41,12 @@
 			</div>
 		</div>
 		<div class="padding npb">
+
+			<div class="alert m hidden" data-bind="?.cluster__show:value==='auto'||(value&&(+value)>1)"><i class="fas fa-exclamation-circle"></i><b>@(IMPORTANT:)</b><br />@(You have enabled <b>Cluster mode</b> and the application must be optimized for the cluster mode. Applications in cluster mode are multi-threaded).</div>
+
 			<div class="row">
 				<div class="col-md-3 m">
-					<div data---="input__?.cluster__align:center;increment:true;maxlength:4;type:number__1">@(Cluster)</div>
+					<div data---="input__?.cluster__maxlength:4;dirsource:%cluster;dirplaceholder:@(Choose or type count of threads);dircustom:1;dirminwidth:300__''"><b>@(Cluster)</b></div>
 				</div>
 				<div class="col-md-3 m">
 					<div data---="input__?.ddos__align:center;increment:true;maxlength:4;type:number__50">@(DDOS protection)</div>
@@ -86,6 +89,7 @@
 			<div data-bind="?.version__show:value==='total4'" class="hidden">
 				<hr />
 				<div data---="input__?.threads__dirsource:%threads;dircustom:1;dirplaceholder:@(Type a relative /endpoint/ or just enable threads)__''">@(Total.js threads)</div>
+				<div class="help">@(If you enable threads and cluster will be disabled then <b>SuperAdmin</b> will set the cluster to auto-scale.)</div>
 			</div>
 		</div>
 		<hr />
@@ -103,7 +107,8 @@
 
 <script>
 
-	SET('%threads', [{ id: '', name: '@(Do not use threads)', template: '<b>{{ name }}</b>' }, { id: '-', name: '@(Enable threads)' }]);
+	SET('%threads', [{ id: '', name: '@(Threads are disabled)', template: '<b>@(Disable threads)</b>' }, { id: '-', name: '@(Threads are enabled)', template: '@(Enable threads)' }]);
+	SET('%cluster', [{ id: '', name: '@(Disabled)', template: '<b>@(No cluster)</b>' }, { id: 'auto', name: '@(Auto-scaling)' }]);
 
 	PLUGIN('appform', function(exports) {
 

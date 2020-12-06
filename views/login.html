@@ -52,8 +52,11 @@
 		}
 
 	</style>
+	@{import('ui.css', 'ui.js')}
 </head>
 <body>
+
+	<div data---="LAZY message__null__style:2;button:@(Close)"></div>
 
 	<div class="panel">
 		<h1><i class="fa fa-lock"></i>@{'%name'}</h1>
@@ -103,10 +106,10 @@
 		$(document).on('click', 'button', function() {
 			if (!CAN('form.*') || BLOCKED('adminlogin', 2000))
 				return;
-			API('/apiv1/ login', GET('form @reset'), function(response) {
+			API('/apiv1/ login', GET('form @reset'), ASETTER('message/response', function(response) {
 				SET('form.response', response);
 				response.success && location.reload(true);
-			});
+			}));
 		});
 	</script>
 

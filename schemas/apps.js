@@ -20,7 +20,7 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.define('memory',         Number);                   // Memory limit
 	schema.define('priority',       Number);                   // Start priority
 	schema.define('port',           Number);
-	schema.define('cluster',        Number);                   // Thread count
+	schema.define('cluster',       'String(4)');               // Thread count number or string - "auto"
 	schema.define('ddos',           Number);                   // Maximum count of request per second
 	schema.define('size',           Number);                   // Maximum size of request body (upload size)
 	schema.define('proxytimeout',   Number);                   // Sets the "proxy_read_timeout"

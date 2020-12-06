@@ -247,11 +247,8 @@
 						if (response.memory === 0)
 							response.memory = undefined;
 
-						/*
-						if (response.subprocess) {
-							SET('applications.subprocess', $.extend({ $index: index }, response), true);
-							SET('common.form', 'applications-subprocess');
-						} else {*/
+						if (response.cluster <= 1)
+							response.cluster = '';
 
 						// response.sslexpire = apps.apps.findValue('id', response.id, 'sslexpire', null);
 						response.sslcustom = !!response.ssl_key;
@@ -302,11 +299,12 @@
 				if (value.analyzator)
 					plus = '@errors';
 				plus += (plus ? ' ' : '') + '@running';
+
+				if (value.threads)
+					plus += ' @threads';
+
 			} else
 				plus = '@stopped';
-
-			if (value.threads)
-				plus += ' @threads';
 
 			el.attrd('search', el.attrd('url') + (plus ? (' ' + plus) : ''));
 		};

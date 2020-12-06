@@ -531,87 +531,11 @@ SuperAdmin.pid2 = function(app, callback) {
  * @param {Boolean} debug
  * @param {Function} callback
  */
-SuperAdmin.run_BK = function(port, callback) {
-
-	var app = APPLICATIONS.findItem('port', port);
-	if (!app) {
-		callback('Application does not exist');
-		return;
-	}
-
-	var filename = app.debug ? 'debug.js' : 'release.js';
-	var linker = app.linker;
-	var log = app.debug ? Path.join(CONF.directory_www, linker, 'logs', 'debug.log') : Path.join(CONF.directory_console, linker + '.log');
-
-	!app.debug && Exec('bash {0} {1} {2}'.format(PATH.private('backuplogs.sh'), log, log.replace(/\.log$/, '#' + NOW.format('yyyyMMdd-HHmm.log'))), NOOP);
-
-	// Reset output of analyzator
-	app.analyzatoroutput = null;
-
-	var fn = function(callback) {
-		SuperAdmin.makescripts(app, function() {
-			// Creates a log directory
-			if (app.debug)
-				Exec('bash {0} {1}'.format(PATH.private('mkdir.sh'), Path.join(CONF.directory_www, linker, 'logs')), callback);
-			else
-				callback();
-		});
-	};
-
-	app.pid = 0;
-
-	if (app.current)
-		app.current = null;
-
-	// Because of backuping logs
-	setTimeout(function() {
-		PATH.unlink([log], function() {
-			fn(function() {
-				filename = Path.join(CONF.directory_www, linker, app.startscript || filename);
-				PATH.exists(filename, function(e) {
-
-					if (!e) {
-						callback && callback(new Error('Start script doesn\'t exist ({0}).'.format(linker)));
-						return;
-					}
-
-					// , '--max_inlined_source_size=1200'
-					var options = ['--nouse-idle-notification', '--expose-gc'];
-
-					app.memory && options.push('--max_old_space_size=' + app.memory);
-					options.push(filename);
-					options.push(app.port);
-
-					Spawn('node', options, {
-						stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
-						cwd: Path.join(CONF.directory_www, linker),
-						detached: true,
-						uid: SuperAdmin.run_as_user.id,
-						gid: SuperAdmin.run_as_user.group
-					}).unref();
-
-					EMIT('superadmin_app_run', app);
-					setTimeout(() => callback && callback(), app.delay || 100);
-				});
-			});
-		});
-	}, 500);
-
-	return SuperAdmin;
-};
-
-/**
- * Runs application
- * @param {String} url
- * @param {Number} port
- * @param {Boolean} debug
- * @param {Function} callback
- */
 SuperAdmin.run = function(port, callback) {
 
 	var app = APPLICATIONS.findItem('port', port);
 	if (!app) {
-		callback('Application does not exist');
+		callback('404');
 		return;
 	}
 
@@ -1159,8 +1083,27 @@ SuperAdmin.makescripts = function(app, callback) {
 
 	data.total = app.version === 'total3' ? 'total.js' : app.version;
 	data.threads = app.threads ? app.threads === '-' ? 'true' : ('\'' + app.threads + '\'') : '';
-	data.cluster = data.threads ? app.cluster <= 1 ? '\'auto\'' : app.cluster : 0;
 
+	// Old format
+	if (typeof(app.cluster) === 'number') {
+		app.cluster = app.cluster + '';
+	}
+
+	data.cluster = app.cluster;
+
+	if (!data.cluster || data.cluster === '1' || data.cluster === '0') {
+		data.cluster = 0;
+	} else {
+		if (data.cluster === 'auto')
+			data.cluster = '\'auto\'';
+		else
+			data.cluster = data.cluster.parseInt();
+
+		if (data.cluster === 0)
+			data.cluster = '';
+	}
+
+	// data.cluster = data.threads ? app.cluster <= 1 || app.cluster === 'auto' ? '\'auto\'' : app.cluster : 0;
 	var linker = app.linker;
 	var directory = Path.join(CONF.directory_www, linker);
 	Exec('mkdir -p ' + directory, function() {
