@@ -1,6 +1,6 @@
 <div data-scope="apps" class="apps invisible" data-bind="?.apps__visible">
 
-	<header>
+	<header class="exec" data-exec="?/searchfocus">
 		<div data---="searchinput__?.search__placeholder:@(Search apps or use keywords @errors or @offline);autofocus:2000;$id:appssearch"></div>
 		<nav>
 			<button class="exec" data-exec="?/create"><i class="fa fa-plus-circle"></i>@(Add)</button>
@@ -160,6 +160,11 @@
 
 		exports.reload = function() {
 
+		};
+
+		exports.searchfocus = function(el, e) {
+			if (e.target.tagName === 'HEADER')
+				$(el).find('input').focus();
 		};
 
 		exports.refresh = function() {
