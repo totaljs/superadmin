@@ -1091,7 +1091,7 @@ SuperAdmin.makescripts = function(app, callback) {
 
 	data.cluster = app.cluster;
 
-	if (!data.cluster || data.cluster === '1' || data.cluster === '0') {
+	if (!data.cluster || data.cluster === '1') {
 		data.cluster = 0;
 	} else {
 		if (data.cluster === 'auto')
@@ -1375,22 +1375,15 @@ SuperAdmin.notify_system = function() {
 		next();
 
 	});
-
 };
 
 SuperAdmin.send_sms = function(numbers, message) {
 
-	if (!CONF.nexmokey || !CONF.nexmosecret || !CONF.nexmosender)
+	if (!CONF.totalapi || !CONF.sms_from)
 		return false;
 
 	numbers.wait(function(item, next) {
-		RESTBuilder.make(function(builder) {
-			builder.url('https://rest.nexmo.com/sms/json?api_key={0}&api_secret={1}&from={2}&to={3}&text={4}&type=unicode'.format(CONF.nexmokey, CONF.nexmosecret, encodeURIComponent(CONF.nexmosender), item, encodeURIComponent(message)));
-			builder.exec(function(err, response) {
-				LOGGER('sms', 'response:', JSON.stringify(response), 'error:', err);
-				next();
-			});
-		});
+		TotalAPI('sms', { from: CONF.sms_from, to: item, body: message }, next);
 	});
 
 	return true;
