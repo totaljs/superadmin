@@ -7,21 +7,21 @@ NEWSCHEMA('Settings', function(schema) {
 	// General
 	settings.push({ group: 'General', label: 'Name', name: 'name', type: 'string', value: 'SuperAdmin' });
 	settings.push({ group: 'General', label: 'Daily summarization', name: 'emailsummarization', type: 'string', value: '', note: 'Type your e-mail address', placeholder: '@' });
+	settings.push({ group: 'General', label: 'Total.js API key', name: 'totalapi', type: 'string', value: '', note: 'Needed for SMS and you can obtain key on https://platform.totaljs.com/?open=api', placeholder: 'Your API token' });
+
+	// Alarms
+	settings.push({ group: 'SMS notifications', label: 'A sender name', name: 'sms_from', type: 'string', value: 'SuperAdmin' });
 
 	// SMTP
-	settings.push({ group: 'SMTP server', label: 'Hostname', name: 'mail_smtp', type: 'string', value: '' });
-	settings.push({ group: 'SMTP server', label: 'Options', name: 'mail_smtp_options', type: 'string', value: {}, note: 'Follow: https://docs.totaljs.com/total4/4047c001sd51c/#4c10a001bl51c' });
+	settings.push({ group: 'SMTP server', label: 'Use Total.js API', name: 'mail_api', type: 'boolean', value: false, note: 'SuperAdmin uses Total.js API services for sending of mail messages' });
+	settings.push({ group: 'SMTP server', label: 'Hostname', name: 'mail_smtp', type: 'string', value: '', show: 'data => !data.mail_api' });
+	settings.push({ group: 'SMTP server', label: 'Options', name: 'mail_smtp_options', type: 'string', value: {}, note: 'Follow: https://docs.totaljs.com/total4/4047c001sd51c/#4c10a001bl51c', show: 'data => !data.mail_api' });
 	settings.push({ group: 'SMTP server', label: 'Sender address', name: 'mail_address_from', type: 'string', value: '', placeholder: '@', note: 'Type sender e-mail address' });
 
 	// Backup
 	settings.push({ group: 'Backup', label: 'Allow FTP backups', name: 'allowbackup', type: 'boolean', value: false });
 	settings.push({ group: 'Backup', label: 'FTP server', name: 'ftp', type: 'string', value: '', placeholder: 'ftp://username:password@hostname', show: 'data => data.allowbackup' });
 	settings.push({ group: 'Backup', label: 'Backup interval', name: 'intervalbackup', type: 'number', value: 6, note: 'Must be defined in hours', show: 'data => data.allowbackup' });
-
-	// Alarms
-	settings.push({ group: 'SMS notifications', label: 'Vonage key', name: 'nexmokey', type: 'string', value: '', note: 'You can obtain key on https://dashboard.nexmo.com' });
-	settings.push({ group: 'SMS notifications', label: 'Vonage secret', name: 'nexmosecret', type: 'string', value: '' });
-	settings.push({ group: 'SMS notifications', label: 'Vonage sender', name: 'nexmosender', type: 'string', value: '' });
 
 	// Schema definition
 	for (var i = 0; i < settings.length; i++)
