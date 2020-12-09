@@ -1,5 +1,6 @@
 session_cookie    (generate)  : 4
 session_secret    (generate)  : 10
+unixsocket                    : true
 
 // Server configuration
 directory_nginx               : /www/nginx/

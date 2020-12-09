@@ -88,7 +88,7 @@ Thelpers.app_trending = function(val, type) {
 	var key = this.path.substring(9);
 	var obj = W.appsinfo[key];
 	if (!obj)
-		return '';
+		return DEF.empty;
 
 	key += '_' + type;
 

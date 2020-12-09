@@ -82,7 +82,7 @@
 										</div>
 										<div class="stats" data-bind="appsinfo.app{{ n.id }}__template:{#appstats}"></div>
 										{{ if n.debug }}<div class="debug"><i class="fas fa-flask"></i><span class="badge badge-purple">@(debug)</span></div>{{ fi }}
-										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.https }}<span class="badge badge-green badge-small mr5">SSL</span>{{ fi }}<a href="{{ n.url }}" target="_blank">{{ n.domain }}</a>{{ if n.threads }}<i class="fa fa-cogs ml5" title="@(Threads are enabled)"></i>{{ fi }}{{ if n.highpriority }} <span class="badge badge-yellow">@(high priority)</span>{{ fi }} <span class="port">{{ n.port }}</span><b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
+										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.https }}<span class="badge badge-green badge-small mr5">SSL</span>{{ fi }}<a href="{{ n.url }}" target="_blank">{{ n.domain }}</a>{{ if n.threads }}<i class="fa fa-cogs ml5" title="@(Threads are enabled)"></i>{{ fi }}{{ if n.highpriority }} <span class="badge badge-yellow">@(high priority)</span>{{ fi }} {{ if !n.unixsocket }}<span class="port">{{ n.port }}</span>{{ fi }}<b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
 									</div>
 								{{ end }}
 							</div>
@@ -315,7 +315,7 @@
 		};
 
 		exports.create = function() {
-			SET('appform @default', {});
+			SET('appform @default', { unixsocket: true });
 			SET('common.form', 'app');
 		};
 
@@ -399,7 +399,7 @@
 			opt.callback = function(item) {
 
 				if (item.id === 'restart') {
-					SETTER('approve/show', '@(Are you sure you want to restart all applications?)', '"far fa-play-circle" @(restart)', function() {
+					SETTER('approve/show', '@(Are you sure you want to restart all applications?)', '"far fa-play-circle" @(Restart)', function() {
 						DAPI('apps_restart_all @showloading', ASETTER('notifybar/response @hideloading', '@(Applications have been restarted successfully.)'));
 					});
 					return;

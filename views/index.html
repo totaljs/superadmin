@@ -119,7 +119,7 @@
 
 	<script>
 
-		var common = { shownotifications: +('@{PREF.notifications || 0}') > 0 };
+		var common = { shownotifications: +('@{PREF.notifications || 0}') > 0, unixsocket: '@{CONF.unixsocket}' === 'true' };
 		var user = PARSE('#userdata');
 
 		DEF.dateformat = '@(yyyy-MM-dd)';

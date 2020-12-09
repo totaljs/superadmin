@@ -16,11 +16,17 @@ const options = {};
 // options.livereload = 'https://yourhostname';
 
 {{ if value.threads }}
-options.cluster = {{ value.cluster }};
 options.threads = {{ value.threads }};
 options.logs = 'isolated';
-{{ else if value.cluster }}
+{{ fi }}
+
+{{ if value.cluster }}
 options.cluster = {{ value.cluster }};
+{{ fi }}
+
+{{ if value.unixsocket }}
+options.unixsocket = '{{ value.unixsocket }}';
+options.unixsocket777 = true;
 {{ fi }}
 
 var type = process.argv.indexOf('--release', 1) !== -1 || process.argv.indexOf('release', 1) !== -1 ? 'release' : 'debug';

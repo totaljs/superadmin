@@ -8,7 +8,7 @@ const Spawn = require('child_process').spawn;
 const SuperAdmin = global.SuperAdmin = {};
 
 const REG_EMPTY = /\s{2,}/g;
-const REG_PID = /\d+\s/;
+// const REG_PID = /\d+\s/;
 const REG_APPDISKSIZE = /^[\d.,]+/;
 const REG_FINDVERSION = /[0-9.]+/;
 
@@ -498,6 +498,16 @@ SuperAdmin.pid = function(port, callback) {
 		return;
 	}
 
+	var pidfilename = Path.join(CONF.directory_www, item.linker, 'superadmin.pid');
+	Fs.readFile(pidfilename, function(err, buffer) {
+		if (buffer) {
+			var pid = buffer.toString('ascii');
+			Exec('ps -p ' + pid, err => callback(err, err ? null : pid, item));
+		} else
+			callback('500', null, item);
+	});
+
+	/*
 	Exec('lsof -i :' + port + ' | grep \'LISTEN\'', function(err, response) {
 		var pid = response.match(REG_PID);
 		if (pid) {
@@ -505,7 +515,7 @@ SuperAdmin.pid = function(port, callback) {
 			callback(null, item.pid, item);
 		} else
 			callback(err, null, item);
-	});
+	});*/
 
 	return SuperAdmin;
 };
@@ -564,6 +574,7 @@ SuperAdmin.run = function(port, callback) {
 	setTimeout(function() {
 		PATH.unlink([log], function() {
 			fn(function() {
+
 				filename = Path.join(CONF.directory_www, linker, app.startscript || filename);
 				PATH.exists(filename, function(e) {
 
@@ -576,19 +587,25 @@ SuperAdmin.run = function(port, callback) {
 
 					app.memory && options.push('--max_old_space_size=' + app.memory);
 					options.push(filename);
-					options.push(app.port);
+
+					if (!CONF.unixsocket || !app.unixsocket)
+						options.push(app.port);
+
 					options.push(app.debug ? '--debug' : '--release');
 
 					if (!app.debug && app.watcher)
 						options.push('--watcher');
 
-					Spawn('node', options, {
+					var p = Spawn('node', options, {
 						stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
 						cwd: Path.join(CONF.directory_www, linker),
 						detached: true,
 						uid: SuperAdmin.run_as_user.id,
 						gid: SuperAdmin.run_as_user.group
-					}).unref();
+					});
+
+					Fs.writeFile(Path.join(CONF.directory_www, linker, 'superadmin.pid'), p.pid + '', NOOP);
+					p.unref();
 
 					EMIT('superadmin_app_run', app);
 					callback && setTimeout(callback, app.delay || 1000);
@@ -1103,6 +1120,9 @@ SuperAdmin.makescripts = function(app, callback) {
 			data.cluster = '';
 	}
 
+	if (CONF.unixsocket && app.unixsocket)
+		data.unixsocket = Path.join(CONF.directory_www, app.linker, 'superadmin.socket');
+
 	// data.cluster = data.threads ? app.cluster <= 1 || app.cluster === 'auto' ? '\'auto\'' : app.cluster : 0;
 	var linker = app.linker;
 	var directory = Path.join(CONF.directory_www, linker);
@@ -1110,7 +1130,7 @@ SuperAdmin.makescripts = function(app, callback) {
 		Exec('chmod 777 {0}'.format(directory), function() {
 			SuperAdmin.copy(PATH.private('index.js'), Path.join(directory, 'index.js'), function(err) {
 				callback(err);
-			}, (response) => Tangular.render(response.toString('utf8'), { value: data }));
+			}, (response) => Tangular.render(response.toString('utf8'), { value: data }).replace(/\n{3,}/g, '\n\n'));
 		});
 	});
 	return SuperAdmin;

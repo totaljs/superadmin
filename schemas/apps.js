@@ -31,6 +31,7 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.define('watcher',        Boolean);                  // Enables Total.js watcher for release mode
 	schema.define('version',        String);                   // Total.js Version
 	schema.define('highpriority',   Boolean);                  // App with high priority
+	schema.define('unixsocket',     Boolean);                  // Enables unixsocket
 
 	schema.setQuery(function($) {
 		$.callback(APPLICATIONS);
@@ -219,6 +220,7 @@ NEWSCHEMA('Apps', function(schema) {
 
 			app.current = null;
 			app.analyzatoroutput = null;
+			SuperAdmin.wsnotify('app_restart', app);
 			SuperAdmin.restart(app.port, () => next());
 
 		}, function() {
@@ -281,6 +283,9 @@ NEWSCHEMA('Apps', function(schema) {
 
 		item.restart = undefined;
 		item.ssl = model.ssl = item.url.startsWith('https://');
+
+		if ((item.unixsocket && item.version !== 'total4') || !CONF.unixsocket)
+			item.unixsocket = false;
 
 		if (item.id) {
 

@@ -50,6 +50,9 @@ NEWTASK('nginx', function(push) {
 			model.port = app.port;
 			model.threads = app.threads;
 
+			if (CONF.unixsocket && app.unixsocket)
+				model.unixsocket = Path.join(CONF.directory_www, app.linker, 'superadmin.socket');
+
 			// Custom keys
 			if (app.ssl) {
 
