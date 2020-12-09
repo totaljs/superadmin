@@ -117,6 +117,7 @@
 <div data---="importer__common.form__if:app;url:/forms/app.html"></div>
 <div data---="importer__common.form__if:summary;url:/forms/summary.html"></div>
 <div data---="importer__common.form__if:upload;url:/forms/upload.html"></div>
+<div data---="importer__common.form__if:intro;url:/forms/intro.html"></div>
 
 <script>
 
@@ -203,6 +204,9 @@
 				SET('?.categories', categories);
 				SET('?.apps', response);
 				SET('?.items', output);
+
+				if (!response.length)
+					SET('common.form', 'intro');
 
 				exports.refreshstats();
 			});

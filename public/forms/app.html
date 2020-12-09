@@ -1,11 +1,14 @@
 <div data---="largeform___common.form__if:app;width:900;icon:fas fa-box;submit:?/submit;reload:?/reload;autofocus:1" class="hidden" data-scope="appform">
 	<div>
 		<div data-bind="appform.id___hide" class="hidden">
-			<div class="alert"><i class="fa fa-warning"></i>@(<b>Uploading of source-code</b> is possible after registration.)</div>
+			<div class="alert"><i class="fa fa-warning"></i>@(<b>Uploading of source-code</b> is possible after creation process.)</div>
 		</div>
 		<div class="padding">
 			<div data---="input__?.url__placeholder:https\://www.totaljs.com;required:true;type:url__'https://'">@(URL address)</div>
-			<div class="help m"><i class="fa fa-info-circle"></i>@(The URL address must contain the protocol <code>http</code> or <code>https</code>.)</div>
+			<div class="help m">
+				@(The URL address must contain protocol <code>http</code> or <code>https</code>).<br />
+				<b>@(Make sure that DNS A records for this domain are targeted to this server</b>.)
+			</div>
 			<div data---="input__?.category__dirsource:apps.categories;dircustom:true;dirempty:@(Without category);placeholder:@(Choose a category);dirplaceholder:@(Search or create new)" class="m">@(Category)</div>
 			<div data--="checkbox__?.debug__null__true" class="inline b mr5 black">@(Enable debug mode)</div>
 			<div class="inline middle mr15"><span class="badge badge-red">@(debug)</span></div>
