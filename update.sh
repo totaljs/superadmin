@@ -7,6 +7,9 @@ npm install dbms 2>/dev/null
 echo "Backing up old SuperAdmin: /www/superadmin_bk.zip"
 zip -r superadmin_bk.zip superadmin 2>/dev/null
 
+echo "Kills all running apps"
+pkill -f total
+
 mkdir superadmin_tmp
 cp /www/superadmin/databases/applications.json /www/superadmin_tmp/applications.json
 cp /www/superadmin/databases/stats.nosql /www/superadmin_tmp/stats.nosql
