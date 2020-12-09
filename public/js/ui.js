@@ -1571,13 +1571,15 @@ COMPONENT('viewbox', 'margin:0;scroll:true;delay:100;scrollbar:0;visibleY:1;heig
 	};
 });
 
-COMPONENT('search', 'class:hidden;delay:50;attribute:data-search;splitwords:1', function(self, config, cls) {
+COMPONENT('search', 'class:hidden;delay:50;attribute:data-search;splitwords:1;delaydatasource:100', function(self, config, cls) {
 
 	self.readonly();
 
 	self.make = function() {
 		config.datasource && self.datasource(config.datasource, function() {
-			self.refresh();
+			setTimeout(function() {
+				self.refresh();
+			}, config.delaydatasource);
 		});
 	};
 

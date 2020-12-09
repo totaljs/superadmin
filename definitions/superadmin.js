@@ -642,7 +642,7 @@ SuperAdmin.npminstall = function(app, callback) {
 SuperAdmin.kill = function(port, callback) {
 	return SuperAdmin.pid(port, function(err, pid, app) {
 		if (pid) {
-			EMIT('superadmin.app.kill', app);
+			EMIT('superadmin_app_kill', app);
 			Exec('kill ' + pid, () => callback(null, SUCCESS(true)));
 		} else
 			callback(err);
@@ -1120,8 +1120,7 @@ SuperAdmin.makescripts = function(app, callback) {
 			data.cluster = '';
 	}
 
-	if (CONF.unixsocket && app.unixsocket)
-		data.unixsocket = Path.join(CONF.directory_www, app.linker, 'superadmin.socket');
+	data.unixsocket = CONF.unixsocket && app.unixsocket ? Path.join(CONF.directory_www, app.linker, 'superadmin.socket') : null;
 
 	// data.cluster = data.threads ? app.cluster <= 1 || app.cluster === 'auto' ? '\'auto\'' : app.cluster : 0;
 	var linker = app.linker;

@@ -302,7 +302,7 @@ NEWSCHEMA('Apps', function(schema) {
 				return;
 			}
 
-			model.restart = app.cluster !== model.cluster || model.debug !== app.debug || model.version !== app.version;
+			model.restart = app.cluster !== model.cluster || model.debug !== app.debug || model.version !== app.version || model.unixsocket !== app.unixsocket;
 			item.current = app.current;
 			item.analyzatoroutput = app.analyzatoroutput;
 			item.dtupdated = NOW;
