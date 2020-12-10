@@ -64,6 +64,7 @@ if [ "$userConsent" == "y" ]; then
 	apt-get install -y lsof
 	apt-get install -y socat
 	apt-get install -y sysstat
+	apt-get install -y procps
 	curl https://get.acme.sh | sh
 	mkdir /www/
 	mkdir /www/logs/

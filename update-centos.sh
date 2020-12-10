@@ -2,8 +2,8 @@ cd /www/
 
 echo "Install missing Linux packages"
 
-apt-get install -y sysstat
-apt-get install -y procps
+yum install -y -q sysstat
+yum install -y -q procps-ng
 
 echo "Install NPM dependencies"
 npm install total4 2>/dev/null

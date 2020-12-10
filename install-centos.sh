@@ -88,6 +88,8 @@ if [ "$userConsent" == "y" ]; then
 	yum install -y -q git
 	yum install -y -q lsof
 	yum install -y -q socat
+	yum install -y -q sysstat
+	yum install -y -q procps
 	curl https://get.acme.sh | sh
 	mkdir /www/
 	mkdir /www/logs/
