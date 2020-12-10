@@ -746,7 +746,16 @@ SuperAdmin.versions = function(callback) {
 			}
 
 			SuperAdmin.server.version_nginx = version.toString();
-			SuperAdmin.nginx = SuperAdmin.server.version_nginx.replace(/\./g, '').parseInt();
+
+			var v = SuperAdmin.server.version_nginx.split('.');
+			var number = [];
+
+			for (var i = 0; i < v.length; i++) {
+				var n = v[i].padLeft(2, '0');
+				number.push(n);
+			}
+
+			SuperAdmin.nginx = (number.join('').replace(/\./g, '') + 1).parseInt();
 			next();
 		});
 	});
@@ -802,6 +811,7 @@ SuperAdmin.versions = function(callback) {
 		});
 	});
 
+	/*
 	arr.push(function(next) {
 		Exec('psql --version', function(err, stdout) {
 
@@ -873,7 +883,7 @@ SuperAdmin.versions = function(callback) {
 
 			next();
 		});
-	});
+	});*/
 
 	arr.async(function() {
 		EMIT('superadmin.system', SuperAdmin.server);
