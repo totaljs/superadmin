@@ -63,6 +63,7 @@ if [ "$userConsent" == "y" ]; then
 	apt-get install -y unzip
 	apt-get install -y lsof
 	apt-get install -y socat
+	apt-get install -y sysstat
 	curl https://get.acme.sh | sh
 	mkdir /www/
 	mkdir /www/logs/

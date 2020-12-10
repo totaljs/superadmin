@@ -1,5 +1,9 @@
 cd /www/
 
+echo "Install missing Linux packages"
+
+apt-get install -y sysstat
+
 echo "Install NPM dependencies"
 npm install total4 2>/dev/null
 npm install dbms 2>/dev/null
