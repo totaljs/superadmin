@@ -81,6 +81,7 @@ NEWSCHEMA('Apps', function(schema) {
 				if (err) {
 					SuperAdmin.run(item.port, () => next());
 					SuperAdmin.notify(item, 0);
+					SuperAdmin.wsnotify('app_restart', item);
 					EMIT('superadmin_app_restart', item);
 				} else
 					SuperAdmin.appinfo(pid, next, item);
