@@ -47,3 +47,11 @@ String.prototype.superadmin_linker = function(path) {
 	arr[0] = tmp;
 	return arr.join('-').replace('-', '_') + (path ? path.replace(/\//g, '--').replace(/--$/g, '') : '');
 };
+
+String.prototype.superadmin_clean = function() {
+	var str = this;
+	str = str.replace(/\/{3,}/g, '/');
+	var tmp = str.substring(8);
+	var index = tmp.indexOf('/');
+	return index === -1 ? str : (str.substring(0, 8) + tmp.substring(0, index));
+};

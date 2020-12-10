@@ -239,7 +239,11 @@ NEWSCHEMA('Apps', function(schema) {
 
 	// Checks port number
 	schema.addWorkflow('check', function($, model) {
+
+		model.url = model.url.superadmin_clean();
+
 		var item;
+
 		if (model.subprocess) {
 			item = APPLICATIONS.findItem(n => n.url === model.url && !n.subprocess);
 			if (item)

@@ -205,8 +205,10 @@
 				SET('?.apps', response);
 				SET('?.items', output);
 
-				if (!response.length)
-					SET('common.form', 'intro');
+				if (!response.length) {
+					if (!BLOCKED('intro', '1 day'))
+						SET('common.form', 'intro');
+				}
 
 				exports.refreshstats();
 			});
