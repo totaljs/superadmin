@@ -2,18 +2,18 @@
 
 	<div class="padding">
 		<div data---="input__?.template__dirsource:%templates;dirvalue:url;required:1;dirsearch:@(Search);placeholder:@(Choose a source)__''">@(Source-code)</div>
-		<div class="alert mt10 hidden" data-bind="?.template__show:value=='upload'"><b>@(IMPORTANT):</b> @(ZIP file will be extracted as it is in the root of application directory.)</div>
+		<div class="alert mt10 hidden" data-bind="?.template__show:value=='upload'"><b>@(IMPORTANT):</b> @(ZIP (max. 10 MB) file will be extracted as it is in the root of application directory.)</div>
 		<br />
 		<div>
 			<div data---="checkbox__?.npm" class="inline mr5">@(Performs NPM install)</div>
 			<div class="inline middle"><span class="badge badge-blue">package.json</span></div>
 		</div>
 		<div data---="checkbox__?.backup">@(Creates a backup)</div>
-		<div data---="checkbox__?.remove" class="b red">@(Removes all files in the root of application)</div>
+		<div data---="checkbox__?.remove__null__true" class="b red">@(Removes all files in the root of application)</div>
 	</div>
 
 	<nav data---="validation__?">
-		<button name="submit" disabled>@(SUBMIT)</button>
+		<button name="submit" disabled><i class="fa fa-play-circle"></i>@(SUBMIT)</button>
 		<button name="cancel">@(Cancel)</button>
 	</nav>
 </div>
@@ -49,14 +49,14 @@
 				opt.url = '/api/upload/?id=' + model.app.id;
 				opt.accept = 'application/zip';
 				opt.callback = function(response, err) {
-					DAPI('templates_apply/' + model.app.id + ' @showloading', { template: model.template, remove: model.remove, backup: model.backup, npm: model.npm }, SETTER('notifybar/response @hideloading', '@(Source-code has been applied successfully)', hide));
+					DAPI('templates_apply/' + model.app.id + ' @showloading', { template: model.template, remove: model.remove, backup: model.backup, npm: model.npm }, ASETTER('notifybar/response @hideloading', '@(Source-code has been applied successfully)', hide));
 				};
 				opt.progress = function(percentage) {
 					SET('common.progress', percentage);
 				};
 				SETTER('fileuploader/upload', opt);
 			} else
-				DAPI('templates_apply/' + model.app.id + ' @showloading', { template: model.template, remove: model.remove, backup: model.backup, npm: model.npm }, SETTER('notifybar/response @hideloading', '@(Source-code has been applied successfully)', hide));
+				DAPI('templates_apply/' + model.app.id + ' @showloading', { template: model.template, remove: model.remove, backup: model.backup, npm: model.npm }, ASETTER('notifybar/response @hideloading', '@(Source-code has been applied successfully)', hide));
 		};
 	});
 
