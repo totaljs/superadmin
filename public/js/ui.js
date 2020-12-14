@@ -769,23 +769,21 @@ COMPONENT('layout2', 'scrollbar:1;parent:window;autoresize:1;margin:0', function
 	};
 
 	self.show = function(type) {
-		if (isMOBILE) {
-			switch (type) {
-				case 'left':
-					left && left.el.css('width', WW).rclass('hidden');
-					right && right.el.aclass('hidden');
-					break;
-				case 'right':
-					left && left.el.aclass('hidden');
-					right && right.el.css({ left: 0, width: WW }).rclass('hidden');
-					break;
-				case 'main':
-					right && right.el.aclass('hidden');
-					left && left.el.aclass('hidden');
-					break;
-			}
-		} else
-			self.resize2();
+		switch (type) {
+			case 'left':
+				left && left.el.css('width', WW).rclass('hidden');
+				right && right.el.aclass('hidden');
+				break;
+			case 'right':
+				left && left.el.aclass('hidden');
+				right && right.el.css({ left: 0, width: WW }).rclass('hidden');
+				break;
+			case 'main':
+				right && right.el.aclass('hidden');
+				left && left.el.aclass('hidden');
+				break;
+		}
+		self.resize2();
 	};
 
 	self.resize2 = function() {
@@ -919,6 +917,7 @@ COMPONENT('layout2', 'scrollbar:1;parent:window;autoresize:1;margin:0', function
 			main.css.left = sizeleft;
 			main.css.width = w - sizeleft - sizeright;
 			main.css.height = h - sizetop - sizebottom;
+
 			tmp = self.parse_cache(main.css);
 			if (tmp !== main.sizecache) {
 				main.sizecache = tmp;

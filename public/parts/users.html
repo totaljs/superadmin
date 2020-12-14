@@ -50,6 +50,7 @@
 	PLUGIN('users', function(exports) {
 
 		exports.reload = function() {
+			EXEC('common/hidemenu');
 			exports.refresh();
 		};
 

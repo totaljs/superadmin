@@ -48,25 +48,25 @@
 			<div class="alert m hidden" data-bind="?.cluster__show:value==='auto'||(value&&(+value)>1)"><i class="fas fa-exclamation-circle"></i><b>@(IMPORTANT:)</b><br />@(You have enabled <b>Cluster mode</b> and the application must be optimized for the cluster mode. Applications in cluster mode are multi-threaded).</div>
 
 			<div class="row">
-				<div class="col-md-3 m">
-					<div data---="input__?.cluster__maxlength:4;dirsource:%cluster;dirplaceholder:@(Choose or type count of threads);dircustom:1;dirminwidth:300__''"><b>@(Cluster)</b></div>
+				<div class="col-md-3 col-xs-6 m">
+					<div data---="input__?.cluster__maxlength:4;dirsource:%cluster;dirplaceholder:@(Choose or type count of threads);dircustom:1;dirminwidth:300__''">@(Cluster)</div>
 				</div>
-				<div class="col-md-3 m">
+				<div class="col-md-3 col-xs-6 m">
 					<div data---="input__?.ddos__align:center;increment:true;maxlength:4;type:number__50">@(DDOS protection)</div>
 				</div>
-				<div class="col-md-3 m">
+				<div class="col-md-3 col-xs-6 m">
 					<div data---="input__?.memory__align:center;increment:true;maxlength:4;placeholder:@(auto);type:number__'auto'">@(Memory limit)</div>
 				</div>
-				<div class="col-md-3 m">
+				<div class="col-md-3 col-xs-6 m">
 					<div data---="input__?.priority__align:center;increment:true;maxlength:3;type:number__0">@(Process priority)</div>
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-md-3 m">
+				<div class="col-md-3 col-xs-6 m">
 					<div data---="input__?.size__align:center;icon:cloud-upload;increment:true;maxlength:5;placeholder:e.g. 5;type:number__20">@(Max. upload size)</div>
 					<div class="help">@(Must be defined in megabytes)</div>
 				</div>
-				<div class="col-md-3 m">
+				<div class="col-md-3 col-xs-6 m">
 					<div data---="input__?.proxytimeout__align:center;icon:sign-out;increment:true;maxlength:5;placeholder:@(e.g. 600);type:number__600">@(Max. request timeout)</div>
 					<div class="help">@(Must be defined in seconds)</div>
 				</div>

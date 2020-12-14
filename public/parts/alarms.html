@@ -5,7 +5,7 @@
 			<button class="exec" data-exec="?/create"><i class="fas fa-plus-circle green"></i>@(Create)</button>
 		</nav>
 	</header>
-	<div data---="viewbox__null__parent:.ui-layout2-section;visibleX:true;visibleY:true;scrollbar:true;margin:45">
+	<div data---="viewbox__null__parent:.ui-layout2-section;visibleY:true;scrollbar:true;margin:45">
 
 		<div data---="empty__?.items__parent:auto">
 
@@ -69,6 +69,7 @@
 	PLUGIN('alarms', function(exports) {
 
 		exports.reload = function() {
+			EXEC('common/hidemenu');
 			exports.refresh();
 		};
 

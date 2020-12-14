@@ -1,8 +1,9 @@
 <div data-scope="apps" class="apps invisible" data-bind="?.apps__visible">
 
 	<header class="exec" data-exec="?/searchfocus">
+		<div class="menubutton exec" data-exec="?/menubutton"><i class="fas fa-navicon"></i></div>
 		<div data---="searchinput__?.search__placeholder:@(Search apps or use keywords @errors or @offline);autofocus:2000;$id:appssearch"></div>
-		<nav>
+		<nav class="hidden-xs">
 			<button class="exec" data-exec="?/create"><i class="fa fa-plus-circle"></i>@(Add)</button>
 			<button class="exec" data-exec="?/analyzator"><i class="fa fa-bug"></i>@(Analyzator)</button>
 			<button class="exec" data-exec="?/summary"><i class="fas fa-chart-line"></i>@(Trending)</button>
@@ -10,8 +11,8 @@
 		</nav>
 	</header>
 
-	<div data---="viewbox__common.page__margin:45;parent:window;scrollbar:1;visibleY:1">
-		<div class="help" style="margin:10px 0 0 20px"><i class="far fa-bookmark"></i>@(Quick search:) <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@debug</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@release</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total3</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total4</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@errors</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@stopped</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@running</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@threads</span> <span class="link exec badge badge-yellow badge-small" data-exec="?/searchtype">@highpriority</span></div>
+	<div data---="viewbox__common.page__margin:45;parent:.ui-layout2-section;scrollbar:1;visibleY:1">
+		<div class="help" style="margin:10px 0 0 20px;line-height:18px"><i class="far fa-bookmark"></i>@(Quick search:) <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@debug</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@release</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total3</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total4</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@errors</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@stopped</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@running</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@threads</span> <span class="link exec badge badge-yellow badge-small" data-exec="?/searchtype">@highpriority</span></div>
 		<div data-bind="?.apps.length__visible" class="invisible">
 			<div class="statsbar">
 				<figure>
@@ -82,7 +83,7 @@
 										</div>
 										<div class="stats" data-bind="appsinfo.app{{ n.id }}__template:{#appstats}"></div>
 										{{ if n.debug }}<div class="debug"><i class="fas fa-flask"></i><span class="badge badge-purple">@(debug)</span></div>{{ fi }}
-										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.https }}<span class="badge badge-green badge-small mr5">SSL</span>{{ fi }}<a href="{{ n.url }}" target="_blank">{{ n.domain }}</a>{{ if n.threads }}<i class="fa fa-cogs ml5" title="@(Threads are enabled)"></i>{{ fi }}{{ if n.highpriority }} <span class="badge badge-yellow">@(high priority)</span>{{ fi }} {{ if !n.unixsocket }}<span class="port">{{ n.port }}</span>{{ fi }}<b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
+										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.https }}<span class="ssl badge badge-green badge-small mr5">SSL</span>{{ fi }}<a href="{{ n.url }}" target="_blank">{{ n.domain }}</a>{{ if n.threads }}<i class="fa fa-cogs ml5" title="@(Threads are enabled)"></i>{{ fi }}{{ if n.highpriority }} <span class="hidden-sm hidden-xs badge badge-yellow">@(high priority)</span>{{ fi }} {{ if !n.unixsocket }}<span class="port">{{ n.port }}</span>{{ fi }}<b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
 									</div>
 								{{ end }}
 							</div>
@@ -160,7 +161,7 @@
 		};
 
 		exports.reload = function() {
-
+			EXEC('common/hidemenu');
 		};
 
 		exports.searchfocus = function(el, e) {
@@ -234,7 +235,8 @@
 			if (!isMOBILE) {
 				opt.items.push({ name: '@(Open File Browser)', icon: 'folder', id: 'filebrowser', classname: 'b' });
 				opt.items.push('-');
-			}
+			} else
+				opt.large = true;
 
 			opt.items.push({ name: '@(Settings)', icon: 'cog', id: 'edit', classname: 'b' });
 			opt.items.push({ name: '@(Restart)', icon: 'refresh', id: 'restart' });
@@ -323,6 +325,26 @@
 		exports.create = function() {
 			SET('appform @default', { unixsocket: true });
 			SET('common.form', 'app');
+		};
+
+		exports.menubutton = function(el) {
+			var opt = {};
+			opt.element = $(el);
+			opt.align = 'right';
+			opt.offsetY = -10;
+
+			if (isMOBILE)
+				opt.large = true;
+
+			opt.items = [];
+			opt.items.push({ id: 'create', name: '@(Add)', icon: 'fa fa-plus-circle green' });
+			opt.items.push('-');
+			opt.items.push({ id: 'analyzator', name: '@(Analyzator)', icon: 'fa fa-bug' });
+			opt.items.push({ id: 'summary', name: '@(Trending)', icon: 'fas fa-chart-line' });
+			opt.callback = function(item) {
+				EXEC('?/' + item.id);
+			};
+			SETTER('menu/show', opt);
 		};
 
 		exports.refreshstats = function() {

@@ -20,10 +20,12 @@
 
 		html,body { overflow: hidden; height: 100%; }
 		body { background-color: #F0F0F0; color: black; background: radial-gradient(#FFFFFF, #C0C0C0); }
-		.panel { max-width: 320px; width: 100%; position: absolute; left: 50%; top: 50%; margin: -300px 0 0 -140px; background-color: white; border: 1px solid #E0E0E0; border-radius: 3px; transition: all 0.5s; transform: scale(1.5); }
+		.panel { max-width: 320px; width: 100%; background-color: white; border: 1px solid #E0E0E0; border-radius: 3px; transition: all 0.5s; transform: scale(1.5); }
 		.padding { padding: 20px; }
 		.panelshow { transform: scale(1); }
 		#login { padding: 0; margin: 0; }
+
+		.centered { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
 
 		h1 { color: black; margin: 0; padding: 20px 0 15px; font-family: Arial; text-align: center; border-bottom: 1px solid #E0E0E0; border-radius: 4px 4px 0 0; font-size: 18px; }
 		h1 .fa { margin-right: 10px; }
@@ -48,7 +50,7 @@
 		.keyvalue > * { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 
 		@media(max-width: 768px) {
-			.panel { margin: 20px; left: 0; position: relative; top: 0; width: auto; max-width: 1000px; }
+			.panel { margin: 20px 30px; max-width: 1000px; }
 		}
 
 	</style>
@@ -58,35 +60,36 @@
 
 	<div data---="LAZY message__null__style:2;button:@(Close)"></div>
 
-	<div class="panel">
-		<h1><i class="fa fa-lock"></i>@{'%name'}</h1>
-		<div class="padding">
+	<div class="centered">
+		<div class="panel">
+			<h1><i class="fa fa-lock"></i>@{'%name'}</h1>
+			<div class="padding">
 
-			@{if PREF.credentials}
-				<div class="alert m">
-					<div class="m"><i class="fa fa-lock"></i>@(Your default credentials are below. You can change them after you signing in.)</div>
-					<div class="keyvalue">
-						<div class="key">@(Name)</div>
-						<div class="value b">@{PREF.credentials.login}</div>
+				@{if PREF.credentials}
+					<div class="alert m">
+						<div class="m"><i class="fa fa-lock"></i>@(Your default credentials are below. You can change them after you signing in.)</div>
+						<div class="keyvalue">
+							<div class="key">@(Name)</div>
+							<div class="value b">@{PREF.credentials.login}</div>
+						</div>
+						<div class="keyvalue">
+							<div class="key">@(Password)</div>
+							<div class="value b">@{PREF.credentials.password}</div>
+						</div>
 					</div>
-					<div class="keyvalue">
-						<div class="key">@(Password)</div>
-						<div class="value b">@{PREF.credentials.password}</div>
+				@{fi}
+				<form method="POST" action="/" id="login">
+					<div class="m" data--="input__form.login__icon2:user;required:1;autofocus:1;autofill:1">@(Login name)</div>
+					<div class="m" data--="input__form.password__icon2:lock;required:1;type:password;autofill:1">@(Password)</div>
+					<div data---="validation__form" style="margin-top:20px">
+						<button name="submit" disabled="disabled"><i class="fa fa-lock"></i>@(Login)</button>
 					</div>
-				</div>
-			@{fi}
-			<form method="POST" action="/" id="login">
-				<div class="m" data--="input__form.login__icon2:user;required:1;autofocus:1;autofill:1">@(Login name)</div>
-				<div class="m" data--="input__form.password__icon2:lock;required:1;type:password;autofill:1">@(Password)</div>
-				<div data---="error__form.response"></div>
-				<div data---="validation__form" style="margin-top:20px">
-					<button name="submit" disabled="disabled"><i class="fa fa-lock"></i>@(Login)</button>
-				</div>
-			</form>
-			<footer>
-				<div>All rights reserved &copy; 2012-@{NOW.getFullYear()}</div>
-				<a href="https://www.totaljs.com" target="_blank">www.totaljs.com</a>
-			</footer>
+				</form>
+				<footer>
+					<div>All rights reserved &copy; 2016-@{NOW.getFullYear()}</div>
+					<a href="https://www.totaljs.com" target="_blank">www.totaljs.com</a>
+				</footer>
+			</div>
 		</div>
 	</div>
 

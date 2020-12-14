@@ -44,7 +44,9 @@
 		<div data---="LAZY notifybar"></div>
 	</div>
 
-	<div data---="layout2__null__parent:window" class="invisible">
+	<div class="mainmenu exec" data-exec="common/showmenu"><i class="fa fa-align-justify"></i></div>
+
+	<div data---="layout2__null__parent:window;marginxs:34" class="invisible">
 		<div data-type="left" data-size="230,230,200,0" data-scrollbar="selector:main;margin:0">
 			<main>
 				<div class="stats" data-scope="sysinfo">
@@ -103,6 +105,7 @@
 					<li class="exec b" data-exec="common/profile" data-if="profile"><i class="far fa-user-circle"></i>@{user.name}</li>
 					<li class="exec" data-exec="common/logout"><i class="fa fa-power-off red"></i>@(Logout)</li>
 				</ul>-->
+				<br />
 			</main>
 		</div>
 		<div data-type="main">
@@ -115,6 +118,7 @@
 	</div>
 
 	<div data---="importer__common.form__if:profileform;url:/forms/profile.html"></div>
+
 	@{json(user, 'userdata')}
 
 	<script>
@@ -181,7 +185,6 @@
 				opt.items.push({ id: 'profile', name: '@(My profile)', icon: 'far fa-user-circle' });
 				opt.items.push({ id: 'logout', name: '@(Logout)', icon: 'fas fa-power-off red' });
 				opt.callback = function(item) {
-
 					switch (item.id) {
 						case 'alarms':
 						case 'users':
@@ -201,7 +204,6 @@
 							break;
 					}
 
-
 				};
 				SETTER('menu/show', opt);
 			};
@@ -217,6 +219,17 @@
 
 			exports.notifications_clear = function() {
 				DAPI('notifications_clear', NOOP);
+			};
+
+			exports.hidemenu = function() {
+				if (common.mainmenu)
+					exports.showmenu();
+			};
+
+			exports.showmenu = function() {
+				SETTER('layout2/show', common.mainmenu ? 'main' : 'left');
+				common.mainmenu = !common.mainmenu;
+				EMIT('resize');
 			};
 
 		});

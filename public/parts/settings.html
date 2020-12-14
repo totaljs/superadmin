@@ -5,7 +5,7 @@
 			<button name="submit" class="exec" data-exec="?/submit" disabled><i class="fa fa-play-circle green"></i>@(Apply)</button>
 		</nav>
 	</header>
-	<div data---="viewbox__common.page__margin:45;parent:window;scrollbar:1;visibleY:1">
+	<div data---="viewbox__common.page__margin:45;parent:.ui-layout2-section;scrollbar:1;visibleY:1">
 		<div class="padding" style="max-width:900px;margin:0 auto">
 			<div data---="properties2__?"></div>
 		</div>
@@ -16,6 +16,7 @@
 	PLUGIN('settings', function(exports) {
 
 		exports.reload = function() {
+			EXEC('common/hidemenu');
 			exports.refresh();
 		};
 
