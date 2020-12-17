@@ -37,6 +37,9 @@ wget "https://raw.githubusercontent.com/totaljs/superadmin_templates/main/supera
 unzip superadmin.zip
 rm superadmin.zip
 
+cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf
+cp /www/superadmin/ffdhe2048.pem /etc/nginx/ffdhe2048.pem
+
 mkdir databases
 cp /www/superadmin_tmp/applications.json /www/superadmin/databases/applications.json
 cp /www/superadmin_tmp/stats.nosql /www/superadmin/databases/stats.nosql
