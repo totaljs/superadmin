@@ -6,9 +6,11 @@
 - __License__: [MIT](license.txt)
 - [__Documentation__](https://docs.totaljs.com/superadmin/)
 
-## Contributors
+## Contact
 
-- Peter Širka (author) <petersirka@gmail.com>
+- (c) 2012-2020 by Peter Širka - <petersirka@gmail.com>
+- contact form <https://www.totaljs.com/contact/>
+- <info@totaljs.com>
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat
 [license-url]: license.txt
