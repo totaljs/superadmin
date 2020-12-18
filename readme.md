@@ -1,10 +1,10 @@
 [![MIT License][license-image]][license-url]
 
-[![Support](https://www.totaljs.com/img/button-support.png?v=2)](https://www.totaljs.com/support/)
-
 - __SuperAdmin__ (v9.0.0) needs latest Total.js `v4` from NPM `$ npm install total4`
 - __License__: [MIT](license.txt)
 - [__Documentation__](https://docs.totaljs.com/superadmin/)
+- [Chat support](https://platform.totaljs.com/?open=messenger)
+- [Join to __Total.js Telegram__](https://t.me/totalplatform)
 
 ## Contact
 
