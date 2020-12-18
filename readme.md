@@ -1,7 +1,7 @@
 [![MIT License][license-image]][license-url]
 
 - __SuperAdmin__ (v9.0.0) needs latest Total.js `v4` from NPM `$ npm install total4`
-- __License__: [MIT](license.txt)
+- License: [MIT](license.txt)
 - [__Documentation__](https://docs.totaljs.com/superadmin/)
 - [Chat support](https://platform.totaljs.com/?open=messenger)
 - [Join to __Total.js Telegram__](https://t.me/totalplatform)
