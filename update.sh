@@ -8,6 +8,7 @@ apt-get install -y procps
 echo "Install NPM dependencies"
 npm install total4 2>/dev/null
 npm install dbms 2>/dev/null
+npm install pg 2>/dev/null
 
 echo "Backing up old SuperAdmin: /www/superadmin_bk.zip"
 zip -r superadmin_bk.zip superadmin 2>/dev/null
