@@ -146,7 +146,7 @@ hr { border-color: #E0E0E0; }
 .ui-searchinput { float: left; margin: 9px 0 0 10px; width: 300px; border: 0 !important; }
 .strike { text-decoration: line-through; }
 
-.apps .list { margin: 10px 20px 10px 15px; border: 1px solid #E0E0E0; border-radius: 3px; overflow: hidden; min-height: 29px; }
+.apps .list { margin: 10px 20px 10px 15px; border: 1px solid #E0E0E0; border-radius: 3px; overflow: hidden; min-height: 29px; padding-top: 10px; }
 .apps h2 { margin: 0 15px 10px 10px; padding: 0; color: #000; font-size: 16px; font-weight: bold; }
 .apps h2 span { float: right; color: #A0A0A0; font-weight: normal; }
 .apps h2 i { margin-right: 8px; color: #000; font-size: 20px; float: left; }

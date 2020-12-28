@@ -71,7 +71,7 @@
 							{{ if m.name }}
 							<h2 class="search">{{ if m.items && m.items.length > 3 }}<span>{{ m.items.length }}</span>{{ fi }}<i class="far fa-folder"></i>{{ m.name }}</h2>
 							{{ else }}
-							<h2 class="search" style="margin-top:15px">{{ if m.items && m.items.length > 3 }}<span>{{ m.items.length }}</span>{{ fi }}<i class="fas fa-list"></i>@(Uncategorized apps)</h2>
+							<h2 class="search">{{ if m.items && m.items.length > 3 }}<span>{{ m.items.length }}</span>{{ fi }}<i class="fas fa-list"></i>@(Uncategorized apps)</h2>
 							{{ fi }}
 							<div>
 								{{ foreach n in m.items }}
