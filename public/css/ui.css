@@ -536,3 +536,37 @@ i.ui-intro-button { margin: 14px 3px 0; cursor: pointer; color: silver; font-siz
 @media(max-width: 768px) {
 	.ui-intro-body { max-width: auto; width: 86%; }
 }
+
+
+.ui-windows-item { position: absolute; border-radius: 2px; box-shadow: 0 0 30px rgba(0,0,0,0.23); background-color: #FFFFFF; z-index: 80; }
+.ui-windows-title { border: 1px solid #E0E0E0; border-radius: 2px 2px 0 0; height: 32px; }
+.ui-windows-control { float: right; width: 30px; text-align: center; border-left: 1px solid #E0E0E0; line-height: 30px; cursor: pointer; font-size: 13px; }
+.ui-windows-control:hover { background-color: #F9F9F9; }
+.ui-windows-control.fa-times { color: red; }
+.ui-windows-title span { cursor: default; line-height: 31px; display: block; margin-right: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 0 0 10px; font-weight: bold; }
+.ui-windows-nomove .ui-windows-title span { cursor: default; }
+.ui-windows-title span i { margin-right: 5px; }
+.ui-windows-body { border: 1px solid #E0E0E0; border-top: 0; border-radius: 0 0 2px 2px; overflow-x: hidden; }
+.ui-windows-dragged { z-index: 100; }
+.ui-windows-dragged .ui-windows-title { background-color: #FAFAFA; }
+.ui-windows-focused { z-index: 90; }
+.ui-windows-maximized { box-shadow: none; }
+.ui-windows-maximized .ui-windows-title { border-left: 0; border-right: 0; border-radius: 0; border-top: 0 }
+.ui-windows-maximized .ui-windows-control { height: 31px; }
+.ui-windows-maximized .ui-windows-body { border: 0; }
+.ui-windows-maximized .ui-windows-title .fa-window-maximize:before { content: '\f2d2'; }
+.ui-windows-minimized .ui-windows-body { display: none; }
+.ui-windows-nominimize .ui-windows-control[data-name='minimize'] { display: none; }
+.ui-windows-nomaximize .ui-windows-control[data-name='maximize'] { display: none; }
+.ui-windows-noclose .ui-windows-control[data-name='close'] { display: none; }
+.ui-windows-nomenu .ui-windows-control[data-name='menu'] { display: none; }
+.ui-windows-noresize .ui-windows-resize { display: none; }
+.ui-windows-minimized .ui-windows-resize { display: none; }
+.ui-windows-resize { position: absolute; width: 5px; height: 5px; }
+.ui-windows-resize-tl { left: 0; top: 0; cursor: nwse-resize; }
+.ui-windows-resize-tr { right: 0; top: 0; cursor: nesw-resize; }
+.ui-windows-resize-bl { left: 0; bottom: 0; cursor: nesw-resize; }
+.ui-windows-resize-br { right: 0; bottom: 0; cursor: nwse-resize; }
+.ui-windows-block iframe, .ui-windows-block webview { pointer-events: none; }
+
+.ui-rawinput-monospace input { font-family: Menlo,Consolas,monospace; }

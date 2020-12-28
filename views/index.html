@@ -24,6 +24,7 @@
 	<div data---="console__common.showlogs__datasource:common.logs"></div>
 	<div data---="mainprogress__common.progress"></div>
 	<div data---="shortcuts"></div>
+	<div data---="windows__common.windows"></div>
 
 	<div data---="LAZY directory__null__placeholder:@(Search)"></div>
 	<div data---="LAZY fileuploader"></div>
@@ -123,7 +124,7 @@
 
 	<script>
 
-		var common = { shownotifications: +('@{PREF.notifications || 0}') > 0, unixsocket: '@{CONF.unixsocket}' === 'true' };
+		var common = { shownotifications: +('@{PREF.notifications || 0}') > 0, unixsocket: '@{CONF.unixsocket}' === 'true', windows: [], spawns: {} };
 		var user = PARSE('#userdata');
 
 		DEF.dateformat = '@(yyyy-MM-dd)';
@@ -157,6 +158,12 @@
 
 		ON('online', function(is) {
 			SETTER('loading/' + (is ? 'hide' : 'show'), is ? 1000 : 'Connecting to the server ...');
+
+			// Reset windows
+			common.windows = [];
+			common.spawns = {};
+			UPD('common.windows');
+
 		});
 
 		PLUGIN('common', function(exports) {
@@ -180,12 +187,19 @@
 					opt.items.push({ id: 'settings', name: '@(Settings)', icon: 'fas fa-cog' });
 				}
 
-				opt.items.push({ id: 'console', name: '@(Toggle console)', icon: 'fas fa-terminal' });
+				opt.items.push({ id: 'console', name: '@(Toggle console)', icon: 'far fa-file-alt' });
+
+				if (user.sa)
+					opt.items.push({ id: 'terminal', name: '@(Open terminal)', icon: 'fas fa-terminal' });
+
 				opt.items.push('-');
 				opt.items.push({ id: 'profile', name: '@(My profile)', icon: 'far fa-user-circle' });
 				opt.items.push({ id: 'logout', name: '@(Logout)', icon: 'fas fa-power-off red' });
 				opt.callback = function(item) {
 					switch (item.id) {
+						case 'terminal':
+							SETTER('websocket/send', { TYPE: 'terminal_open' });
+							break;
 						case 'alarms':
 						case 'users':
 						case 'settings':
@@ -230,6 +244,20 @@
 				SETTER('layout2/show', common.mainmenu ? 'main' : 'left');
 				common.mainmenu = !common.mainmenu;
 				EMIT('resize');
+			};
+
+			exports.sendterminal = function(val, com) {
+
+				var id = com.attrd('id');
+
+				if (val === 'clear') {
+					SET('common.spawns.' + id, []);
+					com.set('');
+					return;
+				}
+
+				SETTER('websocket/send', { TYPE: 'terminal_send', id: id, body: val });
+				com.set('');
 			};
 
 		});
@@ -277,6 +305,7 @@
 					SET('appsinfo.app' + msg.id, msg);
 					EXEC('apps/refreshstats');
 					break;
+
 				case 'refresh':
 					EXEC('apps/refresh');
 					break;
@@ -289,6 +318,43 @@
 				case 'app_stop':
 				case 'app_template':
 					makelog(msg);
+					break;
+
+				case 'terminal_close':
+					var index = common.windows.findIndex('id', msg.id);
+					if (index !== -1) {
+						common.windows.splice(index, 1);
+						UPD('common.windows');
+					}
+					break;
+
+				case 'terminal_data':
+					var val = Thelpers.encode(msg.body);
+
+					if (msg.send)
+						val = '<b>$ ' + val + '</b>';
+
+					PUSH('common.spawns.' + msg.id, val + '\n');
+					break;
+
+				case 'terminal_open':
+
+					AJAX('GET /forms/terminal.html', function(response) {
+						var obj = {};
+						obj.id = msg.id;
+						obj.cachekey = 'spawn';
+						obj.offset = { x: 600, y: 400, width: 650, height: 300, minwidth: 200, minheight: 200 };
+						obj.title = '<i class="fa fa-pulse fa-spinner red"></i> @(Terminal)';
+						obj.html = response.format(msg.id);
+						obj.actions = { minimize: true, maximize: true, move: true, resize: true, close: true, autosave: true };
+						obj.destroy = function() {
+							SETTER('websocket/send', { TYPE: 'terminal_close', id: msg.id });
+						};
+						PUSH('common.windows', obj);
+						PUSH('common.spawns.' + msg.id, '<span class="gray">Welcome to <b>Mini Terminal</b> in Total.js SuperAdmin<br />Mini Terminal does not support canceling of jobs via CTRL+C</span>\n\n');
+						SETTER('websocket/send', { TYPE: 'terminal_send', id: msg.id, body: 'pwd' });
+					});
+
 					break;
 			}
 		});

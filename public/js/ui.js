@@ -1422,25 +1422,21 @@ COMPONENT('viewbox', 'margin:0;scroll:true;delay:100;scrollbar:0;visibleY:1;heig
 	var scrollbar;
 	var cls2 = '.' + cls;
 	var init = false;
+	var cache;
 
 	self.readonly();
 
 	self.init = function() {
-		var obj;
-		if (W.OP)
-			obj = W.OP;
-		else
-			obj = $(W);
 
 		var resize = function() {
 			for (var i = 0; i < M.components.length; i++) {
 				var com = M.components[i];
 				if (com.name === 'viewbox' && com.dom.offsetParent && com.$ready && !com.$removed)
-					com.resize();
+					com.resizeforce();
 			}
 		};
 
-		obj.on('resize', function() {
+		ON('resize2', function() {
 			setTimeout2('viewboxresize', resize, 200);
 		});
 	};
@@ -1484,10 +1480,9 @@ COMPONENT('viewbox', 'margin:0;scroll:true;delay:100;scrollbar:0;visibleY:1;heig
 	};
 
 	self.make = function() {
-		if (config.invisible)
-			self.aclass('invisible');
-		config.scroll && MAIN.version > 17 && self.element.wrapInner('<div class="ui-viewbox-body"></div>');
-		self.element.prepend('<div class="ui-viewbox-disabled hidden"></div>');
+		config.invisible && self.aclass('invisible');
+		config.scroll && MAIN.version > 17 && self.element.wrapInner('<div class="' + cls + '-body"></div>');
+		self.element.prepend('<div class="' + cls + '-disabled hidden"></div>');
 		eld = self.find('> .{0}-disabled'.format(cls)).eq(0);
 		elb = self.find('> .{0}-body'.format(cls)).eq(0);
 		self.aclass('{0} {0}-hidden'.format(cls));
@@ -1513,15 +1508,32 @@ COMPONENT('viewbox', 'margin:0;scroll:true;delay:100;scrollbar:0;visibleY:1;heig
 
 	var css = {};
 
-	self.resize = function(scrolltop) {
+	self.resize = function(scrollto) {
+		setTimeout2(self.ID, self.resizeforce, 200, null, scrollto);
+	};
 
-		if (self.release())
-			return;
+	self.resizeforce = function(scrollto) {
 
 		var el = self.parent(config.parent);
 		var h = el.height();
 		var w = el.width();
 		var width = WIDTH();
+		var mywidth = self.element.width();
+
+		var key = width + 'x' + mywidth + 'x' + w + 'x' + h;
+		if (cache === key) {
+			scrollbar && scrollbar.resize();
+			if (scrollto) {
+				if (scrollto ==='bottom')
+					self.scrollbottom(0);
+				else
+					self.scrolltop(0);
+			}
+			return;
+		}
+
+		cache = key;
+
 		var margin = config.margin;
 		var responsivemargin = config['margin' + width];
 
@@ -1543,7 +1555,7 @@ COMPONENT('viewbox', 'margin:0;scroll:true;delay:100;scrollbar:0;visibleY:1;heig
 			h = config.minheight;
 
 		css.height = h;
-		css.width = self.element.width();
+		css.width = mywidth;
 		eld.css(css);
 
 		css.width = null;
@@ -1553,7 +1565,13 @@ COMPONENT('viewbox', 'margin:0;scroll:true;delay:100;scrollbar:0;visibleY:1;heig
 		var c = cls + '-hidden';
 		self.hclass(c) && self.rclass(c, 100);
 		scrollbar && scrollbar.resize();
-		scrolltop && self.scrolltop(0);
+
+		if (scrollto) {
+			if (scrollto ==='bottom')
+				self.scrollbottom(0);
+			else
+				self.scrolltop(0);
+		}
 
 		if (!init) {
 			self.rclass('invisible', 250);
@@ -1566,7 +1584,7 @@ COMPONENT('viewbox', 'margin:0;scroll:true;delay:100;scrollbar:0;visibleY:1;heig
 	};
 
 	self.setter = function() {
-		setTimeout(self.resize, config.delay, config.scrolltop);
+		setTimeout(self.resize, config.delay, config.scrollto || config.scrolltop);
 	};
 });
 
@@ -7383,4 +7401,1253 @@ COMPONENT('intro', function(self, config, cls) {
 			self.find(cls2 + '-body').tclass(cls + '-body-visible', is);
 		}, 100);
 	};
+});
+
+COMPONENT('windows', 'menuicon:fa fa-navicon;reoffsetresize:0', function(self, config, cls) {
+
+	var cls2 = '.' + cls;
+	var cache = {};
+	var services = [];
+	var events = {};
+	var drag = {};
+	var prevfocused;
+	var serviceid;
+	var data = [];
+	var lastWW = WW;
+	var lastWH = WH;
+
+	self.make = function() {
+		self.aclass(cls);
+		self.event('click', cls2 + '-control', function() {
+			var el = $(this);
+			var name = el.attrd('name');
+			var item = cache[el.closest(cls2 + '-item').attrd('id')];
+			switch (name) {
+				case 'close':
+					item.setcommand('close');
+					break;
+				case 'minimize':
+					item.setcommand('toggleminimize');
+					break;
+				case 'maximize':
+					item.setcommand('togglemaximize');
+					break;
+				case 'menu':
+					item.meta.menu && item.meta.menu.call(item, el);
+					break;
+				default:
+					item.setcommand(name);
+					break;
+			}
+		});
+
+		self.event('mousedown touchstart', cls2 + '-item', function() {
+			if (prevfocused) {
+				if (prevfocused[0] == this)
+					return;
+				prevfocused.rclass(cls + '-focused');
+			}
+			prevfocused = $(this).aclass(cls + '-focused');
+		});
+
+		self.event('mousedown touchstart', cls2 + '-title,' + cls2 + '-resize', events.down);
+		self.on('resize2', self.resize2);
+		serviceid = setInterval(events.service, 5000);
+	};
+
+	self.finditem = function(id) {
+		return cache[id];
+	};
+
+	self.send = function(type, body) {
+		for (var i = 0; i < data.length; i++)
+			data[i].meta.data(type, body, data[i].element);
+	};
+
+	self.destroy = function() {
+		clearInterval(serviceid);
+	};
+
+	self.resize2 = function() {
+		setTimeout2(self.ID, self.resize, 200);
+	};
+
+	self.recompile = function() {
+		setTimeout2(self.ID + 'compile', COMPILE, 50);
+	};
+
+	self.resizeforce = function() {
+
+		self.element.find(cls2 + '-maximized').each(function() {
+			cache[$(this).attrd('id')].setcommand('maximize');
+		});
+
+		if (config.reoffsetresize) {
+			var diffWW = lastWW - WW;
+			var diffWH = lastWH - WH;
+
+			var keys = Object.keys(cache);
+			for (var i = 0; i < keys.length; i++) {
+				var win = cache[keys[i]];
+				win.setoffset(win.x - diffWW, win.y - diffWH);
+			}
+
+			lastWW = WW;
+			lastWH = WH;
+		}
+	};
+
+	self.resize = function() {
+		setTimeout2(self.ID + 'resize', self.resizeforce, 300);
+	};
+
+	events.service = function() {
+		for (var i = 0; i < services.length; i++) {
+			var tmp = services[i];
+			if (tmp.$service)
+				tmp.$service++;
+			else
+				tmp.$service = 1;
+			tmp.meta.service && tmp.meta.service.call(tmp, tmp.$service, tmp.element);
+		}
+	};
+
+	events.down = function(e) {
+
+		var E = e;
+
+		if (e.type === 'touchstart') {
+			drag.touch = true;
+			e = e.touches[0];
+		} else
+			drag.touch = false;
+
+		if (e.target.nodeName === 'I')
+			return;
+
+		var el = $(this);
+		var parent = el.closest(cls2 + '-item');
+
+		if (parent.hclass(cls + '-maximized'))
+			return;
+
+		drag.resize = el.hclass(cls + '-resize');
+		drag.is = false;
+
+		E.preventDefault();
+
+		var myoffset = self.element.position();
+		var pos;
+
+		if (drag.resize) {
+			var c = el.attr('class');
+			drag.el = el.closest(cls2 + '-item');
+			drag.dir = c.match(/-(tl|tr|bl|br)/)[0].substring(1);
+			pos = drag.el.position();
+			var m = self.element.offset();
+			drag.body = drag.el.find(cls2 + '-body');
+			drag.plus = m;
+			drag.x = pos.left;
+			drag.y = pos.top;
+			drag.width = drag.el.width();
+			drag.height = drag.body.height();
+		} else {
+			drag.el = el.closest(cls2 + '-item');
+			pos = drag.el.position();
+			drag.x = e.pageX - pos.left;
+			drag.y = e.pageY - pos.top;
+		}
+
+		drag.el.aclass(cls + '-block');
+		drag.offX = myoffset.left;
+		drag.offY = myoffset.top;
+		drag.item = cache[drag.el.attrd('id')];
+
+		if (drag.item.meta.actions) {
+			if (drag.resize) {
+				if (drag.item.meta.actions.resize == false)
+					return;
+				drag.resize = drag.item.meta.actions.resize;
+			} else {
+				if (drag.item.meta.actions.move == false)
+					return;
+			}
+		}
+
+		drag.el.aclass(cls + '-dragged');
+		$(W).on('mousemove touchmove', events.move).on('mouseup touchend', events.up);
+	};
+
+	events.move = function(e) {
+
+		var evt = e;
+		if (drag.touch)
+			evt = e.touches[0];
+
+		var obj = {};
+		drag.is = true;
+
+		if (drag.resize) {
+
+			var x = evt.pageX - drag.offX - drag.plus.left;
+			var y = evt.pageY - drag.offY - drag.plus.top;
+			var off = drag.item.meta.offset;
+			var w;
+			var h;
+
+			switch (drag.dir) {
+
+				case 'tl':
+					obj.left = x;
+					obj.top = y;
+					w = drag.width - (x - drag.x);
+					h = drag.height - (y - drag.y);
+
+					if ((off.minwidth && w < off.minwidth) || (off.minheight && h < off.minheight) || (off.maxwidth && w > off.maxwidth) || (off.maxheight && h > off.maxheight))
+						break;
+
+					if (drag.resize === true || drag.resize === 'width') {
+						obj.width = w;
+						drag.el.css(obj);
+					}
+
+					if (drag.resize === true || drag.resize === 'height') {
+						obj.height = h;
+						delete obj.width;
+						delete obj.top;
+						drag.body.css(obj);
+					}
+					break;
+
+				case 'tr':
+					w = x - drag.x;
+					h = drag.height - (y - drag.y);
+
+					if ((off.minwidth && w < off.minwidth) || (off.minheight && h < off.minheight) || (off.maxwidth && w > off.maxwidth) || (off.maxheight && h > off.maxheight))
+						break;
+
+					if (drag.resize === true || drag.resize === 'width') {
+						obj.width = w;
+						obj.top = y;
+						drag.el.css(obj);
+					}
+
+					if (drag.resize === true || drag.resize === 'height') {
+						obj.height = h;
+						delete obj.width;
+						delete obj.top;
+						drag.body.css(obj);
+					}
+
+					break;
+
+				case 'bl':
+
+					w = drag.width - (x - drag.x);
+					h = y - drag.y - 30;
+
+					if ((off.minwidth && w < off.minwidth) || (off.minheight && h < off.minheight) || (off.maxwidth && w > off.maxwidth) || (off.maxheight && h > off.maxheight))
+						break;
+
+					if (drag.resize === true || drag.resize === 'width') {
+						obj.left = x;
+						obj.width = w;
+						drag.el.css(obj);
+						delete obj.width;
+					}
+
+					if (drag.resize === true || drag.resize === 'height') {
+						obj.height = h;
+						drag.body.css(obj);
+					}
+
+					break;
+
+				case 'br':
+					w = x - drag.x;
+					h = y - drag.y - 30;
+
+					if ((off.minwidth && w < off.minwidth) || (off.minheight && h < off.minheight) || (off.maxwidth && w > off.maxwidth) || (off.maxheight && h > off.maxheight))
+						break;
+
+					if (drag.resize === true || drag.resize === 'width') {
+						obj.width = w;
+						drag.el.css(obj);
+						delete obj.width;
+					}
+
+					if (drag.resize === true || drag.resize === 'height') {
+						obj.height = h;
+						drag.body.css(obj);
+					}
+
+					break;
+			}
+
+			drag.item.ert && clearTimeout(drag.item.ert);
+			drag.item.ert = setTimeout(drag.item.emitresize, 100);
+
+		} else {
+			obj.left = evt.pageX - drag.x - drag.offX;
+			obj.top = evt.pageY - drag.y - drag.offY;
+
+			if (obj.top < 0)
+				obj.top = 0;
+
+			drag.el.css(obj);
+		}
+
+		if (!drag.touch)
+			e.preventDefault();
+	};
+
+	events.up = function() {
+
+		drag.el.rclass(cls + '-dragged').rclass(cls + '-block');
+		$(W).off('mousemove touchmove', events.move).off('mouseup touchend', events.up);
+
+		if (!drag.is)
+			return;
+
+		var item = drag.item;
+		var meta = item.meta;
+		var pos = drag.el.position();
+
+		drag.is = false;
+		drag.x = meta.offset.x = item.x = pos.left;
+		drag.y = meta.offset.y = item.y = pos.top;
+
+		if (drag.resize) {
+			item.width = meta.offset.width = drag.el.width();
+			item.height = meta.offset.height = drag.body.height();
+			meta.resize && meta.resize.call(item, item.width, item.height, drag.body, item.x, item.y);
+			self.element.SETTER('*', 'resize');
+		}
+
+		meta.move && meta.move.call(item, item.x, item.y, drag.body);
+		self.wsave(item);
+		self.change(true);
+	};
+
+	var wsavecallback = function(item) {
+		var key = 'win_' + item.meta.cachekey;
+		var obj = {};
+		obj.x = item.x;
+		obj.y = item.y;
+		obj.width = item.width;
+		obj.height = item.height;
+		obj.ww = WW;
+		obj.wh = WH;
+		obj.hidden = item.meta.hidden;
+		PREF.set(key, obj, '1 month');
+	};
+
+	self.wsave = function(obj) {
+		if (obj.meta.actions && obj.meta.actions.autosave)
+			setTimeout2(self.ID + '_win_' + obj.meta.cachekey, wsavecallback, 500, null, obj);
+	};
+
+	self.wadd = function(item) {
+
+		var hidden = '';
+		var ishidden = false;
+
+		if (!item.cachekey)
+			item.cachekey = item.id;
+
+		if (item.cachekey)
+			item.cachekey += '' + item.offset.width + 'x' + item.offset.height;
+
+		if (item.actions && item.actions.autosave) {
+			pos = PREF['win_' + item.cachekey];
+			if (pos) {
+
+				var mx = 0;
+				var my = 0;
+
+				var keys = Object.keys(cache);
+				var plus = 0;
+
+				for (var i = 0; i < keys.length; i++) {
+					if (cache[keys[i]].meta.cachekey === item.cachekey)
+						plus += 50;
+				}
+
+				if (config.reoffsetresize && pos.ww != null && pos.wh != null) {
+					mx = pos.ww - WW;
+					my = pos.wh - WH;
+				}
+
+				item.offset.x = (pos.x - mx) + plus;
+				item.offset.y = (pos.y - my) + plus;
+				item.offset.width = pos.width;
+				item.offset.height = pos.height;
+
+				if (pos.hidden && (item.hidden == null || item.hidden)) {
+					ishidden = true;
+					item.hidden = true;
+				}
+			}
+		}
+
+		if (!ishidden)
+			ishidden = item.hidden;
+
+		hidden = ishidden ? ' hidden' : '';
+
+		var el = $('<div class="{0}-item{2}" data-id="{id}" style="left:{x}px;top:{y}px;width:{width}px"><span class="{0}-resize {0}-resize-tl"></span><span class="{0}-resize {0}-resize-tr"></span><span class="{0}-resize {0}-resize-bl"></span><span class="{0}-resize {0}-resize-br"></span><div class="{0}-title"><i class="fa fa-times {0}-control" data-name="close"></i><i class="far fa-window-maximize {0}-control" data-name="maximize"></i><i class="far fa-window-minimize {0}-control" data-name="minimize"></i><i class="{1} {0}-control {0}-lastbutton" data-name="menu"></i><span>{{ title }}</span></div><div class="{0}-body" style="height:{height}px"></div></div>'.format(cls, config.menuicon, hidden).arg(item.offset).arg(item));
+		var body = el.find(cls2 + '-body');
+		var pos;
+
+		body.append(item.html);
+
+		if (typeof(item.html) === 'string' && item.html.COMPILABLE())
+			self.recompile();
+
+		if (item.actions) {
+			if (item.actions.resize == false)
+				el.aclass(cls + '-noresize');
+			if (item.actions.move == false)
+				el.aclass(cls + '-nomove');
+
+			var noclose = item.actions.close == false;
+			if (item.actions.hide)
+				noclose = false;
+
+			if (noclose)
+				el.aclass(cls + '-noclose');
+			if (item.actions.maximize == false)
+				el.aclass(cls + '-nomaximize');
+			if (item.actions.minimize == false)
+				el.aclass(cls + '-nominimize');
+			if (!item.actions.menu)
+				el.aclass(cls + '-nomenu');
+		}
+
+		var obj = cache[item.id] = {};
+		obj.main = self;
+		obj.meta = item;
+		obj.element = body;
+		obj.container = el;
+		obj.x = item.offset.x;
+		obj.y = item.offset.y;
+		obj.width = item.offset.width;
+		obj.height = item.offset.height;
+
+		if (item.buttons) {
+			var builder = [];
+			for (var i = 0; i < item.buttons.length; i++) {
+				var btn = item.buttons[i];
+				var icon = btn.icon.indexOf(' ') === -1 ? ('fa fa-' + btn.icon) : btn.icon;
+				builder.push('<i class="fa fa-{1} {0}-control" data-name="{2}"></i>'.format(cls, icon, btn.name));
+			}
+			builder.length && el.find(cls2 + '-lastbutton').before(builder.join(''));
+		}
+
+		item.make && item.make.call(cache[item.id], body);
+
+		obj.emitresize = function() {
+			obj.ert = null;
+			obj.element.SETTER('*', 'resize');
+		};
+
+		obj.setsize = function(w, h) {
+			var t = this;
+			var obj = {};
+
+			if (w) {
+				obj.width = t.width = t.meta.offset.width = w;
+				t.element.parent().css('width', w);
+			}
+
+			if (h) {
+				t.element.css('height', h);
+				t.height = t.meta.offset.height = h;
+			}
+
+			t.ert && clearTimeout(t.ert);
+			t.ert = setTimeout(t.emitresize, 100);
+			self.wsave(t);
+		};
+
+		obj.setcommand = function(type) {
+
+			var el = obj.element.parent();
+			var c;
+
+			switch (type) {
+
+				case 'toggle':
+					obj.setcommand(obj.meta.hidden ? 'show' : 'hide');
+					break;
+
+				case 'show':
+					if (obj.meta.hidden) {
+						obj.meta.hidden = false;
+						obj.element.parent().rclass('hidden');
+						self.wsave(obj);
+						self.resize2();
+					}
+					break;
+
+				case 'close':
+				case 'hide':
+
+					if (type === 'hide' && obj.meta.hidden)
+						return;
+
+					if (obj.meta.close) {
+						obj.meta.close(function() {
+							self.wrem(obj.meta);
+							self.resize2();
+						});
+					} else {
+						self.wrem(obj.meta);
+						self.resize2();
+					}
+					break;
+
+				case 'maximize':
+					c = cls + '-maximized';
+
+					if (!el.hclass(c)) {
+						obj.prevwidth = obj.width;
+						obj.prevheight = obj.height;
+						obj.prevx = obj.x;
+						obj.prevy = obj.y;
+						el.aclass(c);
+						obj.setcommand('resetminimize');
+					}
+
+					var ww = self.element.width() || WW;
+					var wh = self.element.height() || WH;
+					obj.setoffset(0, 0);
+					obj.setsize(ww, wh - obj.element.position().top);
+					break;
+
+				case 'resetmaximize':
+					c = cls + '-maximized';
+					if (el.hclass(c)) {
+						obj.setoffset(obj.prevx, obj.prevy);
+						obj.setsize(obj.prevwidth, obj.prevheight);
+						el.rclass(c);
+					}
+					break;
+
+				case 'togglemaximize':
+					c = cls + '-maximized';
+					obj.setcommand(el.hclass(c) ? 'resetmaximize' : 'maximize');
+					break;
+
+				case 'minimize':
+					c = cls + '-minimized';
+					if (!el.hclass(c))
+						el.aclass(c);
+					break;
+
+				case 'resetminimize':
+					c = cls + '-minimized';
+					el.hclass(c) && el.rclass(c);
+					break;
+
+				case 'toggleminimize':
+					c = cls + '-minimized';
+					obj.setcommand(el.hclass(c) ? 'resetminimize' : 'minimize');
+					break;
+
+				case 'resize':
+					obj.setsize(obj.width, obj.height);
+					break;
+
+				case 'move':
+					obj.setoffset(obj.x, obj.y);
+					break;
+
+				case 'focus':
+					obj.setcommand('resetminimize');
+					prevfocused && prevfocused.rclass(cls + '-focused');
+					prevfocused = obj.element.parent().aclass(cls + '-focused');
+					break;
+				default:
+					if (obj.meta.buttons) {
+						var btn = obj.meta.buttons.findItem('name', type);
+						if (btn && btn.exec)
+							btn.exec.call(obj, obj);
+					}
+					break;
+			}
+		};
+
+		obj.setoffset = function(x, y) {
+			var t = this;
+			var obj = {};
+
+			if (x != null)
+				obj.left = t.x = t.meta.offset.x = x;
+
+			if (y != null)
+				obj.top = t.y = t.meta.offset.y = y;
+
+			t.element.parent().css(obj);
+			self.wsave(t);
+		};
+
+		obj.meta.service && services.push(obj);
+		obj.meta.data && data.push(obj);
+
+		self.append(el);
+
+		setTimeout(function(obj) {
+			obj.setcommand('focus');
+		}, 100, obj);
+		return obj;
+	};
+
+	self.wrem = function(item) {
+		var obj = cache[item.id];
+		if (obj) {
+			var main = obj.element.closest(cls2 + '-item');
+
+			if (obj.meta.actions.hide) {
+				obj.meta.hidden = true;
+				main.aclass('hidden');
+				self.wsave(obj);
+			} else {
+				obj.meta.destroy && obj.meta.destroy.call(obj);
+				main.off('*');
+				main.find('*').off('*');
+				main.remove();
+				delete cache[item.id];
+
+				var index = services.indexOf(obj);
+				if (index !== -1)
+					services.splice(index, 1);
+
+				index = data.indexOf(obj);
+				if (index !== -1)
+					data.splice(index, 1);
+
+				var arr = self.get();
+				arr.splice(arr.findIndex('id', item.id), 1);
+				self.update();
+			}
+		}
+	};
+
+	self.setter = function(value) {
+
+		if (!value)
+			value = EMPTYARRAY;
+
+		var updated = {};
+
+		for (var i = 0; i < value.length; i++) {
+			var item = value[i];
+			if (!cache[item.id])
+				cache[item.id] = self.wadd(item);
+			updated[item.id] = 1;
+		}
+
+		// Remove older windows
+		var keys = Object.keys(cache);
+		for (var i = 0; i < keys.length; i++) {
+			var key = keys[i];
+			if (!updated[key])
+				self.wrem(cache[key].meta);
+		}
+	};
+
+	self.toggle = function(id) {
+		var item = cache[id];
+		item && item.setcommand('toggle');
+	};
+
+	self.show = function(id) {
+		var item = cache[id];
+		item && item.setcommand('show');
+	};
+
+	self.focus = function(id) {
+		var item = cache[id];
+		item && item.setcommand('focus');
+	};
+
+	self.hide = function(id) {
+		var item = cache[id];
+		item && item.setcommand('hide');
+	};
+
+});
+
+COMPONENT('rawinput', 'type:text', function(self, config, cls) {
+
+	var customvalidator;
+	var input;
+
+	self.validate = function(value) {
+
+		if ((!config.required || config.disabled) && !self.forcedvalidation())
+			return true;
+
+		if (customvalidator)
+			return customvalidator(value);
+
+		if (self.type === 'date')
+			return value instanceof Date && !isNaN(value.getTime());
+
+		if (value == null)
+			value = '';
+		else
+			value = value.toString();
+
+		if (config.minlength && value.length < config.minlength)
+			return false;
+
+		switch (self.type) {
+			case 'email':
+				return value.isEmail();
+			case 'phone':
+				return value.isPhone();
+			case 'url':
+				return value.isURL();
+			case 'zip':
+				return (/^\d{5}(?:[-\s]\d{4})?$/).test(value);
+			case 'currency':
+			case 'number':
+				value = value.parseFloat();
+				if ((config.minvalue != null && value < config.minvalue) || (config.maxvalue != null && value > config.maxvalue))
+					return false;
+				return config.minvalue == null ? value > 0 : true;
+		}
+
+		return value.length > 0;
+	};
+
+	self.formatter(function(path, value) {
+		if (value) {
+			switch (config.type) {
+				case 'lower':
+					return (value + '').toLowerCase();
+				case 'upper':
+					return (value + '').toUpperCase();
+				case 'phone':
+					return (value + '').replace(/\s/g, '');
+				case 'email':
+					return (value + '').toLowerCase();
+				case 'date':
+					return value.format(config.format || 'yyyy-MM-dd');
+				case 'time':
+					return value.format(config.format || 'HH:mm');
+				case 'number':
+					return config.format ? value.format(config.format) : value;
+			}
+		}
+
+		return value;
+	});
+
+	self.parser(function(path, value) {
+		if (value) {
+			var tmp;
+			switch (config.type) {
+				case 'date':
+					tmp = self.get();
+					if (tmp)
+						tmp = tmp.format('HH:mm');
+					else
+						tmp = '';
+					return value + (tmp ? (' ' + tmp) : '');
+				case 'lower':
+				case 'email':
+					value = value.toLowerCase();
+					break;
+				case 'upper':
+					value = value.toUpperCase();
+					break;
+				case 'phone':
+					value = value.replace(/\s/g, '');
+					break;
+				case 'time':
+					tmp = value.split(':');
+					var dt = self.get();
+					if (dt == null)
+						dt = new Date();
+					dt.setHours(+(tmp[0] || '0'));
+					dt.setMinutes(+(tmp[1] || '0'));
+					dt.setSeconds(+(tmp[2] || '0'));
+					value = dt;
+					break;
+			}
+		}
+		return value ? config.spaces === false ? value.replace(/\s/g, '') : value : value;
+	});
+
+	self.make = function() {
+		self.aclass(cls);
+		var attr = [];
+		config.type && attr.attr('type', config.type === 'password' ? 'password' : 'text');
+		config.maxlength && attr.attr('maxlength', config.maxlength);
+		config.placeholder && attr.attr('placeholder', config.placeholder);
+		config.autofocus && attr.push('autofocus');
+
+		if (config.autofill) {
+			attr.attr('autocomplete', 'on');
+			attr.attr('name', self.path);
+		} else {
+			attr.attr('name', Date.now() + '');
+			attr.attr('autocomplete', 'new-password');
+		}
+
+		self.append('<input data-jc-bind="" {0} />'.format(attr.join(' ')));
+
+		var $input = self.find('input');
+		input = $input[0];
+
+		config.enter && $input.on('keydown', function(e) {
+			if (e.which === 13)
+				self.SEEX(config.enter, input.value, self);
+		});
+
+		$input.on('focus', function() {
+
+			var el = $(this);
+
+			if (config.disabled) {
+				el.blur();
+				return;
+			}
+
+			self.aclass(cls + '-focused');
+			config.autocomplete && self.EXEC(config.autocomplete, self, el.parent());
+
+			if (config.autosource) {
+				var opt = {};
+				opt.element = self.element;
+				opt.search = GET(self.makepath(config.autosource));
+				opt.callback = function(value) {
+					var val = typeof(value) === 'string' ? value : value[config.autovalue];
+					if (config.autoexec) {
+						self.EXEC(config.autoexec, value, function(val) {
+							self.set(val, 2);
+							self.change();
+							self.bindvalue();
+						});
+					} else {
+						self.set(val, 2);
+						self.change();
+						self.bindvalue();
+					}
+				};
+				SETTER('autocomplete/show', opt);
+			}
+		}).on('blur', function() {
+			self.rclass(cls + '-focused');
+		});
+
+	};
+
+	self.configure = function(key, value) {
+		switch (key) {
+			case 'disabled':
+				self.tclass('ui-disabled', !!value);
+				input.prop('readonly', !!value);
+				self.reset();
+				break;
+			case 'readonly':
+				input.prop('readonly', !!value);
+				self.reset();
+				break;
+			case 'required':
+				self.tclass(cls + '-required', !!value);
+				self.reset();
+				break;
+			case 'type':
+				self.type = value;
+				break;
+			case 'validate':
+				customvalidator = value ? (/\(|=|>|<|\+|-|\)/).test(value) ? FN('value=>' + value) : (function(path) { path = self.makepath(path); return function(value) { return GET(path)(value); }; })(value) : null;
+				break;
+			case 'monospace':
+				self.tclass(cls + '-monospace', !!value);
+				break;
+		}
+	};
+
+	self.preparevalue = function(value) {
+
+		if (self.type === 'number' && (config.minvalue != null || config.maxvalue != null)) {
+			var tmp = typeof(value) === 'string' ? +value.replace(',', '.') : value;
+			if (config.minvalue > tmp)
+				value = config.minvalue;
+			if (config.maxvalue < tmp)
+				value = config.maxvalue;
+		}
+
+		return value;
+	};
+
+	self.getterin = self.getter;
+	self.getter = function(value, realtime, nobind) {
+		self.getterin(self.preparevalue(value), realtime, nobind);
+	};
+
+	self.setter = function(value) {
+		input.value = value == null ? '' : (value + '');
+	};
+
+	self.state = function(type) {
+		if (type) {
+			var invalid = config.required ? self.isInvalid() : self.forcedvalidation() ? self.isInvalid() : false;
+			if (invalid === self.$oldstate)
+				return;
+			self.$oldstate = invalid;
+			self.tclass(cls + '-invalid', invalid);
+		}
+	};
+
+	self.forcedvalidation = function() {
+
+		if (!config.forcevalidation)
+			return false;
+
+		if (self.type === 'number')
+			return false;
+
+		var val = self.get();
+		return (self.type === 'phone' || self.type === 'email') && (val != null && (typeof(val) === 'string' && val.length !== 0));
+	};
+
+});
+
+COMPONENT('raweditable', 'formatting:false', function(self, config, cls) {
+
+	var customvalidator;
+	var skip = false;
+	var filled = false;
+	var focused = false;
+
+	self.validate = function(value) {
+
+		if ((!config.required || config.disabled) && !self.forcedvalidation())
+			return true;
+
+		if (customvalidator)
+			return customvalidator(value);
+
+		if (self.type === 'date')
+			return value instanceof Date && !isNaN(value.getTime());
+
+		if (value == null)
+			value = '';
+		else
+			value = value.toString();
+
+		if (config.minlength && value.length < config.minlength)
+			return false;
+
+		switch (self.type) {
+			case 'email':
+				return value.isEmail();
+			case 'phone':
+				return value.isPhone();
+			case 'url':
+				return value.isURL();
+			case 'zip':
+				return (/^\d{5}(?:[-\s]\d{4})?$/).test(value);
+			case 'currency':
+			case 'number':
+				value = value.parseFloat();
+				if ((config.minvalue != null && value < config.minvalue) || (config.maxvalue != null && value > config.maxvalue))
+					return false;
+				return config.minvalue == null ? value > 0 : true;
+		}
+
+		return value.length > 0;
+	};
+
+	self.formatter(function(path, value) {
+		if (value) {
+			switch (config.type) {
+				case 'lower':
+					return (value + '').toLowerCase();
+				case 'upper':
+					return (value + '').toUpperCase();
+				case 'phone':
+					return (value + '').replace(/\s/g, '');
+				case 'email':
+					return (value + '').toLowerCase();
+				case 'date':
+					return value.format(config.format || 'yyyy-MM-dd');
+				case 'time':
+					return value.format(config.format || 'HH:mm');
+				case 'number':
+					return config.format ? value.format(config.format) : value;
+			}
+		}
+
+		return value;
+	});
+
+	self.readvalue = function() {
+		return config.formatting ? self.dom.innerHTML : self.dom.innerHTML.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
+	};
+
+	self.onchange = function() {
+		self.set(self.readvalue(), 1);
+		self.change(true);
+	};
+
+	self.parser(function(path, value) {
+		if (value) {
+			var tmp;
+			switch (config.type) {
+				case 'date':
+					tmp = self.get();
+					if (tmp)
+						tmp = tmp.format('HH:mm');
+					else
+						tmp = '';
+					return value + (tmp ? (' ' + tmp) : '');
+				case 'lower':
+				case 'email':
+					value = value.toLowerCase();
+					break;
+				case 'upper':
+					value = value.toUpperCase();
+					break;
+				case 'phone':
+					value = value.replace(/\s/g, '');
+					break;
+				case 'time':
+					tmp = value.split(':');
+					var dt = self.get();
+					if (dt == null)
+						dt = new Date();
+					dt.setHours(+(tmp[0] || '0'));
+					dt.setMinutes(+(tmp[1] || '0'));
+					dt.setSeconds(+(tmp[2] || '0'));
+					value = dt;
+					break;
+			}
+		}
+		return value ? config.spaces === false ? value.replace(/\s/g, '') : value : value;
+	});
+
+	var isplaceholder = false;
+
+	self.placeholder = function(show) {
+		if (config.placeholder) {
+			if (show) {
+				if (filled) {
+					if (isplaceholder) {
+						isplaceholder = false;
+						self.rclass(cls + '-placeholder');
+					}
+				} else {
+					if (!isplaceholder) {
+						self.aclass(cls + '-placeholder');
+						self.html(config.placeholder);
+						isplaceholder = true;
+					}
+				}
+			} else {
+				if (isplaceholder) {
+					isplaceholder = false;
+					self.rclass(cls + '-placeholder');
+					self.html('');
+				}
+			}
+		}
+	};
+
+	self.make = function() {
+
+		self.aclass(cls);
+		self.attr('contenteditable', true);
+
+		var $input = self.element;
+		var blacklist = { b: 1, i: 1, u: 1 };
+		var is = false;
+
+		$input.on('keydown', function(e) {
+
+			// rebind
+			skip = true;
+			self.getter(self.readvalue(), true);
+
+			if (config.maxlength && e.which > 16 && !e.metaKey && self.element.text().length >= config.maxlength) {
+				e.preventDefault();
+				return;
+			}
+
+			if (!config.formatting && e.metaKey && blacklist[e.key])
+				e.preventDefault();
+
+			if (e.which === 13) {
+				self.onchange();
+				config.enter && self.SEEX(config.enter, self.get(), self);
+				$input.blur();
+				e.preventDefault();
+				return;
+			}
+
+			is = true;
+
+		}).on('focus', function() {
+
+			var el = $(this);
+
+			self.placeholder(false);
+
+			if (config.disabled) {
+				el.blur();
+				return;
+			}
+
+			focused = true;
+			self.aclass(cls + '-focused');
+			config.autocomplete && self.EXEC(config.autocomplete, self, el.parent());
+
+			if (config.autosource) {
+				var opt = {};
+				opt.element = self.element;
+				opt.search = GET(self.makepath(config.autosource));
+				opt.callback = function(value) {
+					var val = typeof(value) === 'string' ? value : value[config.autovalue];
+					if (config.autoexec) {
+						self.EXEC(config.autoexec, value, function(val) {
+							self.set(val, 2);
+							self.change();
+							self.bindvalue();
+						});
+					} else {
+						self.set(val, 2);
+						self.change();
+						self.bindvalue();
+					}
+				};
+				SETTER('autocomplete/show', opt);
+			}
+		}).on('blur', function() {
+			focused = false;
+
+			if (is) {
+				skip = false;
+				self.onchange();
+			} else
+				setTimeout(self.placeholder, 10, true);
+
+			self.rclass(cls + '-focused');
+		}).on('paste', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var text = (e.originalEvent.clipboardData.getData(self.attrd('clipboard') || 'text/plain') || '').replace(/\n|\r/g, '').trim();
+			text && document.execCommand('insertText', false, text);
+		});
+
+	};
+
+	self.configure = function(key, value) {
+		switch (key) {
+			case 'disabled':
+				self.tclass('ui-disabled', !!value);
+				self.element.prop('contenteditable', !!value);
+				self.reset();
+				break;
+			case 'readonly':
+				self.element.prop('contenteditable', !!value);
+				self.reset();
+				break;
+			case 'required':
+				self.tclass(cls + '-required', !!value);
+				self.reset();
+				break;
+			case 'type':
+				self.type = value;
+				break;
+			case 'validate':
+				customvalidator = value ? (/\(|=|>|<|\+|-|\)/).test(value) ? FN('value=>' + value) : (function(path) { path = self.makepath(path); return function(value) { return GET(path)(value); }; })(value) : null;
+				break;
+			case 'monospace':
+				self.tclass(cls + '-monospace', !!value);
+				break;
+		}
+	};
+
+	self.preparevalue = function(value) {
+
+		if (self.type === 'number' && (config.minvalue != null || config.maxvalue != null)) {
+			var tmp = typeof(value) === 'string' ? +value.replace(',', '.') : value;
+			if (config.minvalue > tmp)
+				value = config.minvalue;
+			if (config.maxvalue < tmp)
+				value = config.maxvalue;
+		}
+
+		return value;
+	};
+
+	self.getterin = self.getter;
+	self.getter = function(value, realtime, nobind) {
+		filled = !!value;
+		self.getterin(self.preparevalue(value), realtime, nobind);
+	};
+
+	self.setter = function(value) {
+
+		if (skip) {
+			skip = false;
+			return;
+		}
+
+		if (value == null)
+			value = '';
+
+		value = value + '';
+		filled = !!value;
+
+		self.html(config.formatting ? value : value.replace(/\s/g, '&nbsp;'));
+
+		if (!focused)
+			self.placeholder(true);
+	};
+
+	self.state = function(type) {
+		if (type) {
+			var invalid = config.required ? self.isInvalid() : self.forcedvalidation() ? self.isInvalid() : false;
+			if (invalid === self.$oldstate)
+				return;
+			self.$oldstate = invalid;
+			self.tclass(cls + '-invalid', invalid);
+		}
+	};
+
+	self.forcedvalidation = function() {
+
+		if (!config.forcevalidation)
+			return false;
+
+		if (self.type === 'number')
+			return false;
+
+		var val = self.get();
+		return (self.type === 'phone' || self.type === 'email') && (val != null && (typeof(val) === 'string' && val.length !== 0));
+	};
+
+});
+
+COMPONENT('ready', 'delay:800', function(self, config) {
+
+	self.readonly();
+	self.blind();
+
+	self.make = function() {
+		config.rclass && self.rclass(config.rclass, config.delay);
+		config.aclass && self.aclass(config.aclass, config.delay);
+
+		config.focus && setTimeout(function() {
+			self.find(config.focus).focus();
+		}, config.delay + 1);
+	};
+
 });

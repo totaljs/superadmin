@@ -1,4 +1,5 @@
 const Path = require('path');
+const Spawn = require('child_process').spawn;
 const Exec = require('child_process').exec;
 
 exports.install = function() {
@@ -58,6 +59,8 @@ function socket() {
 		if (SuperAdmin.server)
 			client.send(SuperAdmin.server);
 
+		client.terminals = {};
+
 		var output = {};
 
 		output.TYPE = 'appsinfo';
@@ -73,6 +76,72 @@ function socket() {
 		}
 
 		client.send(output);
+	});
+
+	self.on('close', function(client) {
+		var keys = Object.keys(client.terminals);
+		for (var i = 0; i < keys.length; i++)
+			client.terminals[keys[i]].kill(9);
+	});
+
+	self.on('message', function(client, msg) {
+
+		var child;
+
+		if (client.user.sa) {
+
+			if (msg.TYPE === 'terminal_open') {
+
+				var id = 'spawn' + UID();
+
+				child = Spawn('bash', [], { cwd: '/www/' });
+				client.send({ TYPE: 'terminal_open', id: id });
+				client.terminals[id] = child;
+
+				child.stderr.on('data', function(chunk) {
+					var msg = {};
+					msg.TYPE = 'terminal_data';
+					msg.iserror = true;
+					msg.id = id;
+					msg.body = chunk.toString('utf8').trim();
+					client.send(msg);
+				});
+
+				child.stdout.on('data', function(chunk) {
+					var msg = {};
+					msg.TYPE = 'terminal_data';
+					msg.id = id;
+					msg.body = chunk.toString('utf8').trim();
+					client.send(msg);
+				});
+
+				child.on('close', function() {
+					delete client.terminals[id];
+					client.send({ TYPE: 'terminal_close', id: id });
+				});
+
+			} else if (msg.TYPE === 'terminal_send') {
+
+				child = client.terminals[msg.id];
+
+				if (child) {
+					client.send({ TYPE: 'terminal_data', id: msg.id, body: msg.body, send: true });
+					child.stdin.write(msg.body + '\n');
+				}
+
+			} else if (msg.TYPE === 'terminal_close') {
+				if (msg.id) {
+					child = client.terminals[msg.id];
+					if (child) {
+						child.kill(9);
+						delete client.terminals[msg.id];
+					}
+				}
+			} else if (msg.TYPE === 'terminal_cancel') {
+				child = client.terminals[msg.id];
+				child && child.kill(0);
+			}
+		}
 	});
 
 }

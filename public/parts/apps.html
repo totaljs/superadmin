@@ -421,10 +421,19 @@
 
 			opt.items.push({ name: '@(Stop applications)', icon: 'far fa-stop-circle red', id: 'stop' });
 			opt.items.push({ name: '@(Fix permissions)', icon: 'fa fa-wrench', id: 'fixpermissions' });
-
 			opt.items.push({ name: '@(Update Total.js from NPM)', icon: 'fab fa-node-js', id: 'updatetotal' });
 
+			if (user.sa) {
+				opt.items.push('-');
+				opt.items.push({ name: '@(Open terminal)', icon: 'fas fa-terminal', classname: 'b', id: 'terminal' });
+			}
+
 			opt.callback = function(item) {
+
+				if (item.id === 'terminal') {
+					SETTER('websocket/send', { TYPE: 'terminal_open' });
+					return;
+				}
 
 				if (item.id === 'restart') {
 					SETTER('approve/show', '@(Are you sure you want to restart all applications?)', '"far fa-play-circle" @(Restart)', function() {
