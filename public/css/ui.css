@@ -537,7 +537,6 @@ i.ui-intro-button { margin: 14px 3px 0; cursor: pointer; color: silver; font-siz
 	.ui-intro-body { max-width: auto; width: 86%; }
 }
 
-
 .ui-windows-item { position: absolute; border-radius: 2px; box-shadow: 0 0 30px rgba(0,0,0,0.23); background-color: #FFFFFF; z-index: 80; }
 .ui-windows-title { border: 1px solid #E0E0E0; border-radius: 2px 2px 0 0; height: 32px; }
 .ui-windows-control { float: right; width: 30px; text-align: center; border-left: 1px solid #E0E0E0; line-height: 30px; cursor: pointer; font-size: 13px; }
@@ -569,4 +568,4 @@ i.ui-intro-button { margin: 14px 3px 0; cursor: pointer; color: silver; font-siz
 .ui-windows-resize-br { right: 0; bottom: 0; cursor: nwse-resize; }
 .ui-windows-block iframe, .ui-windows-block webview { pointer-events: none; }
 
-.ui-rawinput-monospace input { font-family: Menlo,Consolas,monospace; }
+.ui-rawinput-monospace input { font-family: Menlo, Consolas, monospace; }
