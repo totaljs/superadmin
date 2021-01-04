@@ -3,7 +3,7 @@ echo "==================================================="
 echo -e "\e[41mSuperAdmin Installation\e[0m"
 echo "==================================================="
 echo ""
-echo -e "\e[90mInstallation assumes a clean installation of Debian/Ubuntu Server +16\e[0m"
+echo -e "\e[90mInstallation assumes a clean installation of Ubuntu Server +16\e[0m"
 echo ""
 echo -e "\e[100m-->\e[0m Installation prompts are for creating URL for SuperAdmin."
 echo -e "\e[100m-->\e[0m A domain for SuperAdmin has to be mapped to this server when you want to use SSL."
@@ -19,7 +19,7 @@ fi
 echo ""
 read -p $'Do you wish to permit this? \e[104m(y/n)\e[0m : ' userConsent
 
-if [ "$userConsent" == "y" ]; then
+if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 
 	read -p $'Do you want to provide SuperAdmin via HTTPS? \e[104m(y/n)\e[0m : ' httpsEn
 	echo ""
@@ -64,7 +64,6 @@ if [ "$userConsent" == "y" ]; then
 	apt-get install -y lsof
 	apt-get install -y socat
 	apt-get install -y sysstat
-	apt-get install -y procps
 	curl https://get.acme.sh | sh
 	mkdir /www/
 	mkdir /www/logs/
@@ -93,7 +92,6 @@ if [ "$userConsent" == "y" ]; then
 
 	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf
-	cp /www/superadmin/ffdhe2048.pem /etc/nginx/ffdhe2048.pem
 	cp /www/superadmin/superadmin.conf /www/nginx/
 
 	repexp=s/#domain#/$domain/g
@@ -108,7 +106,7 @@ if [ "$userConsent" == "y" ]; then
 
 	if [ "$httpsEn" == "y" ]; then
 
-		echo "Generating of SSL ..."
+		echo "Generating SSL ..."
 
 		sed -i -e $repexp /www/nginx/superadmin.conf
 		sed -i -e $httpenexp /www/nginx/superadmin.conf

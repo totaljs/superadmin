@@ -19,7 +19,7 @@ fi
 echo ""
 read -p $'Do you wish to permit this? \e[104m(y/n)\e[0m : ' userConsent
 
-if [ "$userConsent" == "y" ]; then
+if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 
 	read -p $'Do you want to provide SuperAdmin via HTTPS? \e[104m(y/n)\e[0m : ' httpsEn
 	echo ""
@@ -52,29 +52,23 @@ if [ "$userConsent" == "y" ]; then
 	#Prerequisits
 	apk --no-cache update
 	apk --no-cache add bash ca-certificates coreutils curl git graphicsmagick lftp nginx nodejs nodejs-npm openssl shadow socat sudo tar tzdata unzip zip
-	ln -s /usr/bin/lftp /usr/bin/ftp
+  ln -s /usr/bin/lftp /usr/bin/ftp
 
 	curl https://get.acme.sh | sh
 
-	mkdir /www
-	cd /www
-	mkdir logs nginx acme ssl www superadmin node_modules
+  mkdir /www
+  cd /www
+  mkdir logs nginx acme ssl www superadmin node_modules
 
-	npm install total4
-	npm install -g total4
 	npm install total.js
 	npm install -g total.js
-	npm install dbms
 
 	# Total.js downloads package and unpack
 	cd /www/superadmin/
-	wget "https://raw.githubusercontent.com/totaljs/superadmin_templates/main/superadmin.zip"
-	unzip superadmin.zip
-	rm superadmin.zip
+	tpm install "https://cdn.totaljs.com/superadmin.package?ts=$(date +%s)"
 
 	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf
-	cp /www/superadmin/ffdhe2048.pem /etc/nginx/ffdhe2048.pem
 	cp /www/superadmin/superadmin.conf /www/nginx/
 
 	repexp=s/#domain#/$domain/g
@@ -89,13 +83,13 @@ if [ "$userConsent" == "y" ]; then
 
 	if [ "$httpsEn" == "y" ]; then
 
-		echo "Generating of SSL ..."
+		echo "Generating SSL ..."
 
 		sed -i -e $repexp /www/nginx/superadmin.conf
 		sed -i -e $httpenexp /www/nginx/superadmin.conf
 		nginx -s reload
 
-		# Generates SSL
+		# Generates SSL
 		bash /www/superadmin/ssl.sh $domain
 
 		# Copies NGINX configuration file again

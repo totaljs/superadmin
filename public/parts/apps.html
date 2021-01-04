@@ -232,11 +232,18 @@
 			opt.align = 'right';
 			opt.offsetY = -5;
 
+			if (app.version === 'total4')
+				opt.items.push({ name: '@(Open app builder)', icon: 'fas fa-code-branch blue', id: 'builder', classname: 'b' });
+
 			if (!isMOBILE) {
-				opt.items.push({ name: '@(Open File Browser)', icon: 'folder', id: 'filebrowser', classname: 'b' });
-				opt.items.push('-');
+				opt.items.push({ name: '@(File browser)', icon: 'folder', id: 'filebrowser' });
+				if (app.version !== 'total4')
+					opt.items.push('-');
 			} else
 				opt.large = true;
+
+			if (app.version === 'total4')
+				opt.items.push('-');
 
 			opt.items.push({ name: '@(Settings)', icon: 'cog', id: 'edit', classname: 'b' });
 			opt.items.push({ name: '@(Restart)', icon: 'refresh', id: 'restart' });
@@ -251,6 +258,15 @@
 
 				if (item.id === 'stop') {
 					DAPI('apps_stop/' + id + ' @showloading', ASETTER('notifybar/response @hideloading', '@(Application <b>"{0}"</b> has been stopped sucessfully.)'.format(app.url)));
+					return;
+				}
+
+				if (item.id === 'builder') {
+					DAPI('build_read/' + id + ' @showloading', function(response) {
+						SETTER('builder/load @hideloading', response ? STRINGIFY(response, true) : '', function(response) {
+							DAPI('build_save/' + id + ' @showloading', response, ASETTER('notifybar/response @hideloading', '@(Application <b>"{0}"</b> has been updated sucessfully.)'.format(app.url)));
+						});
+					});
 					return;
 				}
 

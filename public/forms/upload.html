@@ -1,6 +1,15 @@
 <div data---="form__common.form__if:upload;width:700;title:@(Upload source-code);reload:?/reload;submit:?/submit;icon:cloud-upload" class="invisible hidden" data-scope="uploadform">
 
 	<div class="padding">
+
+		<div data-bind="?.app.version__show:value==='total4'" class="m">
+			<ul class="togglebuttons">
+				<li class="exec" data-exec="?/builder">
+					<i class="fa fa-laptop-code"></i>@(Open <b>Total.js Builder</b>)
+				</li>
+			</ul>
+		</div>
+
 		<div data---="input__?.template__dirsource:%templates;dirvalue:url;required:1;dirsearch:@(Search);placeholder:@(Choose a source)__''">@(Source-code)</div>
 		<div class="alert mt10 hidden" data-bind="?.template__show:value=='upload'"><b>@(IMPORTANT):</b> @(ZIP (max. 10 MB) file will be extracted as it is in the root of application directory.)</div>
 		<br />
@@ -23,7 +32,8 @@
 	PLUGIN('uploadform', function(exports) {
 
 		exports.reload = function(com) {
-			com.reconfigure({ title: GET('?.app.url') });
+			var app = GET('?.app');
+			com.reconfigure({ title: app.url });
 			SET('?.template @reset', '');
 			DAPI('templates <5 minutes>', function(response) {
 				response = response.slice(0);
@@ -34,6 +44,16 @@
 		};
 
 		exports.refresh = function() {
+		};
+
+		exports.builder = function() {
+			NULL('common.form');
+			var model = GET('?');
+			DAPI('build_read/' + model.app.id + ' @showloading', function(response) {
+				SETTER('builder/load @hideloading', response ? STRINGIFY(response, true) : '', function(response) {
+					DAPI('build_save/' + model.app.id + ' @showloading', response, ASETTER('notifybar/response @hideloading', '@(Application <b>"{0}"</b> has been updated sucessfully.)'.format(app.url)));
+				});
+			});
 		};
 
 		exports.submit = function(hide) {

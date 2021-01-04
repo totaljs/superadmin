@@ -39,6 +39,9 @@ exports.install = function() {
 	ROUTE('+GET    /backup/                               *Operations      --> backup', [1200000]);
 	ROUTE('GET     /logs/{id}/                            *Apps            --> logs');
 
+	ROUTE('+API    /apiv1/        -build_read/id          *Apps/Build      --> read');
+	ROUTE('+API    /apiv1/        +build_save/id          *Apps/Build      --> save', 1024 * 10);
+
 	// Custom defined actions
 	ROUTE('+GET    /download/{id}/',    download, [120000]);
 	ROUTE('+POST   /api/upload/',       upload, ['upload', 120000], 1024 * 100); // Max. 100 MB
