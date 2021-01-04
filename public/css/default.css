@@ -306,7 +306,7 @@ hr { border-color: #E0E0E0; }
 .togglebuttons { list-style: none; display: inline-block; margin: 0; padding: 0; border-radius: 2px; border: 1px solid #e0e0e0; font-size: 12px; }
 .togglebuttons.small { font-size: 11px; }
 .togglebuttons.small li { line-height: 24px; padding: 0 5px; }
-.togglebuttons li { min-width: 90px; text-align: center; cursor: pointer; float: left; border-right: 1px solid #e0e0e0; line-height: 38px; background-color: white; padding: 0 10px; }
+.togglebuttons li { min-width: 90px; text-align: center; cursor: pointer; float: left; border-right: 1px solid #e0e0e0; line-height: 38px; background-color: white; padding: 0 15px; }
 .togglebuttons li:first-child { border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
 .togglebuttons li:last-child { border-right: 0; border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
 .togglebuttons li:hover { background-color: #fffad7; }
