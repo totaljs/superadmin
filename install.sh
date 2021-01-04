@@ -91,6 +91,7 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 	rm superadmin.zip
 
 	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
+	cp /www/superadmin/ffdhe2048.pem /etc/nginx/ffdhe2048.pem
 	cp /www/superadmin/nginx.conf /etc/nginx/nginx.conf
 	cp /www/superadmin/superadmin.conf /www/nginx/
 
