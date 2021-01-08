@@ -256,6 +256,11 @@
 
 			opt.callback = function(item) {
 
+				if (item.id === 'restart') {
+					DAPI('apps_restart/{0} @showloading'.format(id), ASETTER('notifybar/success @hideloading', '@(Application "<b>{0}</b>" has been restarted successfully)'.format(app.url)));
+					return;
+				}
+
 				if (item.id === 'stop') {
 					DAPI('apps_stop/' + id + ' @showloading', ASETTER('notifybar/response @hideloading', '@(Application <b>"{0}"</b> has been stopped sucessfully.)'.format(app.url)));
 					return;
