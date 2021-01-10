@@ -1,7 +1,7 @@
 <div data---="largeform___common.form__if:app;width:900;icon:fas fa-box;submit:?/submit;reload:?/reload;autofocus:1" class="hidden" data-scope="appform">
 	<div>
 		<div data-bind="appform.id___hide" class="hidden">
-			<div class="alert"><i class="fa fa-warning"></i>@(<b>Uploading of source-code</b> is possible after creation process.)</div>
+			<div class="alert"><i class="fa fa-warning"></i>@(<b>Uploading of source-code</b> is possible after the creation process.)</div>
 		</div>
 		<div class="padding">
 			<div data---="input__?.url__placeholder:https\://www.totaljs.com;required:true;type:url__'https://'">@(URL address)</div>
@@ -22,7 +22,7 @@
 			<div class="bg-smoke m">
 				<div class="padding">
 					<div><span class="badge badge-green b mr5"><i class="fa fa-lock"></i>@(Security)</span><b>@(SSL configuration)</b></div>
-					<div class="help m"><b>@(Good to know:)</b> @(SSL certificates are generated automatically via Let's Encrypt service. DNS records must be redirected on IP address of this server.)</div>
+					<div class="help m"><b>@(Good to know:)</b> @(SSL certificates are generated automatically via Let's Encrypt service. You must redirect DNS records to the IP address of this server.)</div>
 					<div data--="checkbox__?.sslcustom">@(Add own SSL certificates)</div>
 					<div data-bind="?.sslcustom__show" class="hidden">
 						<br />
@@ -87,17 +87,17 @@
 			<div class="clearfix m">&nbsp;</div>
 			<div data-bind="?.version__show:!value" class="hidden">
 				<div data---="input__?.startscript__icon:hourglass-start;maxlength:50;placeholder:index.js">@(Custom start script)</div>
-				<div class="help m">@(We don't recommend to use a custom start script. First argument is <code>port number</code> and second <code>--mode</code> (release or debug))</div>
+				<div class="help m">@(We don't recommend using a custom start script. The irst argument is <code>port number</code> and second <code>--mode</code> (release or debug))</div>
 			</div>
 			<div data-bind="?.version__show:value==='total4'" class="hidden">
 				<div data-bind="common.unixsocket__show" class="hidden">
 					<hr />
-					<div class="help">@(SuperAdmin will use <b>Unix socket</b> instead of classic network roting, it's faster and more secure.)</div>
+					<div class="help">@(SuperAdmin will use <b>Unix socket</b> instead of classic network routing. It's faster and more secure.)</div>
 					<div data--="checkbox__?.unixsocket" class="black mt5 b">@(Use Unix socket)</div>
 				</div>
 				<hr />
 				<div data---="input__?.threads__dirsource:%threads;dircustom:1;dirplaceholder:@(Type a relative /endpoint/ or just enable threads)__''">@(Total.js threads)</div>
-				<div class="help"><b>@(IMPORTANT)</b>: @(If you enable threads then we recommend to set <b>Cluster</b> to <code>Auto-scaling</code> mode.)</div>
+				<div class="help"><b>@(IMPORTANT)</b>: @(If you enable threads, then we recommend setting <b>Cluster</b> to <code>Auto-scaling</code> mode.)</div>
 			</div>
 		</div>
 		<hr />
