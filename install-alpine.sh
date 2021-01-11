@@ -52,20 +52,26 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 	#Prerequisits
 	apk --no-cache update
 	apk --no-cache add bash ca-certificates coreutils curl git graphicsmagick lftp nginx nodejs nodejs-npm openssl shadow socat sudo tar tzdata unzip zip
-  ln -s /usr/bin/lftp /usr/bin/ftp
+	ln -s /usr/bin/lftp /usr/bin/ftp
 
 	curl https://get.acme.sh | sh
 
-  mkdir /www
-  cd /www
-  mkdir logs nginx acme ssl www superadmin node_modules
+	mkdir /www
+	cd /www
+	mkdir logs nginx acme ssl www superadmin node_modules
 
+	npm install total4
+	npm install -g total4
 	npm install total.js
 	npm install -g total.js
+	npm install dbms
+	npm install pg
 
 	# Total.js downloads package and unpack
 	cd /www/superadmin/
-	tpm install "https://cdn.totaljs.com/superadmin.package?ts=$(date +%s)"
+	wget "https://raw.githubusercontent.com/totaljs/superadmin_templates/main/superadmin.zip"
+	unzip superadmin.zip
+	rm superadmin.zip
 
 	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	cp /www/superadmin/ffdhe2048.pem /etc/nginx/ffdhe2048.pem

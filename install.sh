@@ -80,6 +80,7 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 	npm install total.js
 	npm install -g total.js
 	npm install dbms
+	npm install pg
 
 	# Configuration
 	cd
