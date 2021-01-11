@@ -572,7 +572,7 @@ SuperAdmin.run = function(port, callback) {
 
 	// Because of backuping logs
 	setTimeout(function() {
-		PATH.unlink([log], function() {
+		PATH.unlink([log, Path.join(CONF.directory_www, app.linker, 'superadmin.socket')], function() {
 			fn(function() {
 
 				filename = Path.join(CONF.directory_www, linker, app.startscript || filename);
