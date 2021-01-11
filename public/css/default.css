@@ -154,15 +154,15 @@ hr { border-color: #E0E0E0; }
 .apps .item:hover { background-color: #F0F0F0; }
 .apps .ui-search-used .item:first-child { border-top: 1px solid #E0E0E0; }
 .apps hr { margin-bottom: 30px; }
-.apps .item .url { margin-right: 550px; line-height: 28px; }
+.apps .item .url { margin-right: 560px; line-height: 28px; }
 .apps .item .url a { color: #555; }
 .apps .item .url em { font-size: 11px; color: #A0A0A0; float: right; width: 40px; text-align: right; }
 .apps .item .ssl { float: left; margin: 6px 5px 0 0; }
 .apps .item .controls { float: right; width: 80px; border-left: 1px solid #E0E0E0; height: 28px; }
-.apps .item .stats { float: right; width: 350px; height: 28px; font-size: 11px; border-left: 1px solid #E0E0E0; }
+.apps .item .stats { float: right; width: 360px; height: 28px; font-size: 11px; border-left: 1px solid #E0E0E0; }
 .apps .item .stats .info { float: left; width: 90px; text-align: right; line-height: 28px; border-left: 1px solid #E0E0E0; padding: 0 5px 0 2px; }
 .apps .item .stats .info:first-child { border-left: 0 !important; }
-.apps .item .stats .info2 { width: 70px !important; }
+.apps .item .stats .info2 { width: 80px !important; }
 .apps .item .stats .info i { margin-left: 5px; color: #777; }
 .apps .item .debug { float: right; width: 80px; margin: 5px 8px 0 0; text-align: right; }
 .apps .item .debug i { margin-right: 8px; }
