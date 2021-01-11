@@ -130,6 +130,8 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 		echo "Cron job added."
 	fi
 
+	service nginx start
+
 	echo ""
 	echo "---------------------------------------------------"
 	echo -e "\e[100m--> SuperAdmin uses these commands:\e[0m"

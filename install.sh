@@ -51,6 +51,7 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 
 	#Prerequisits
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+	apt-get install curl
 	apt-get install python-software-properties
 	apt-get install software-properties-common
 	curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
@@ -161,6 +162,8 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 		rm mycron
 		echo "Cron job added."
 	fi
+
+	service nginx start
 
 	echo ""
 	echo "---------------------------------------------------"

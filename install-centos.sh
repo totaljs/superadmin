@@ -172,9 +172,7 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 
 	fi
 
-
-
-
+	systemctl start nginx
 
 	# Starting
 	echo -e "\e[42mSTARTING SUPERADMIN...\e[0m"
