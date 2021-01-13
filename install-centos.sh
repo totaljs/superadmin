@@ -97,14 +97,21 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 	mkdir /www/www/
 	mkdir /www/superadmin/
 	mkdir /www/node_modules/
-        touch /www/superadmin/superadmin.log
+	touch /www/superadmin/superadmin.log
 	cd /www/
+
+	npm install total4
+	npm install -g total4
 	npm install total.js
 	npm install -g total.js
+	npm install dbms
+	npm install pg
 
 	# Total.js downloads package and unpack
 	cd /www/superadmin/
-	tpm install "https://cdn.totaljs.com/superadmin.package?ts=$(date +%s)"
+	wget "https://raw.githubusercontent.com/totaljs/superadmin_templates/main/superadmin.zip"
+	unzip superadmin.zip
+	rm superadmin.zip
 
 	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	cp /www/superadmin/ffdhe2048.pem /etc/nginx/ffdhe2048.pem
@@ -172,9 +179,7 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 
 	fi
 
-
-
-
+	systemctl start nginx
 
 	# Starting
 	echo -e "\e[42mSTARTING SUPERADMIN...\e[0m"
