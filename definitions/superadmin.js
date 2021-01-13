@@ -209,6 +209,23 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 		next();
 	});
 
+	arr.push(function(next) {
+
+		var filename = Path.join(CONF.directory_www, app.linker, 'restart');
+		Fs.lstat(filename, function(err) {
+
+			if (err) {
+				next();
+				return;
+			}
+
+			// Restart
+			Fs.unlink(filename, NOOP);
+			EXEC('-Apps --> restart', null, next).id = app.id;
+		});
+
+	});
+
 	arr.async(function() {
 
 		current.analyzator = app.analyzatoroutput || '';
