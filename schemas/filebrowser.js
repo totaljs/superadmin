@@ -161,7 +161,28 @@ NEWSCHEMA('FileBrowser', function(schema) {
 
 	schema.addWorkflow('upload', function($) {
 
-		var app = APPLICATIONS.findItem('id', $.query.id);
+		if (!$.query.path) {
+			$.invalid('Invalid path');
+			return;
+		}
+
+		var app = APPLICATIONS.findItem('id', $.query.id || '');
+		if (!app) {
+			$.invalid('404');
+			return;
+		}
+
+		var path = Path.join(CONF.directory_www + app.linker, $.query.path);
+		var mkdir = path.substring(0, path.lastIndexOf('/'));
+
+		PATH.mkdir(mkdir);
+		SuperAdmin.logger('filebrowser.file.upload: ' + path, $.controller, app);
+		$.files[0].move(path, $.done());
+	});
+
+	schema.addWorkflow('remove', function($) {
+
+		var app = APPLICATIONS.findItem('id', $.id);
 		if (!app) {
 			$.invalid('404');
 			return;

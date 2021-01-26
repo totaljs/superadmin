@@ -101,19 +101,31 @@
 			var opt = {};
 			opt.element = el;
 			opt.items = [];
+
+			if (node.children)
+				opt.items.push({ id: 'upload', name: '@(Upload file)', icon: 'fa fa-cloud-upload' });
+
 			opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'far fa-trash-o red' });
 			opt.align = 'right';
 			opt.callback = function(item) {
+
+
+				if (item.id === 'upload') {
+					SETTER('#filebrowsertree', 'select3', node.$pointer);
+					$('#filebrowserfile').trigger('click');
+					return;
+				}
+
 				if (item.id === 'remove') {
 					SETTER('approve/show', '@(Are you sure you want to remove selected {0}?)'.format(node.children ? '@(directory)' : '@(file)'), '"far fa-trash-o" @(Remove)', function() {
 						var data = {};
 						data.type = 'remove';
 						data.filename = node.path;
 						data.directory = node.children != null;
-						DAPI('filebrowser_remove/' + node.id + ' @showloading', data, ASETTER('notifybar/response @hideloading', '@(File has been removed successfully)', exports.reload, true));
+						DAPI('filebrowser_save/' + filebrowser.id + ' @showloading', data, ASETTER('notifybar/response @hideloading', '@(File has been removed successfully)', exports.reload, true));
 					});
-					return;
 				}
+
 			};
 			SETTER('menu/show', opt);
 		};
@@ -247,7 +259,7 @@
 				data.type = 'remove';
 				data.filename = node.path;
 				data.directory = node.children != null;
-				DAPI('filebrowser_remove/' + model.id + ' @showloading', data, ASETTER('notifybar/response @hideloading', '@(File has been removed successfully)', exports.reload, true));
+				DAPI('filebrowser_save/' + model.id + ' @showloading', data, ASETTER('notifybar/response @hideloading', '@(File has been removed successfully)', exports.reload, true));
 			});
 
 		};

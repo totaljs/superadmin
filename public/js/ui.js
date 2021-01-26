@@ -5542,6 +5542,34 @@ COMPONENT('tree', 'autoreset:false;checkednested:true;reselect:false;iconoptions
 		}
 	};
 
+	self.select3 = function(index) {
+		var el = self.find('[data-index="{0}"]'.format(index));
+		var c = '-selected';
+		var is = false;
+
+		if (el.hclass(cls + '-expand')) {
+
+			var parent = el.parent();
+
+			if (config.selectexpand) {
+				self.find(cls2 + c).rclass(cls + c);
+				el.aclass(cls + c);
+			}
+
+			parent.aclass(cls + '-show');
+			is = parent.hclass(cls + '-show');
+			item = cache[index];
+
+			if (config.pk)
+				expanded[item[config.pk]] = 1;
+			else
+				expanded[index] = 1;
+		}
+
+		config.exec && SEEX(self.makepath(config.exec), item, true, is);
+		selindex = index;
+	};
+
 	self.checked = function() {
 		var items = [];
 		self.find(cls2 + '-checkbox-checked').each(function() {
