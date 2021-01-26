@@ -122,7 +122,7 @@
 						data.type = 'remove';
 						data.filename = node.path;
 						data.directory = node.children != null;
-						DAPI('filebrowser_save/' + filebrowser.id + ' @showloading', data, ASETTER('notifybar/response @hideloading', '@(File has been removed successfully)', exports.reload, true));
+						DAPI('filebrowser_save/' + filebrowser.id + ' @showloading', data, ASETTER('notifybar/response @hideloading', node.children ? '@(Directory has been removed successfully)' : '@(File has been removed successfully)', exports.reload, true));
 					});
 				}
 
@@ -259,7 +259,7 @@
 				data.type = 'remove';
 				data.filename = node.path;
 				data.directory = node.children != null;
-				DAPI('filebrowser_save/' + model.id + ' @showloading', data, ASETTER('notifybar/response @hideloading', '@(File has been removed successfully)', exports.reload, true));
+				DAPI('filebrowser_save/' + model.id + ' @showloading', data, ASETTER('notifybar/response @hideloading', node.children ? '@(Directory has been removed successfully)' : '@(File has been removed successfully)', exports.reload, true));
 			});
 
 		};
