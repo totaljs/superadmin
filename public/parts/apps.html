@@ -62,20 +62,22 @@
 			</div>
 
 			<div class="list" data---="search__?.search__selector:.search;datasource:?.items;delaydatasource:500">
-				<div data-bind="?.items__template">
+				<div data-bind="?__template__track:items">
 					<script type="text/html">
-						{{ foreach m in value }}
+						{{ foreach m in value.items }}
 							{{ if $index }}
 							<hr class="search nmt" />
+							{{ else }}
+							<h2 data-bind="?.search__text b__show" class="hidden"><i class="fa fa-search"></i><b>{{ value.search }}</b></h2>
 							{{ fi }}
 							{{ if m.name }}
-							<h2 class="search">{{ if m.items && m.items.length > 3 }}<span>{{ m.items.length }}</span>{{ fi }}<i class="far fa-folder"></i>{{ m.name }}</h2>
+							<h2 class="search"><span>{{ m.items.length }}</span><i class="far fa-folder"></i>{{ m.name }}</h2>
 							{{ else }}
-							<h2 class="search">{{ if m.items && m.items.length > 3 }}<span>{{ m.items.length }}</span>{{ fi }}<i class="fas fa-list"></i>@(Uncategorized apps)</h2>
+							<h2 class="search"><span>{{ m.items.length }}</span><i class="fas fa-list"></i>@(Uncategorized apps)</h2>
 							{{ fi }}
 							<div>
 								{{ foreach n in m.items }}
-									<div class="item search" data-bind="appsinfo.app{{ n.id }}__.offline:!value||!value.is__.iserror:value&&value.analyzator==='error'__delay:100__exec:?/makesearch" data-id="{{ n.id }}" data-search="{{ n.url }}" data-url="{{ n.url }} {{ if n.debug }}@debug{{ else }}@release{{ fi }} @{{ n.version }}{{ if n.highpriority }} @highpriority{{ fi }}">
+									<div class="item search" data-bind="appsinfo.app{{ n.id }}__.offline:!value||!value.is__.iserror:value&&value.analyzator==='error'__delay:100__exec:?/makesearch" data-id="{{ n.id }}" data-search="{{ n.url }}" data-url="{{ n.url }} {{ n.name }} {{ if n.debug }}@debug{{ else }}@release{{ fi }} @{{ n.version }}{{ if n.highpriority }} @highpriority{{ fi }}">
 										<div class="controls">
 											<button class="exec" data-exec="?/menu" name="menu" title="@(Settings)"><i class="fas fa-ellipsis-h"></i></button>
 											<button class="exec" data-exec="?/restart" name="restart" title="@(Restart)"><i class="fa fa-refresh"></i></button>
@@ -83,7 +85,7 @@
 										</div>
 										<div class="stats" data-bind="appsinfo.app{{ n.id }}__template:{#appstats}"></div>
 										{{ if n.debug }}<div class="debug"><i class="fas fa-flask"></i><span class="badge badge-purple">@(debug)</span></div>{{ fi }}
-										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.https }}<span class="ssl badge badge-green badge-small mr5">SSL</span>{{ fi }}<a href="{{ n.url }}" target="_blank">{{ n.domain }}</a>{{ if n.threads }}<i class="fa fa-cogs ml5" title="@(Threads are enabled)"></i>{{ fi }}{{ if n.highpriority }} <span class="hidden-sm hidden-xs badge badge-yellow">@(high priority)</span>{{ fi }} {{ if !n.unixsocket }}<span class="port">{{ n.port }}</span>{{ fi }}<b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
+										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.https }}<span class="ssl badge badge-green badge-small mr5">SSL</span>{{ fi }}<a href="{{ n.url }}"{{ if n.name }} title="{{ n.domain }}"{{fi}} target="_blank">{{ if n.name }}{{ n.name }}{{ else }}{{ n.domain }}{{ fi }}</a>{{ if n.threads }}<i class="fa fa-cogs ml5" title="@(Threads are enabled)"></i>{{ fi }}{{ if n.highpriority }} <span class="hidden-sm hidden-xs badge badge-yellow">@(high priority)</span>{{ fi }} {{ if !n.unixsocket }}<span class="port">{{ n.port }}</span>{{ fi }}<b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
 									</div>
 								{{ end }}
 							</div>

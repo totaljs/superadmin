@@ -9,13 +9,14 @@
 				@(The URL address must contain protocol <code>http</code> or <code>https</code>).<br />
 				<b>@(Make sure that DNS A records for this domain are targeted to this server</b>.)
 			</div>
+			<div data---="input__?.name__placeholder:@(e.g. CMS)" class="m">@(Internal name)</div>
 			<div data---="input__?.category__dirsource:apps.categories;dircustom:true;dirempty:@(Without category);placeholder:@(Choose a category);dirplaceholder:@(Search or create new)" class="m">@(Category)</div>
-			<div data--="checkbox__?.debug__null__true" class="inline b mr5 black">@(Enable debug mode)</div>
+			<div data---="checkbox__?.debug__null__true" class="inline b mr5 black">@(Enable debug mode)</div>
 			<div class="inline middle mr15"><span class="badge badge-red">@(debug)</span></div>
-			<div data--="checkbox__?.watcher__disabled:true__false" class="inline mr15" data-bind="?.debug__disabled">@(Enable watcher)</div>
-			<div data--="checkbox__?.highpriority" class="inline mr15 black">@(High priority)</div>
-			<div data--="checkbox__?.accesslog" class="inline mr15">@(Enable access logging)</div>
-			<div data--="checkbox__?.backup" class="inline">@(Enable backing up)</div>
+			<div data---="checkbox__?.watcher__disabled:true__false" class="inline mr15" data-bind="?.debug__disabled">@(Enable watcher)</div>
+			<div data---="checkbox__?.highpriority" class="inline mr15 black">@(High priority)</div>
+			<div data---="checkbox__?.accesslog" class="inline mr15">@(Enable access logging)</div>
+			<div data---="checkbox__?.backup" class="inline">@(Enable backing up)</div>
 		</div>
 		<hr class="nmb nmt" />
 		<div data-bind="?.url__show:value&&value.substring(0,8)==='https://'" class="hidden">
@@ -23,7 +24,7 @@
 				<div class="padding">
 					<div><span class="badge badge-green b mr5"><i class="fa fa-lock"></i>@(Security)</span><b>@(SSL configuration)</b></div>
 					<div class="help m"><b>@(Good to know:)</b> @(SSL certificates are generated automatically via Let's Encrypt service. You must redirect DNS records to the IP address of this server.)</div>
-					<div data--="checkbox__?.sslcustom">@(Add own SSL certificates)</div>
+					<div data---="checkbox__?.sslcustom">@(Add own SSL certificates)</div>
 					<div data-bind="?.sslcustom__show" class="hidden">
 						<br />
 						<div class="row">
@@ -93,7 +94,7 @@
 				<div data-bind="common.unixsocket__show" class="hidden">
 					<hr />
 					<div class="help">@(SuperAdmin will use <b>Unix socket</b> instead of classic network routing. It's faster and more secure.)</div>
-					<div data--="checkbox__?.unixsocket" class="black mt5 b">@(Use Unix socket)</div>
+					<div data---="checkbox__?.unixsocket" class="black mt5 b">@(Use Unix socket)</div>
 				</div>
 				<hr />
 				<div data---="input__?.threads__dirsource:%threads;dircustom:1;dirplaceholder:@(Type a relative /endpoint/ or just enable threads)__''">@(Total.js threads)</div>

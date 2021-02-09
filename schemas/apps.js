@@ -6,6 +6,7 @@ NEWSCHEMA('Apps', function(schema) {
 
 	schema.define('id',             UID);
 	schema.define('url',           'String', true);
+	schema.define('name',          'String(50)');
 	schema.define('category',      'String(50)');
 	schema.define('redirect',      '[String]');
 	schema.define('allow',         '[String]');
@@ -13,7 +14,7 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.define('ssl_key',        String);
 	schema.define('ssl_cer',        String);
 	schema.define('threads',        String);
-	schema.define('notes',          String);
+	schema.define('note',           String);
 	schema.define('startscript',    String);                   // A start script
 	schema.define('nginx',          String);                   // Additional NGINX settings (lua)
 	schema.define('delay',          Number);                   // Delay after start
