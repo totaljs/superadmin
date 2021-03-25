@@ -7,9 +7,9 @@ opt.options = { samesite: 'lax', httponly: true };
 
 opt.onread = function(meta, next) {
 
-    // meta.sessionid {String}
-    // meta.userid {String}
-    // meta.ua {String} A user-agent
+	// meta.sessionid {String}
+	// meta.userid {String}
+	// meta.ua {String} A user-agent
 
 	NOSQL('sessions').read().id(meta.sessionid).where('userid', meta.userid).where('ua', meta.ua).callback(function(err, response) {
 		if (response) {

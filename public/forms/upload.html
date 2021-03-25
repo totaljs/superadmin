@@ -51,7 +51,7 @@
 			var model = GET('?');
 			DAPI('build_read/' + model.app.id + ' @showloading', function(response) {
 				SETTER('builder/load @hideloading', response ? STRINGIFY(response, true) : '', function(response) {
-					DAPI('build_save/' + model.app.id + ' @showloading', response, ASETTER('notifybar/response @hideloading', '@(Application <b>"{0}"</b> has been updated sucessfully.)'.format(app.url)));
+					DAPI('build_save/' + model.app.id + ' @showloading', response, ASETTER('notifybar/response @hideloading', '@(Application <b>"{0}"</b> has been updated sucessfully.)'.format(model.app.url)));
 				});
 			});
 		};

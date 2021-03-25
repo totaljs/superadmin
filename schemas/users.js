@@ -61,7 +61,7 @@ NEWSCHEMA('Users', function(schema) {
 		// tries to find a user
 		if (!response) {
 			var password = GUID(10);
-			model = {};
+			var model = {};
 			model.id = UID();
 			model.dtcreated = NOW;
 			model.name = 'Total Admin';

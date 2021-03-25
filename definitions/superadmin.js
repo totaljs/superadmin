@@ -319,16 +319,16 @@ SuperAdmin.sysinfo = function(callback) {
 
 	arr.push(function(next) {
 
-		if (SuperAdmin.server.index % 20 !== 0) {
+		if (SuperAdmin.server.ip && SuperAdmin.server.index % 20 !== 0) {
 			next();
 			return;
 		}
 
 		Exec('curl ifconfig.me', function(err, response) {
-			if (response)
-				SuperAdmin.server.ip = response;
+			SuperAdmin.server.ip = response && response.indexOf('<') === -1 ? response : '';
 			next();
 		});
+
 	});
 
 	/*
