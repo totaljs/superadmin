@@ -43,7 +43,7 @@ NEWSCHEMA('Templates', function(schema) {
 		}
 
 		if (model.template === 'restore') {
-			PATH.exists(CONF.directory_dump + model.id + '-backup.tar.gz', function(e) {
+			PATH.exists(CONF.directory_dump + model.app.id + '-backup.tar.gz', function(e) {
 				if (e)
 					$.success();
 				else
@@ -80,7 +80,7 @@ NEWSCHEMA('Templates', function(schema) {
 
 	schema.addWorkflow('backup', function($, model) {
 		if (model.backup)
-			Exec('bash {0} {1} {2}'.format(PATH.private('backup.sh'), Path.join(CONF.directory_www, model.app.linker), Path.join(CONF.directory_dump, model.id + '-backup.tar.gz')), $.done());
+			Exec('bash {0} {1} {2}'.format(PATH.private('backup.sh'), Path.join(CONF.directory_www, model.app.linker), Path.join(CONF.directory_dump, model.app.id + '-backup.tar.gz')), $.done());
 		else
 			$.success();
 	});
@@ -109,7 +109,7 @@ NEWSCHEMA('Templates', function(schema) {
 
 		// Restore from backup
 		if (model.template === 'restore') {
-			Exec('tar -xzvf {0} --directory {1} > /dev/null'.format(CONF.directory_dump + model.id + '-backup.tar.gz', directory), function() {
+			Exec('tar -xzvf {0} --directory {1} > /dev/null'.format(CONF.directory_dump + model.app.id + '-backup.tar.gz', directory), function() {
 				SuperAdmin.wsnotify('app_template', model.app);
 				Spawn('chown', ['-R', SuperAdmin.run_as_user.user, directory]);
 				$.success();
@@ -117,6 +117,7 @@ NEWSCHEMA('Templates', function(schema) {
 		} else {
 			// Extract file
 			Exec('unzip -o {0}.zip'.format(model.app.id), { cwd: directory }, function() {
+				PATH.unlink('{0}/{1}.zip'.format(directory, model.app.id));
 				SuperAdmin.wsnotify('app_template', model.app);
 				Spawn('chown', ['-R', SuperAdmin.run_as_user.user, directory]);
 				$.success();
