@@ -1,0 +1,24 @@
+{
+	"$id": "https://www.totaljs.com/files/apps_monitor.json",
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"properties": {
+		"id": { "type": "string" },
+		"url": { "type": "string" },
+		"name": { "type": "string" },
+		"category": { "type": "string" },
+		"port": { "type": "number" },
+		"pid": { "type": "string" },
+		"cpu": { "type": "number" },
+		"memory": { "type": "number" },
+		"openfiles": { "type": "number" },
+		"hdd": { "type": "number" },
+		"connections": { "type": "number" },
+		"version": { "type": "string" },
+		"analyzator": { "type": "string" },
+		"ssl": { "type": "boolean" },
+		"dtmonitor": { "type": "date" },
+		"dttms": { "type": "date" }
+	},
+	"required": []
+}

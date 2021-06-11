@@ -498,6 +498,10 @@ SuperAdmin.sysinfo = function(callback) {
 		callback && callback(null, SuperAdmin.server);
 		MAIN.ws && MAIN.ws.send(SuperAdmin.server);
 		SuperAdmin.notify_system();
+
+		var publish = CLONE(SuperAdmin.server);
+		publish.dttms = NOW;
+		PUBLISH('system_monitor', publish);
 	});
 
 };
@@ -969,6 +973,28 @@ SuperAdmin.save = function(callback, stats) {
 	for (var i = 0; i < APPLICATIONS.length; i++) {
 		var app = APPLICATIONS[i];
 		if (app.current) {
+
+			var current = app.current;
+			var obj = {};
+			obj.id = app.id;
+			obj.url = app.url;
+			obj.name = app.name;
+			obj.category = app.category;
+			obj.note = app.note;
+			obj.port = current.port;
+			obj.pid = current.pid;
+			obj.cpu = current.cpu;
+			obj.memory = current.memory;
+			obj.openfiles = current.openfiles;
+			obj.connections = current.connections;
+			obj.hdd = current.hdd;
+			obj.version = app.version;
+			obj.analyzator = app.analyzatoroutput;
+			obj.ssl = app.ssl;
+			obj.dtmonitor = NOW;
+			obj.dttms = NOW;
+			PUBLISH('apps_monitor', obj);
+
 			delete app.current.TYPE;
 			delete app.current.id;
 			delete app.current.analyzator;
@@ -1359,23 +1385,36 @@ SuperAdmin.notify = function(app, type, callback) {
 			data.push('FILES: ' + app.current.openfiles);
 			data.push('ANALYZATOR: ' + (app.analyzatoroutput || 'none'));
 
+			var type = 'warning';
 			var message = item.message.format(app.url) + ' (' + data.join(', ') + ')';
 
-			LOGGER('alarms', item.name, message);
-			EMIT('superadmin_app_alarm', app, item, message);
+			SuperAdmin.check_notify(type, item.message, function(notified) {
 
-			if (app.stats)
-				app.stats.alarms++;
-			else
-				app.stats.alarms = 1;
+				if (notified) {
+					next();
+					return;
+				}
 
-			SuperAdmin.send_notify('warning', message);
-			NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW }).id(item.id);
-			item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
-			item.email && SuperAdmin.send_email(item.email, message, item.name);
-		}
+				LOGGER('alarms', item.name, message);
+				EMIT('superadmin_app_alarm', app, item, message);
 
-		next();
+				if (app.stats)
+					app.stats.alarms++;
+				else
+					app.stats.alarms = 1;
+
+				SuperAdmin.send_notify(type, message, item.message);
+				NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW }).id(item.id);
+				item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
+				item.email && SuperAdmin.send_email(item.email, message, item.name);
+
+				PUBLISH('notify_apps', { type: type, body: message, message: item.message, dtnotified: NOW, dttms: NOW });
+
+				next();
+			});
+
+		} else
+			next();
 
 	}, callback);
 };
@@ -1407,19 +1446,38 @@ SuperAdmin.notify_system = function() {
 			data.push('RAM: ' + SuperAdmin.server.memused.filesize());
 			data.push('HDD: ' + SuperAdmin.server.hddused.filesize());
 
+			var type = 'warning';
 			var message = item.message + ' (' + data.join(', ') + ')';
 
-			LOGGER('alarms', item.name, message);
-			EMIT('superadmin_system_alarm', SuperAdmin.server, item, message);
+			SuperAdmin.check_notify(type, item.message, function(notified) {
 
-			SuperAdmin.send_notify('warning', message);
-			NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW }).id(item.id);
-			item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
-			item.email && SuperAdmin.send_email(item.email, message, item.name);
-		}
+				if (notified) {
+					next();
+					return;
+				}
 
-		next();
+				LOGGER('alarms', item.name, message);
+				EMIT('superadmin_system_alarm', SuperAdmin.server, item, message);
 
+				SuperAdmin.send_notify(type, message, item.message);
+				NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW }).id(item.id);
+				item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
+				item.email && SuperAdmin.send_email(item.email, message, item.name);
+
+				PUBLISH('notify_system', { type: type, body: message, message: item.message, dtnotified: NOW, dttms: NOW });
+
+				next();
+			});
+
+		} else
+			next();
+
+	});
+};
+
+SuperAdmin.check_notify = function(type, message, callback) {
+	NOSQL('notifications').one().where('message', message).where('type', type).error(404).callback(function(err) {
+		callback(!err);
 	});
 };
 
@@ -1436,14 +1494,17 @@ SuperAdmin.send_sms = function(numbers, message) {
 };
 
 SuperAdmin.send_email = function(addresses, message, name) {
+	if (!addresses || !addresses.length)
+		return;
+
 	var message = LOGMAIL(addresses[0], name, message);
 	for (var i = 1; i < addresses.length; i++)
 		message.to(addresses[i]);
 };
 
-SuperAdmin.send_notify = function(type, body) {
+SuperAdmin.send_notify = function(type, body, message) {
 	PREF.set('notifications', (PREF.notifications || 0) + 1);
-	NOSQL('notifications').insert({ type: type, body: body, dtcreated: NOW });
+	NOSQL('notifications').insert({ type: type, body: body, message: message, dtcreated: NOW });
 };
 
 SuperAdmin.init();

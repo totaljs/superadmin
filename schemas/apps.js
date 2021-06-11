@@ -34,6 +34,14 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.define('highpriority',   Boolean);                  // App with high priority
 	schema.define('unixsocket',     Boolean);                  // Enables unixsocket
 
+	// TMS - Fields are added only for TMS of this schema
+	schema.jsonschema_define('userid',    'String');
+	schema.jsonschema_define('username',  'String');
+	schema.jsonschema_define('ua',        'String');
+	schema.jsonschema_define('ip',        'String');
+	schema.jsonschema_define('dtupdated', 'Date');
+	schema.jsonschema_define('dttms',     'Date');
+
 	schema.setQuery(function($) {
 		$.callback(APPLICATIONS);
 	});
@@ -133,7 +141,20 @@ NEWSCHEMA('Apps', function(schema) {
 				if (type) {
 					item.analyzatoroutput !== type && EMIT('superadmin_app_analyzator', item);
 					item.analyzatoroutput = type;
-					output.push({ id: item.id, type: type, url: item.url });
+
+					var e = { id: item.id, type: type, url: item.url };
+					output.push(e);
+
+					var publish = {};
+					publish.id = e.id;
+					publish.name = item.name;
+					publish.category = item.category;
+					publish.type = e.type;
+					publish.url = e.url;
+					publish.dterror = NOW;
+					publish.dttms = NOW;
+					PUBLISH('apps_analyzator', e);
+
 				} else
 					item.analyzatoroutput = null;
 
@@ -165,6 +186,8 @@ NEWSCHEMA('Apps', function(schema) {
 
 		SuperAdmin.logger('restart: {0}', $, app);
 		EMIT('superadmin_app_restart', app);
+
+		PUBLISH('apps_restart', FUNC.tms($, app));
 
 		app.current = null;
 		app.analyzatoroutput = null;
@@ -213,6 +236,8 @@ NEWSCHEMA('Apps', function(schema) {
 		SuperAdmin.wsnotify('apps_restart');
 		MAIN.restarting = true;
 
+		PUBLISH('apps_restart_all', FUNC.tms($, {}));
+
 		APPLICATIONS.wait(function(app, next) {
 
 			if (app.stopped) {
@@ -224,6 +249,8 @@ NEWSCHEMA('Apps', function(schema) {
 			app.analyzatoroutput = null;
 			SuperAdmin.wsnotify('app_restart', app);
 			SuperAdmin.restart(app.port, () => next());
+
+			PUBLISH('apps_restart', FUNC.tms($, app));
 
 		}, function() {
 
@@ -313,10 +340,15 @@ NEWSCHEMA('Apps', function(schema) {
 			item.analyzatoroutput = app.analyzatoroutput;
 			item.dtupdated = NOW;
 
+			PUBLISH('apps_update', FUNC.tms($, item));
+
 		} else {
 			item.id = model.id = UID();
 			item.dtcreated = NOW;
 			model.restart = true;
+
+			PUBLISH('apps_insert', FUNC.tms($, item));
+
 		}
 
 		TASK('nginx/init', $.successful(function() {
@@ -357,6 +389,8 @@ NEWSCHEMA('Apps', function(schema) {
 		}
 
 		var app = APPLICATIONS[index];
+
+		PUBLISH('apps_remove', FUNC.tms($, app));
 
 		SuperAdmin.kill(app.port, function() {
 
@@ -404,6 +438,8 @@ NEWSCHEMA('Apps', function(schema) {
 		SuperAdmin.logger('stop: {0}', $, app);
 		SuperAdmin.kill(app.port, $.done());
 
+		PUBLISH('apps_stop', FUNC.tms($, app));
+
 		if (!app.stopped) {
 			app.stopped = true;
 			app.current = null;
@@ -426,6 +462,8 @@ NEWSCHEMA('Apps', function(schema) {
 		SuperAdmin.wsnotify('apps_stop');
 		SuperAdmin.logger('stops: all', $);
 
+		PUBLISH('apps_stop_all', FUNC.tms($, {}));
+
 		APPLICATIONS.wait(function(item, next) {
 
 			if (item.stopped) {
@@ -436,10 +474,12 @@ NEWSCHEMA('Apps', function(schema) {
 			item.stopped = true;
 			item.current = null;
 
+			PUBLISH('apps_stop', FUNC.tms($, item));
+
 			SuperAdmin.kill(item.port, function() {
 				if (MAIN.ws) {
 					var current = {};
-					current.id = app.id;
+					current.id = item.id;
 					current.TYPE = 'appinfo';
 					current.analyzator = null;
 					MAIN.ws.send(current);
