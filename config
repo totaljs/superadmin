@@ -9,3 +9,5 @@ directory_acme                : /www/acme/
 directory_www                 : /www/www/
 directory_console             : /www/logs/
 directory_dump                : /www/
+
+allow_tms                     : false
