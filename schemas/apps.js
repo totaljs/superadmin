@@ -189,6 +189,7 @@ NEWSCHEMA('Apps', function(schema) {
 
 		PUBLISH('apps_restart', FUNC.tms($, app));
 
+		app.notified = [];
 		app.current = null;
 		app.analyzatoroutput = null;
 
@@ -245,6 +246,7 @@ NEWSCHEMA('Apps', function(schema) {
 				return;
 			}
 
+			app.notified = [];
 			app.current = null;
 			app.analyzatoroutput = null;
 			SuperAdmin.wsnotify('app_restart', app);
@@ -363,6 +365,7 @@ NEWSCHEMA('Apps', function(schema) {
 				EMIT('superadmin_app_update', item, index);
 			}
 
+			item.notified = [];
 			item.current = null;
 			item.analyzatoroutput = null;
 

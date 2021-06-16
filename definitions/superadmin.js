@@ -1111,6 +1111,7 @@ SuperAdmin.load = function(callback) {
 				for (var i = 0; i < APPLICATIONS.length; i++) {
 					var item = APPLICATIONS[i];
 					item.pid = 0;
+					item.notified = []; // IDs of already notified alarms
 					item.linker = item.url.superadmin_linker(item.path);
 					!item.priority && (item.priority = 0);
 					!item.delay && (item.delay = 0);
@@ -1366,6 +1367,12 @@ SuperAdmin.notify = function(app, type, callback) {
 			return;
 		}
 
+		// Already notified
+		if (app.notified.includes(item.id)) {
+			next();
+			return;
+		}
+
 		if (!app.current)
 			app.current = {};
 
@@ -1388,33 +1395,26 @@ SuperAdmin.notify = function(app, type, callback) {
 			var type = 'warning';
 			var message = item.message.format(app.url) + ' (' + data.join(', ') + ')';
 
-			SuperAdmin.check_notify(type, item.message, function(notified) {
+			LOGGER('alarms', item.name, message);
+			EMIT('superadmin_app_alarm', app, item, message);
 
-				if (notified) {
-					next();
-					return;
-				}
+			if (app.stats)
+				app.stats.alarms++;
+			else
+				app.stats.alarms = 1;
 
-				LOGGER('alarms', item.name, message);
-				EMIT('superadmin_app_alarm', app, item, message);
+			app.notified.push(item.id);
 
-				if (app.stats)
-					app.stats.alarms++;
-				else
-					app.stats.alarms = 1;
+			SuperAdmin.send_notify(type, message);
+			NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW }).id(item.id);
+			item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
+			item.email && SuperAdmin.send_email(item.email, message, item.name);
 
-				SuperAdmin.send_notify(type, message, item.message);
-				NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW }).id(item.id);
-				item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
-				item.email && SuperAdmin.send_email(item.email, message, item.name);
+			PUBLISH('notify_apps', { type: type, body: message, message: item.message, dtnotified: NOW, dttms: NOW });
 
-				PUBLISH('notify_apps', { type: type, body: message, message: item.message, dtnotified: NOW, dttms: NOW });
+		}
 
-				next();
-			});
-
-		} else
-			next();
+		next();
 
 	}, callback);
 };
@@ -1449,37 +1449,23 @@ SuperAdmin.notify_system = function() {
 			var type = 'warning';
 			var message = item.message + ' (' + data.join(', ') + ')';
 
-			SuperAdmin.check_notify(type, item.message, function(notified) {
+			LOGGER('alarms', item.name, message);
+			EMIT('superadmin_system_alarm', SuperAdmin.server, item, message);
 
-				if (notified) {
-					next();
-					return;
-				}
+			SuperAdmin.send_notify(type, message);
+			NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW }).id(item.id);
+			item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
+			item.email && SuperAdmin.send_email(item.email, message, item.name);
 
-				LOGGER('alarms', item.name, message);
-				EMIT('superadmin_system_alarm', SuperAdmin.server, item, message);
+			PUBLISH('notify_system', { type: type, body: message, message: item.message, dtnotified: NOW, dttms: NOW });
 
-				SuperAdmin.send_notify(type, message, item.message);
-				NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW }).id(item.id);
-				item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
-				item.email && SuperAdmin.send_email(item.email, message, item.name);
+		}
 
-				PUBLISH('notify_system', { type: type, body: message, message: item.message, dtnotified: NOW, dttms: NOW });
-
-				next();
-			});
-
-		} else
-			next();
+		next();
 
 	});
 };
 
-SuperAdmin.check_notify = function(type, message, callback) {
-	NOSQL('notifications').one().where('message', message).where('type', type).error(404).callback(function(err) {
-		callback(!err);
-	});
-};
 
 SuperAdmin.send_sms = function(numbers, message) {
 
@@ -1502,9 +1488,9 @@ SuperAdmin.send_email = function(addresses, message, name) {
 		message.to(addresses[i]);
 };
 
-SuperAdmin.send_notify = function(type, body, message) {
+SuperAdmin.send_notify = function(type, body) {
 	PREF.set('notifications', (PREF.notifications || 0) + 1);
-	NOSQL('notifications').insert({ type: type, body: body, message: message, dtcreated: NOW });
+	NOSQL('notifications').insert({ type: type, body: body, dtcreated: NOW });
 };
 
 SuperAdmin.init();
