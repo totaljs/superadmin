@@ -55,6 +55,7 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 	ln -s /usr/bin/lftp /usr/bin/ftp
 
 	curl https://get.acme.sh | sh
+	/root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
 
 	mkdir /www
 	cd /www

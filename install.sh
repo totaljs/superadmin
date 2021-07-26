@@ -66,6 +66,7 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 	apt-get install -y socat
 	apt-get install -y sysstat
 	curl https://get.acme.sh | sh
+	/root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
 	mkdir /www/
 	mkdir /www/logs/
 	mkdir /www/nginx/

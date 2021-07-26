@@ -89,6 +89,7 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 	yum install -y -q lsof
 	yum install -y -q socat
 	curl https://get.acme.sh | sh
+	/root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
 	mkdir /www/
 	mkdir /www/logs/
 	mkdir /www/nginx/

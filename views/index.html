@@ -15,7 +15,7 @@
 	<script src="//cdn.componentator.com/spa.min@18.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/codemirror.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/nginx/nginx.min.js"></script>
-	@{import('head', 'default.css + ui.css', 'ui.js + helpers.js + syntax.js', 'favicon.ico')}
+	@{import('head', 'ui.css + default.css', 'ui.js + helpers.js + syntax.js', 'favicon.ico')}
 </head>
 <body data---="exec">
 
@@ -31,7 +31,7 @@
 	<div data---="LAZY floatinginput"></div>
 	<div data---="LAZY message__null__style:2;button:@(Close)"></div>
 	<div data---="LAZY approve"></div>
-	<div data---="LAZY menu"></div>
+	<div data---="LAZY menu__null__style:2"></div>
 	<div data---="LAZY builder"></div>
 
 	<div data---="notificationspanel__common.shownotifications__exec:common/notifications_load;autoremove:0;clear:common/notifications_clear">
