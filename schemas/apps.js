@@ -42,6 +42,13 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.jsonschema_define('dtupdated', 'Date');
 	schema.jsonschema_define('dttms',     'Date');
 
+	function reset_alarms(appid) {
+		MAIN.rules.wait(function(item, next) {
+			delete item.appsnotified[appid];
+			NOSQL('alarms').modify({ appsnotified: item.appsnotified }).id(item.id).callback(next);
+		});
+	}
+
 	schema.setQuery(function($) {
 		$.callback(APPLICATIONS);
 	});
@@ -189,7 +196,8 @@ NEWSCHEMA('Apps', function(schema) {
 
 		PUBLISH('apps_restart', FUNC.tms($, app));
 
-		app.notified = [];
+		reset_alarms(app.id);
+
 		app.current = null;
 		app.analyzatoroutput = null;
 
@@ -246,7 +254,8 @@ NEWSCHEMA('Apps', function(schema) {
 				return;
 			}
 
-			app.notified = [];
+			reset_alarms(app.id);
+
 			app.current = null;
 			app.analyzatoroutput = null;
 			SuperAdmin.wsnotify('app_restart', app);
@@ -353,6 +362,8 @@ NEWSCHEMA('Apps', function(schema) {
 
 		}
 
+		reset_alarms(item.id);
+
 		TASK('nginx/init', $.successful(function() {
 
 			if (newbie) {
@@ -365,7 +376,6 @@ NEWSCHEMA('Apps', function(schema) {
 				EMIT('superadmin_app_update', item, index);
 			}
 
-			item.notified = [];
 			item.current = null;
 			item.analyzatoroutput = null;
 

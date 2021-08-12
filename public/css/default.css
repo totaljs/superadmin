@@ -4,6 +4,10 @@ $font        : 'Arial';
 $color       : #4285F4;
 $monospace   : Menlo,Consolas,monospace;
 
+:root {
+	--radius: 4px;
+}
+
 html,body { margin: 0; padding: 0; overflow: hidden; }
 body { background-color: white; padding: 0; color: #000; overflow-y: scroll; overflow-x: hidden; overflow-scrolling: touch; }
 
@@ -22,9 +26,9 @@ body { background-color: white; padding: 0; color: #000; overflow-y: scroll; ove
 .ui-layout2-left footer span:hover { color: #000000; }
 .ui-layout2-left footer span:first-child { border-left: 0; }
 .ui-layout2-left footer .selected { color: #000000; }
-.ui-layout2-left .nav { list-style-type: none; margin: 0 0 15px; padding: 0; }
-.ui-layout2-left .nav li { margin: 0; padding: 5px 5px; display: block; color: #000000; cursor: pointer; margin: 0 15px 5px; border-radius: 2px; }
-.ui-layout2-left .nav li span { float: right; color: #888888; font-size: 12px; padding: 2px 0 0; }
+.ui-layout2-left .nav { list-style-type: none; margin: 0 0 15px; padding: 0; background-color: transparent; }
+.ui-layout2-left .nav li { margin: 0; padding: 5px 5px; display: block; color: #000000; cursor: pointer; margin: 0 15px 5px; border-radius: var(--radius); }
+.ui-layout2-left .nav li span { float: right; color: #888888; font-size: 12px; padding: 2px 4px 0 0; }
 .ui-layout2-left .nav li:hover { background-color: #E8E8E8; }
 .ui-layout2-left .nav i { width: 18px; color: $color; text-align: center; margin-right: 7px; }
 .ui-layout2-left .nav .selected { background-color: #FFF !important; color: #000; box-shadow: 0 3px 5px rgba(0,0,0,0.05); }
@@ -35,7 +39,7 @@ body { background-color: white; padding: 0; color: #000; overflow-y: scroll; ove
 .ui-layout2-main header label { float: left; line-height: 44px; font-weight: bold; margin-left: 15px; }
 .ui-layout2-main header label i { margin-right: 5px; }
 .ui-layout2-main .padding { padding: 15px; }
-.ui-layout2-left .stats { background-color: #FFF; border-radius: 3px; margin: 15px 15px 0; font-size: 11px; box-shadow: 0 3px 5px rgba(0,0,0,0.05); }
+.ui-layout2-left .stats { background-color: #FFF; border-radius: var(--radius); margin: 15px 15px 0; font-size: 11px; box-shadow: 0 3px 5px rgba(0,0,0,0.05); }
 .ui-layout2-left .stats .padding { padding: 10px; }
 .ui-layout2-left .stats .ui-livestats svg { border-left: 0; border-right: 0; }
 
@@ -84,12 +88,12 @@ hr { border-color: #E0E0E0; }
 .iconbutton span { display: block; font-size: 11px; padding: 2px 0; }
 .iconbutton.selected { background-color: $color; border-color: $color !important; color: #FFF; }
 
-.alert { background-color: #fffad7; border-color: #fffdbf; padding: 15px; border-radius: 3px; color: #988e56; font-size: 12px; }
+.alert { background-color: #fffad7; border-color: #fffdbf; padding: 15px; border-radius: var(--radius); color: #988e56; font-size: 12px; }
 .alert i { margin-right: 5px; }
 
-.analyzator .item { border: 1px solid #E0E0E0; border-radius: 3px; padding: 10px; }
+.analyzator .item { border: 1px solid #E0E0E0; border-radius: var(--radius); padding: 10px; }
 .analyzator .item .url a { font-weight: bold; color: #000; }
-.analyzator .item button { width: 24px; height: 20px; border: 1px solid #D0D0D0; border-radius: 3px; background-color: #FFF; margin: 0; font-size: 11px; padding: 0; text-align: center; float: right; color: #555; }
+.analyzator .item button { width: 24px; height: 20px; border: 1px solid #D0D0D0; border-radius: var(--radius); background-color: #FFF; margin: 0; font-size: 11px; padding: 0; text-align: center; float: right; color: #555; }
 .analyzator .item button:hover { background-color: #F0F0F0; color: #000; }
 .analyzator .item .type { margin-bottom: 5px; }
 .analyzator .item > a { font-size: 12px; color: #777; }
@@ -114,7 +118,7 @@ hr { border-color: #E0E0E0; }
 #filebrowsertree { overflow-y: auto; overflow-scrolling: touch; }
 .filebrowser-search { padding: 12px 15px 0; border-bottom: 1px solid #E0E0E0; height: 60px; background-color: #F8F8F8; }
 .filebrowser .toolbar { height: 45px; border-bottom: 1px solid #E0E0E0; background-color: #F8F8F8; }
-.filebrowser .toolbar nav { float: left; border: 1px solid #D0D0D0; margin: 9px 15px 0; border-radius: 2px; }
+.filebrowser .toolbar nav { float: left; border: 1px solid #D0D0D0; margin: 9px 15px 0; border-radius: var(--radius); }
 .filebrowser .toolbar nav button { border: 0; border-left: 1px solid #E0E0E0; background-color: #FFF; font-size: 12px; min-width: 30px; height: 24px; color: black; outline: 0; padding: 0 8px; float: left; }
 .filebrowser .toolbar nav button span { margin-left: 5px; }
 .filebrowser .toolbar nav button:hover { background-color: #E0E0E0; }
@@ -135,7 +139,7 @@ hr { border-color: #E0E0E0; }
 .app-port { float: left; width: 45px; text-align: right; margin: 3px 0 0 0; }
 
 .app-buttons { height: 20px; text-align: right; float: left; width: 70px; margin: 2px 0 0 0; }
-.app-buttons button { outline: 0; background-color: transparent; border: 0; font-size: 12px; width: 20px; height: 20px; padding: 0; color: silver; border-radius: 4px; }
+.app-buttons button { outline: 0; background-color: transparent; border: 0; font-size: 12px; width: 20px; height: 20px; padding: 0; color: silver; border-radius: var(--radius); }
 .app-buttons a { outline: 0; background-color: transparent; border: 0; font-size: 12px; width: 20px; height: 20px; padding: 1px 0 0; color: silver; position: relative; display: inline-block; text-align: center; vertical-align: top; border-radius: 4px; }
 .app-buttons a:hover { color: black; background-color: #E0E0E0; }
 .app-buttons button:hover { color: black; background-color: #E0E0E0; }
@@ -146,7 +150,7 @@ hr { border-color: #E0E0E0; }
 .ui-searchinput { float: left; margin: 9px 0 0 10px; width: 300px; border: 0 !important; }
 .strike { text-decoration: line-through; }
 
-.apps .list { margin: 10px 20px 10px 15px; border: 1px solid #E0E0E0; border-radius: 3px; overflow: hidden; min-height: 29px; padding: 10px 0 0; }
+.apps .list { margin: 10px 20px 10px 15px; border: 1px solid #E0E0E0; border-radius: var(--radius); overflow: hidden; min-height: 29px; padding: 10px 0 0; }
 .apps h2 { margin: 0 15px 10px 10px; padding: 0; color: #000; font-size: 16px; font-weight: bold; }
 .apps h2 span { float: right; color: #A0A0A0; font-weight: normal; }
 .apps h2 i { margin-right: 8px; color: #000; font-size: 20px; float: left; }
@@ -167,20 +171,20 @@ hr { border-color: #E0E0E0; }
 .apps .item .debug { float: right; width: 80px; margin: 5px 8px 0 0; text-align: right; }
 .apps .item .debug i { margin-right: 8px; }
 .apps .item .port { font-size: 10px; font-family: $monospace; color: #A0A0A0; }
-.apps .item .connections { min-width: 16px; height: 16px; padding: 0 2px; font-size: 9px; text-align: center; line-height: 15px; background-color: #FFF; border: 1px solid #D0D0D0; color: #000; position: relative; display: inline-block; border-radius: 3px; margin-left: 5px; }
+.apps .item .connections { min-width: 16px; height: 16px; padding: 0 2px; font-size: 9px; text-align: center; line-height: 15px; background-color: #FFF; border: 1px solid #D0D0D0; color: #000; position: relative; display: inline-block; border-radius: var(--radius); margin-left: 5px; }
 .apps .offline { background-color: #F8F8F8; }
 .apps .offline .url a { color: #B0B0B0; }
 .apps .offline .url .badge { background-color: #D0D0D0; color: #777; }
 .apps .iserror .url a { color: red; }
 .apps .trending { float: left; margin: 8px 0 0 0; }
-.apps .item .controls button, .apps .item .controls a { margin: 3px 0 0 5px; width: 21px; height: 21px; background-color: #FFF; border: 0; font-size: 11px; float: right; padding: 0; line-height: 22px; text-align: center; border-radius: 3px; color: #000; }
+.apps .item .controls button, .apps .item .controls a { margin: 3px 0 0 5px; width: 21px; height: 21px; background-color: #FFF; border: 0; font-size: 11px; float: right; padding: 0; line-height: 22px; text-align: center; border-radius: var(--radius); color: #000; }
 .apps .item .controls a { margin-left: 0 !important; }
 .apps .item .controls button:hover, .apps .item .controls a:hover { background-color: $color; color: #FFF !important; }
 .apps .offline-text { line-height: 27px; color: #D63B32; font-size: 11px; }
 .apps .openfiles { float: right; font-size: 11px; color: #777; line-height: 27px; }
 .apps .openfiles i { margin-left: 5px; }
 
-.badge { font-size: 11px; padding: 1px 6px 2px; border-radius: 2px; background-color: #F0F0F0; line-height: 12px; vertical-align: middle; margin-top: -2px; position: relative; display: inline-block; color: white; }
+.badge { font-size: 11px; padding: 1px 6px 2px; border-radius: var(--radius); background-color: #F0F0F0; line-height: 12px; vertical-align: middle; margin-top: -2px; position: relative; display: inline-block; color: white; }
 .badge i { margin-right: 3px; }
 .badge-blue { background-color: #4285F4; }
 .badge-red { background-color: #DA4453; }
@@ -204,7 +208,7 @@ hr { border-color: #E0E0E0; }
 .apps .statsbar { padding: 10px 5px 0; }
 .apps .statsbar figure { width: 16.6%; position: relative; display: inline-block; padding: 10px; }
 .apps .statsbar figure .icon { float: right; color: #888888; font-size: 20px; }
-.apps .statsbar figure > div { padding: 10px 15px; border: 1px solid #E0E0E0; background: linear-gradient(0deg,#F8F8F8,#FFF); border-radius: 3px; }
+.apps .statsbar figure > div { padding: 10px 15px; border: 1px solid #E0E0E0; background: linear-gradient(0deg,#F8F8F8,#FFF); border-radius: var(--radius); }
 .apps .statsbar figure .name { font-size: 12px; color: #777777; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 .apps .statsbar figure .value { font-size: 17px; font-weight: bold; color: #000000; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 .apps .statsbar .warning > div { border-color: red; border-width: 1px; }
@@ -240,7 +244,7 @@ hr { border-color: #E0E0E0; }
 .filebrowser .CodeMirror { border: 0; }
 
 .listing figure { width: 25%; position: relative; display: inline-block; padding: 10px; vertical-align: top; }
-.listing figure .border { border: 1px solid #E0E0E0; background-color: #FFFFFF; border-radius: 3px; }
+.listing figure .border { border: 1px solid #E0E0E0; background-color: #FFFFFF; border-radius: var(--radius); }
 .listing figure .highlight { border: 2px solid $color; }
 .listing figure .disabled { border-color: #F0F0F0; background-color: #F9F9F9; }
 .listing figure .border-warning { border-color: red; border-width: 2px; }
@@ -258,8 +262,8 @@ hr { border-color: #E0E0E0; }
 .buttons button:first-child { border-top-left-radius: 2px; border-bottom-left-radius: 2px; border-left: 1px solid #E0E0E0; }
 .buttons button:last-child { border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
 
-.tprogress { float: right; width: 50px; background-color: #E0E0E0; margin: 7px 0 0; border-radius: 3px; }
-.tprogress > div { height: 4px; border-radius: 3px; }
+.tprogress { float: right; width: 50px; background-color: #E0E0E0; margin: 7px 0 0; border-radius: var(--radius); }
+.tprogress > div { height: 4px; border-radius: var(--radius); }
 
 .ui-notificationspanel-item { padding: 10px 15px; font-size: 12px; border-top: 1px solid #E0E0E0; }
 .ui-notificationspanel-item:first-child { border-top: 0; }
@@ -303,7 +307,7 @@ hr { border-color: #E0E0E0; }
 .terminalwin .input { height: 40px; background-color: #F0F0F0; }
 .terminalwin .input input { height: 40px; width: 100%; background-color: transparent; outline: 0; width: 100%; border: 0; padding: 0 10px; margin: 0; }
 
-.togglebuttons { list-style: none; display: inline-block; margin: 0; padding: 0; border-radius: 2px; border: 1px solid #e0e0e0; font-size: 12px; }
+.togglebuttons { list-style: none; display: inline-block; margin: 0; padding: 0; border-radius: var(--radius); border: 1px solid #e0e0e0; font-size: 12px; }
 .togglebuttons.small { font-size: 11px; }
 .togglebuttons.small li { line-height: 24px; padding: 0 5px; }
 .togglebuttons li { min-width: 90px; text-align: center; cursor: pointer; float: left; border-right: 1px solid #e0e0e0; line-height: 38px; background-color: white; padding: 0 15px; }
@@ -312,3 +316,5 @@ hr { border-color: #E0E0E0; }
 .togglebuttons li:hover { background-color: #fffad7; }
 .togglebuttons li i { margin-right: 5px; }
 .togglebuttons li.selected { background-color: #4285F4; color: white; }
+
+.ui-configuration-group { background-color: #F8F8F8; padding: 10px 10px; border-radius: var(--radius) var(--radius) 0 0; }
