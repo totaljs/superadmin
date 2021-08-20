@@ -6,8 +6,147 @@
 		</nav>
 	</header>
 	<div data---="viewbox__common.page__margin:45;parent:.ui-layout2-section;scrollbar:1;visibleY:1">
-		<div class="padding" style="max-width:900px;margin:0 auto">
-			<div data---="properties2__?"></div>
+		<div class="padding" style="max-width:800px;margin:10px auto">
+
+			<div data---="configuration__?">
+				<script type="text/plain">
+					[
+						{
+							text: '@(General)',
+							type: 'group',
+							icon: 'fa fa-wrench'
+						},
+						{
+							text: '@(SuperAdmin name)',
+							summary: '@(Enter a name for this instance of SuperAdmin)',
+							name: 'name',
+							type: 'string',
+							width: 300,
+							required: 1
+						},
+						{
+							text: '@(E-mail address for daily summarization)',
+							summary: '@(SuperAdmin will send a daily summarization with on the email address below.)',
+							name: 'emailsummarization',
+							placeholder: '@',
+							type: 'string',
+							width: 300,
+							transform: 'email',
+							noborder: 1
+						},
+						{
+							text: '@(Backups)',
+							type: 'group',
+							icon: 'fas fa-server'
+						},
+						{
+							text: '@(Enable FTP backups)',
+							name: 'allowbackup',
+							type: 'boolean'
+						},
+						{
+							text: '@(FTP address)',
+							visible: 'model => model.allowbackup',
+							name: 'ftp',
+							type: 'string',
+							monospace: 1,
+							required: 1,
+							note: '@(In the form:) <b>ftp://username:password@hostname</b>'
+						},
+						{
+							text: '@(Hourly interval)',
+							visible: 'model => model.allowbackup',
+							name: 'intervalbackup',
+							type: 'number',
+							monospace: 1,
+							required: 1,
+							width: 140,
+							max: 100,
+							min: 1,
+							note: '@(In hours)'
+						},
+						{
+							text: '@(Total.js API Services)',
+							type: 'group'
+						},
+						{
+							text: '@(Enable API services)',
+							summary: '@(With the Total.js API key, the OpenPlatform can send SMS messages or email messages via Total.js API services. You don\'t need your own SMTP server or SMS provider.)',
+							name: 'allow_totalapi',
+							type: 'boolean'
+						},
+						{
+							text: '@(Total.js API token)',
+							summary: '@(You can obtain the Total.js API key on the link:) <a href="https://platform.totaljs.com/?open=api" class="b" target="_blank">https://platform.totaljs.com?open=api</a>',
+							visible: 'model => model.allow_totalapi',
+							required: 1,
+							name: 'totalapi',
+							placeholder: 'xxx-xxx-xxx-xxx',
+							camouflage: 1,
+							monospace: 1,
+							type: 'string',
+							button: '<i class="fa fa-angle-right mr5"></i>@(Verify API key)',
+							click: '?/checktoken'
+						},
+						{
+							text: '@(Enable email sender via Total.js API)',
+							summary: '@(All email messages will send primary via Total.js API Services)',
+							visible: 'model => model.allow_totalapi',
+							name: 'mail_api',
+							type: 'boolean'
+						},
+						{
+							text: '@(Total.js Message Service (TMS))',
+							type: 'group'
+						},
+						{
+							text: '@(Enable TMS)',
+							summary: '@(TMS allows you to publish and subscribe data of most important internal operations in the OpenPlatform.) <a href="https://docs.totaljs.com/tms/" target="_blank"><i class="fas fa-book mr5"></i>@(TMS documentation)</a>.',
+							name: 'allow_tms',
+							type: 'boolean'
+						},
+						{
+							text: '@(Security token)',
+							visible: 'model => model.allow_tms',
+							required: 1,
+							summary: '<span data-bind="location.origin__text b:value + \'/$tms/\'">@(Endpoint for the Total.js Message Service app will be in the form <b></b>)</span>',
+							name: 'secret_tms',
+							placeholder: 'xxx-xxx-xxx-xxx',
+							monospace: 1,
+							camouflage: 1,
+							type: 'string',
+							button: '<i class="fa fa-angle-right mr5"></i>@(Generate token)',
+							click: '?/generatetmstoken'
+						},
+						{
+							text: '@(SMTP server)',
+							type: 'group',
+							icon: 'far fa-envelope'
+						},
+						{
+							text: '@(Hostname)',
+							name: 'mail_smtp',
+							type: 'string',
+							placeholder: 'localhost'
+						},
+						{
+							text: '@(Options)',
+							name: 'mail_smtp_options',
+							type: 'string',
+							placeholder: '{}',
+							camouflage: 1,
+							monospace: 1,
+							note: '@(Follow:) <a href="https://docs.totaljs.com/total4/4047c001sd51c/#4c10a001bl51c" target="_blank">https://docs.totaljs.com/total4/4047c001sd51c/#4c10a001bl51c</a>'
+						},
+						{
+							text: '@(Sender email address)',
+							name: 'mail_address_from',
+							type: 'string',
+							noborder: 1
+						}
+					]
+				</script>
+			</div>
 		</div>
 	</div>
 </div>
@@ -24,14 +163,20 @@
 			DAPI('settings_read', '?');
 		};
 
+		exports.generatetmstoken = function() {
+			SET('?.secret_tms', GUID(30));
+		};
+
+		exports.checktoken = function() {
+			var model = GET('?');
+			model.totalapi && AJAX('POST https://api.totaljs.com/check/ { "x-token": "{0}" }'.format(model.totalapi), ASETTER('message/response', function(response) {
+				SETTER('message/success', '@(Token is valid, your current credits: <b>{0}</b>.)'.format(response.credits.format(2)));
+			}));
+		};
+
 		exports.submit = function() {
-			var items = GET('? @reset');
-			var data = {};
-			for (var i = 0; i < items.length; i++) {
-				var item = items[i];
-				data[item.name] = item.value;
-			}
-			DAPI('settings_save @showloading', data, ASETTER('message/response @hideloading', '@(Settings have been applied successfully)'));
+			var model = GET('? @reset');
+			DAPI('settings_save @showloading', model, ASETTER('message/response @hideloading', '@(Settings have been applied successfully)'));
 		};
 
 	});
