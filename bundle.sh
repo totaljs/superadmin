@@ -5,6 +5,7 @@ cp -a ../controllers/ controllers
 cp -a ../definitions/ definitions
 cp -a ../public/ public
 cp -a ../private/ private
+cp -a ../jsonschemas/ jsonschemas
 cp -a ../schemas/ schemas
 cp -a ../resources/ resources
 cp -a ../tasks/ tasks
