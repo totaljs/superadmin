@@ -1111,7 +1111,6 @@ SuperAdmin.load = function(callback) {
 				for (var i = 0; i < APPLICATIONS.length; i++) {
 					var item = APPLICATIONS[i];
 					item.pid = 0;
-					item.notified = []; // IDs of already notified alarms
 					item.linker = item.url.superadmin_linker(item.path);
 					!item.priority && (item.priority = 0);
 					!item.delay && (item.delay = 0);
@@ -1154,6 +1153,8 @@ SuperAdmin.makescripts = function(app, callback) {
 
 	data.total = app.version === 'total3' ? 'total.js' : app.version;
 	data.threads = app.threads ? app.threads === '-' ? 'true' : ('\'' + app.threads + '\'') : '';
+	data.servicemode = app.servicemode;
+	data.watcher = app.watcher;
 
 	// Old format
 	if (typeof(app.cluster) === 'number') {
@@ -1356,19 +1357,11 @@ SuperAdmin.notify = function(app, type, callback) {
 		return;
 	}
 
-	var skip = {};
-
 	MAIN.rules.wait(function(item, next) {
 
 		var key = 'delay' + (item.each ? app.id + item.id : item.id);
 
-		if ((item.appid && item.appid !== app.id) || skip[key] || item[key] > NOW || (!item.debug && app.debug) || (item.highpriority && !app.highpriority)) {
-			next();
-			return;
-		}
-
-		// Already notified
-		if (app.notified.includes(item.id)) {
+		if ((item.appid && item.appid !== app.id) || item.appsnotified[key] > NOW || (!item.debug && app.debug) || (item.highpriority && !app.highpriority)) {
 			next();
 			return;
 		}
@@ -1381,8 +1374,7 @@ SuperAdmin.notify = function(app, type, callback) {
 
 		if (item.validate(app)) {
 
-			skip[key] = true;
-			item[key] = NOW.add(item.delay);
+			item.appsnotified[key] = NOW.add(item.delay);
 
 			var data = [];
 			data.push('CPU: ' + app.current.cpu + '%');
@@ -1403,15 +1395,13 @@ SuperAdmin.notify = function(app, type, callback) {
 			else
 				app.stats.alarms = 1;
 
-			app.notified.push(item.id);
-
 			SuperAdmin.send_notify(type, message);
-			NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW }).id(item.id);
+			NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW, appsnotified: item.appsnotified }).id(item.id);
+
 			item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
 			item.email && SuperAdmin.send_email(item.email, message, item.name);
 
 			PUBLISH('notify_apps', { type: type, body: message, message: item.message, dtnotified: NOW, dttms: NOW });
-
 		}
 
 		next();
@@ -1465,7 +1455,6 @@ SuperAdmin.notify_system = function() {
 
 	});
 };
-
 
 SuperAdmin.send_sms = function(numbers, message) {
 

@@ -1,5 +1,5 @@
 401                    : Invalid permissions
-404                    : The requested tecord not found
+404                    : The requested record not found
 error-file             : File not found in the request
 error-disabled         : Your account was disabled
 error-credentials      : Invalid credentials

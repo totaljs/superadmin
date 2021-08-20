@@ -3,7 +3,7 @@
 // https://www.totaljs.com
 // ===================================================
 
-const total = '{{ value.total }}';
+const total = '{{ value.total }}' || 'total4';
 const options = {};
 
 // options.ip = '127.0.0.1';
@@ -22,6 +22,14 @@ options.logs = 'isolated';
 
 {{ if value.cluster }}
 options.cluster = {{ value.cluster }};
+{{ fi }}
+
+{{ if !value.debug && value.watcher }}
+options.watcher = true;
+{{ fi }}
+
+{{ if value.servicemode }}
+options.servicemode = true;
 {{ fi }}
 
 {{ if value.unixsocket }}

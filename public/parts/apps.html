@@ -12,7 +12,7 @@
 	</header>
 
 	<div data---="viewbox__common.page__margin:45;parent:.ui-layout2-section;scrollbar:1;visibleY:1">
-		<div class="help" style="margin:10px 0 0 20px;line-height:18px"><i class="far fa-bookmark"></i>@(Quick search:) <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@debug</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@release</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total3</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total4</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@errors</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@stopped</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@running</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@threads</span> <span class="link exec badge badge-yellow badge-small" data-exec="?/searchtype">@highpriority</span></div>
+		<div class="help" style="margin:10px 0 0 20px;line-height:18px"><i class="far fa-bookmark"></i>@(Quick search:) <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@debug</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@release</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total3</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total4</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@errors</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@stopped</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@running</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@threads</span> <span class="link exec badge badge-purple badge-small" data-exec="?/searchtype">@service</span> <span class="link exec badge badge-yellow badge-small" data-exec="?/searchtype">@highpriority</span></div>
 		<div data-bind="?.apps.length__visible" class="invisible">
 			<div class="statsbar">
 				<figure>
@@ -77,7 +77,7 @@
 							{{ fi }}
 							<div>
 								{{ foreach n in m.items }}
-									<div class="item search" data-bind="appsinfo.app{{ n.id }}__.offline:!value||!value.is__.iserror:value&&value.analyzator==='error'__delay:100__exec:?/makesearch" data-id="{{ n.id }}" data-search="{{ n.url }}" data-url="{{ n.url }} {{ n.name }} {{ if n.debug }}@debug{{ else }}@release{{ fi }} @{{ n.version }}{{ if n.highpriority }} @highpriority{{ fi }}">
+									<div class="item search" data-bind="appsinfo.app{{ n.id }}__.offline:!value||!value.is__.iserror:value&&value.analyzator==='error'__delay:100__exec:?/makesearch" data-id="{{ n.id }}" data-search="{{ n.url }}" data-url="{{ n.url }} {{ n.name }} {{ if n.debug }}@debug{{ else }}@release{{ fi }} @{{ n.version }}{{ if n.highpriority }} @highpriority{{ fi }}{{ if n.servicemode }} @service{{ fi }}">
 										<div class="controls">
 											<button class="exec" data-exec="?/menu" name="menu" title="@(Settings)"><i class="fas fa-ellipsis-h"></i></button>
 											<button class="exec" data-exec="?/restart" name="restart" title="@(Restart)"><i class="fa fa-refresh"></i></button>
@@ -85,7 +85,7 @@
 										</div>
 										<div class="stats" data-bind="appsinfo.app{{ n.id }}__template:{#appstats}"></div>
 										{{ if n.debug }}<div class="debug"><i class="fas fa-flask"></i><span class="badge badge-purple">@(debug)</span></div>{{ fi }}
-										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.https }}<span class="ssl badge badge-green badge-small mr5">SSL</span>{{ fi }}<a href="{{ n.url }}"{{ if n.name }} title="{{ n.domain }}"{{fi}} target="_blank">{{ if n.name }}{{ n.name }}{{ else }}{{ n.domain }}{{ fi }}</a>{{ if n.threads }}<i class="fa fa-cogs ml5" title="@(Threads are enabled)"></i>{{ fi }}{{ if n.highpriority }} <span class="hidden-sm hidden-xs badge badge-yellow">@(high priority)</span>{{ fi }} {{ if !n.unixsocket }}<span class="port">{{ n.port }}</span>{{ fi }}<b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
+										<div class="url"><em>{{ n.version }}</em><div class="openfiles" data-bind="appsinfo.app{{ n.id }}.openfiles__text span__show"><span></span><i class="far fa-copy"></i></div>{{ if n.servicemode }}<span class="ssl badge badge-pink badge-small mr5">service</span>{{ fi }}{{ if n.https }}<span class="ssl badge badge-green badge-small mr5">SSL</span>{{ fi }}{{ if n.servicemode }}{{ n.name }}{{ else }}<a href="{{ n.url }}"{{ if n.name }} title="{{ n.domain }}"{{fi}} target="_blank">{{ if n.name }}{{ n.name }}{{ else }}{{ n.domain }}{{ fi }}</a>{{ if n.threads }}<i class="fa fa-cogs ml5" title="@(Threads are enabled)"></i>{{ fi }}{{ fi }}{{ if n.highpriority }} <span class="hidden-sm hidden-xs badge badge-yellow">@(high priority)</span>{{ fi }} {{ if !n.unixsocket }}<span class="port">{{ n.port }}</span>{{ fi }}<b data-bind="appsinfo.app{{ n.id }}.connections__show__text" title="@(HTTP connections)" class="connections hidden"></b></div>
 									</div>
 								{{ end }}
 							</div>
@@ -118,6 +118,7 @@
 <div data---="importer__common.form__if:filebrowser;url:/forms/filebrowser.html"></div>
 <div data---="importer__common.form__if:analyzator;url:/forms/analyzator.html"></div>
 <div data---="importer__common.form__if:app;url:/forms/app.html"></div>
+<div data---="importer__common.form__if:service;url:/forms/service.html"></div>
 <div data---="importer__common.form__if:summary;url:/forms/summary.html"></div>
 <div data---="importer__common.form__if:upload;url:/forms/upload.html"></div>
 <div data---="importer__common.form__if:intro;url:/forms/intro.html"></div>
@@ -288,8 +289,14 @@
 
 						// response.sslexpire = apps.apps.findValue('id', response.id, 'sslexpire', null);
 						response.sslcustom = !!response.ssl_key;
-						SET('appform @reset', response);
-						SET('common.form @hideloading', 'app');
+
+						if (response.servicemode) {
+							SET('serviceform @reset', response);
+							SET('common.form @hideloading', 'service');
+						} else {
+							SET('appform @reset', response);
+							SET('common.form @hideloading', 'app');
+						}
 
 					}));
 
@@ -345,9 +352,22 @@
 			el.attrd('search', el.attrd('url') + (plus ? (' ' + plus) : ''));
 		};
 
-		exports.create = function() {
-			SET('appform @default', { unixsocket: true });
-			SET('common.form', 'app');
+		exports.create = function(el) {
+			var opt = {};
+			opt.element = el;
+			opt.items = [];
+			opt.items.push({ id: 'app', name: '@(App)', icon: 'fa fa-globe' });
+			opt.items.push({ id: 'service', name: '@(Service)', icon: 'fa fa-cogs' });
+			opt.callback = function(item) {
+				if (item.id === 'app') {
+					SET('appform @default', { unixsocket: true });
+					SET('common.form', 'app');
+				} else {
+					SET('serviceform @default', {});
+					SET('common.form', 'service');
+				}
+			};
+			SETTER('menu/show', opt);
 		};
 
 		exports.menubutton = function(el) {

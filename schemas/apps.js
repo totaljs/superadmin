@@ -5,12 +5,13 @@ const Exec = require('child_process').exec;
 NEWSCHEMA('Apps', function(schema) {
 
 	schema.define('id',             UID);
-	schema.define('url',           'String', true);
+	schema.define('url',           'String');
 	schema.define('name',          'String(50)');
 	schema.define('category',      'String(50)');
 	schema.define('redirect',      '[String]');
 	schema.define('allow',         '[String]');
 	schema.define('disallow',      '[String]');
+	schema.define('servicemode',    Boolean);
 	schema.define('ssl_key',        String);
 	schema.define('ssl_cer',        String);
 	schema.define('threads',        String);
@@ -34,6 +35,9 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.define('highpriority',   Boolean);                  // App with high priority
 	schema.define('unixsocket',     Boolean);                  // Enables unixsocket
 
+	schema.required('name', model => model.servicemode);
+	schema.required('url', model => !model.servicemode);
+
 	// TMS - Fields are added only for TMS of this schema
 	schema.jsonschema_define('userid',    'String');
 	schema.jsonschema_define('username',  'String');
@@ -41,6 +45,13 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.jsonschema_define('ip',        'String');
 	schema.jsonschema_define('dtupdated', 'Date');
 	schema.jsonschema_define('dttms',     'Date');
+
+	function reset_alarms(appid) {
+		MAIN.rules.wait(function(item, next) {
+			delete item.appsnotified[appid];
+			NOSQL('alarms').modify({ appsnotified: item.appsnotified }).id(item.id).callback(next);
+		});
+	}
 
 	schema.setQuery(function($) {
 		$.callback(APPLICATIONS);
@@ -189,7 +200,8 @@ NEWSCHEMA('Apps', function(schema) {
 
 		PUBLISH('apps_restart', FUNC.tms($, app));
 
-		app.notified = [];
+		reset_alarms(app.id);
+
 		app.current = null;
 		app.analyzatoroutput = null;
 
@@ -246,7 +258,8 @@ NEWSCHEMA('Apps', function(schema) {
 				return;
 			}
 
-			app.notified = [];
+			reset_alarms(app.id);
+
 			app.current = null;
 			app.analyzatoroutput = null;
 			SuperAdmin.wsnotify('app_restart', app);
@@ -267,10 +280,20 @@ NEWSCHEMA('Apps', function(schema) {
 
 	});
 
-	// Checks port number
+	// Checks url
 	schema.addWorkflow('check', function($, model) {
 
 		model.url = model.url.superadmin_clean();
+
+		if (model.servicemode) {
+			$.success();
+			return;
+		}
+
+		if (!model.url) {
+			$.invalid('url');
+			return;
+		}
 
 		var item;
 
@@ -306,11 +329,12 @@ NEWSCHEMA('Apps', function(schema) {
 		var item = CLONE(model);
 		var newbie = !model.id;
 
-		item.linker = model.linker = item.url.superadmin_linker(model.path);
-
-		if (!item.linker) {
-			$.invalid('url');
-			return;
+		if (!model.servicemode) {
+			item.linker = model.linker = item.url.superadmin_linker(model.path);
+			if (!item.linker) {
+				$.invalid('url');
+				return;
+			}
 		}
 
 		if (item.version === 'total3')
@@ -332,9 +356,15 @@ NEWSCHEMA('Apps', function(schema) {
 			}
 
 			var app = APPLICATIONS[index];
-			if (app.linker !== model.linker) {
-				$.invalid('error-app-linker');
-				return;
+
+			if (model.servicemode) {
+				item.url = app.url;
+				item.linker = model.linker = item.url.superadmin_linker(model.path);
+			} else {
+				if (app.linker !== model.linker) {
+					$.invalid('error-app-linker');
+					return;
+				}
 			}
 
 			model.restart = app.cluster !== model.cluster || model.debug !== app.debug || model.version !== app.version || model.unixsocket !== app.unixsocket;
@@ -349,11 +379,18 @@ NEWSCHEMA('Apps', function(schema) {
 			item.dtcreated = NOW;
 			model.restart = true;
 
+			if (item.servicemode) {
+				item.url = 'service-' + item.name.slug() + '-' + Date.now().toString(36);
+				item.linker = model.linker = item.url.superadmin_linker();
+			}
+
 			PUBLISH('apps_insert', FUNC.tms($, item));
 
 		}
 
-		TASK('nginx/init', $.successful(function() {
+		reset_alarms(item.id);
+
+		var callback = function() {
 
 			if (newbie) {
 				SuperAdmin.wsnotify('app_create', item);
@@ -365,7 +402,6 @@ NEWSCHEMA('Apps', function(schema) {
 				EMIT('superadmin_app_update', item, index);
 			}
 
-			item.notified = [];
 			item.current = null;
 			item.analyzatoroutput = null;
 
@@ -379,8 +415,12 @@ NEWSCHEMA('Apps', function(schema) {
 			$.success(item.id);
 
 			MAIN.ws.send({ TYPE: 'refresh' });
+		};
 
-		}), $).value = item;
+		if (item.servicemode) {
+			callback();
+		} else
+			TASK('nginx/init', $.successful(callback), $).value = item;
 	});
 
 	schema.setRemove(function($) {
