@@ -34,6 +34,7 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.define('version',        String);                   // Total.js Version
 	schema.define('highpriority',   Boolean);                  // App with high priority
 	schema.define('unixsocket',     Boolean);                  // Enables unixsocket
+	schema.define('editcode',       String);                   // A link to the Code Editor
 
 	schema.required('name', model => model.servicemode);
 	schema.required('url', model => !model.servicemode);
@@ -367,7 +368,7 @@ NEWSCHEMA('Apps', function(schema) {
 				}
 			}
 
-			model.restart = app.cluster !== model.cluster || model.debug !== app.debug || model.version !== app.version || model.unixsocket !== app.unixsocket;
+			model.restart = app.cluster !== model.cluster || model.debug !== app.debug || model.version !== app.version || model.unixsocket !== app.unixsocket || model.editcode !== app.editcode;
 			item.current = app.current;
 			item.analyzatoroutput = app.analyzatoroutput;
 			item.dtupdated = NOW;

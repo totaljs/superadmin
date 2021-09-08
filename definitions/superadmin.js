@@ -1156,6 +1156,9 @@ SuperAdmin.makescripts = function(app, callback) {
 	data.servicemode = app.servicemode;
 	data.watcher = app.watcher;
 
+	if (app.editcode && app.editcode.length > 7)
+		data.editcode = app.editcode;
+
 	// Old format
 	if (typeof(app.cluster) === 'number') {
 		app.cluster = app.cluster + '';
