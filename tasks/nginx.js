@@ -37,6 +37,7 @@ NEWTASK('nginx', function(push) {
 				}
 			}
 
+			model.allow80 = app.allow80;
 			model.isssl = app.ssl;
 			model.domains = domains;
 			model.acmethumbprint = SuperAdmin.options.acmethumbprint;
@@ -80,7 +81,7 @@ NEWTASK('nginx', function(push) {
 			}
 
 			if (app.allow80 && app.url.startsWith('https:'))
-				model.redirect.shift();
+				model.redirect = model.redirect.slice(1);
 
 			$.next('create');
 
