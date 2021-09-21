@@ -35,6 +35,7 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.define('highpriority',   Boolean);                  // App with high priority
 	schema.define('unixsocket',     Boolean);                  // Enables unixsocket
 	schema.define('editcode',       String);                   // A link to the Code Editor
+	schema.define('allow80',        Boolean);                  // Disables redirect from HTTP to HTTPS
 
 	schema.required('name', model => model.servicemode);
 	schema.required('url', model => !model.servicemode);

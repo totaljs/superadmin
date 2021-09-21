@@ -9,6 +9,10 @@
 				@(The URL address must contain protocol <code>http</code> or <code>https</code>).<br />
 				<b>@(Make sure that DNS A records for this domain are targeted to this server</b>.)
 			</div>
+			<div data-bind="?.url__show:value && value.indexOf('https:') !== -1" class="hidden">
+				<div data---="input__?.allow80__type:checkbox" class="b">@(Disable redirect from HTTP to HTTPS)</div>
+				<br />
+			</div>
 			<div data---="input__?.name__placeholder:@(e.g. CMS)" class="m">@(Internal name)</div>
 			<div data---="input__?.category__dirsource:apps.categories;dircustom:true;dirempty:@(Without category);placeholder:@(Choose a category);dirplaceholder:@(Search or create new)" class="m">@(Category)</div>
 			<div data---="input__?.debug__type:checkbox__true" class="inline b mr5 black">@(Enable debug mode)</div>

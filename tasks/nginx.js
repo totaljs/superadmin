@@ -79,6 +79,9 @@ NEWTASK('nginx', function(push) {
 					model.redirect = [domains[1]];
 			}
 
+			if (app.allow80 && app.url.startsWith('https:'))
+				model.redirect.shift();
+
 			$.next('create');
 
 		} else
