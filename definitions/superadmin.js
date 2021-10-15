@@ -604,12 +604,16 @@ SuperAdmin.run = function(port, callback) {
 						return;
 					}
 
-					var options = ['--nouse-idle-notification', '--expose-gc'];
+					var options = [];
+					var npmstart = app.version === 'npmstart';
 
-					app.memory && options.push('--max_old_space_size=' + app.memory);
-					options.push(filename);
+					if (!npmstart) {
+						options.push('--nouse-idle-notification', '--expose-gc');
+						app.memory && options.push('--max_old_space_size=' + app.memory);
+						options.push(filename);
+					}
 
-					if (!CONF.unixsocket || !app.unixsocket)
+					if (npmstart || !CONF.unixsocket || !app.unixsocket)
 						options.push(app.port);
 
 					options.push(app.debug ? '--debug' : '--release');
@@ -617,19 +621,32 @@ SuperAdmin.run = function(port, callback) {
 					if (!app.debug && app.watcher)
 						options.push('--watcher');
 
-					var p = Spawn('node', options, {
-						stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
-						cwd: Path.join(CONF.directory_www, linker),
-						detached: true,
-						uid: SuperAdmin.run_as_user.id,
-						gid: SuperAdmin.run_as_user.group
-					});
+					if (npmstart) {
+						options.unshift('--');
+						options.unshift('start');
+					}
 
-					Fs.writeFile(Path.join(CONF.directory_www, linker, 'superadmin.pid'), p.pid + '', NOOP);
-					p.unref();
+					var run = function() {
 
-					EMIT('superadmin_app_run', app);
-					callback && setTimeout(callback, app.delay || 1000);
+						var p = Spawn(npmstart ? 'npm' : 'node', options, {
+							stdio: ['ignore', Fs.openSync(log, 'a'), Fs.openSync(log, 'a')],
+							cwd: Path.join(CONF.directory_www, linker),
+							detached: true,
+							uid: SuperAdmin.run_as_user.id,
+							gid: SuperAdmin.run_as_user.group
+						});
+
+						Fs.writeFile(Path.join(CONF.directory_www, linker, 'superadmin.pid'), p.pid + '', NOOP);
+						p.unref();
+
+						EMIT('superadmin_app_run', app);
+						callback && setTimeout(callback, app.delay || 1000);
+					};
+
+					if (npmstart)
+						makenpmstart(app, run);
+					else
+						run();
 				});
 			});
 		});
@@ -637,6 +654,53 @@ SuperAdmin.run = function(port, callback) {
 
 	return SuperAdmin;
 };
+
+function makenpmstart(app, callback) {
+
+	var directory = Path.join(CONF.directory_www, app.linker);
+	var ops = [];
+	var opt = {};
+
+	// Check package.json
+	ops.push(function(next) {
+		var filename = Path.join(directory, 'package.json');
+		Fs.lstat(filename, function(err, stats) {
+			if (stats) {
+				opt.package = true;
+				next();
+			} else {
+				// Create
+				Fs.writeFile(filename, JSON.stringify({ name: 'App', main: 'index.js', version: '1.0.0', dependencies: { total4: 'latest' }, scripts: { start: 'node index.js' }}), next);
+			}
+		});
+
+	});
+
+	// Check package_lock.json
+	ops.push(function(next) {
+		if (opt.package) {
+			var filename = Path.join(directory, 'package-lock.json');
+			Fs.lstat(filename, function(err, stats) {
+				if (stats)
+					opt.installed = true;
+				next();
+			});
+		} else
+			next();
+	});
+
+	// Check node_modules
+	ops.push(function(next) {
+		if (opt.installed)
+			next();
+		else
+			SuperAdmin.npminstall(app, next);
+	});
+
+	// done
+	ops.async(callback);
+
+}
 
 SuperAdmin.restart = function(port, callback) {
 	return SuperAdmin.kill(port, function() {
@@ -1149,6 +1213,26 @@ SuperAdmin.makescripts = function(app, callback) {
 		return;
 	}
 
+	var linker = app.linker;
+	var directory = Path.join(CONF.directory_www, linker);
+
+	if (app.version === 'npmstart') {
+		Exec('mkdir -p ' + directory, function() {
+			Exec('chmod 777 {0}'.format(directory), function() {
+				var filename = Path.join(directory, 'index.js');
+				Fs.lstat(filename, function(err) {
+					if (err) {
+						SuperAdmin.copy(PATH.private('index.js'), Path.join(directory, 'index.js'), function(err) {
+							callback(err);
+						}, (response) => Tangular.render(response.toString('utf8'), { value: { total: 'total4' }}).replace(/\n{3,}/g, '\n\n'));
+					} else
+						callback();
+				});
+			});
+		});
+		return;
+	}
+
 	var data = {};
 
 	data.total = app.version === 'total3' ? 'total.js' : app.version;
@@ -1181,8 +1265,6 @@ SuperAdmin.makescripts = function(app, callback) {
 	data.unixsocket = CONF.unixsocket && app.unixsocket ? Path.join(CONF.directory_www, app.linker, 'superadmin.socket') : null;
 
 	// data.cluster = data.threads ? app.cluster <= 1 || app.cluster === 'auto' ? '\'auto\'' : app.cluster : 0;
-	var linker = app.linker;
-	var directory = Path.join(CONF.directory_www, linker);
 	Exec('mkdir -p ' + directory, function() {
 		Exec('chmod 777 {0}'.format(directory), function() {
 			SuperAdmin.copy(PATH.private('index.js'), Path.join(directory, 'index.js'), function(err) {
