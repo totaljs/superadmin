@@ -8,7 +8,7 @@ const Spawn = require('child_process').spawn;
 const SuperAdmin = global.SuperAdmin = {};
 
 const REG_EMPTY = /\s{2,}/g;
-// const REG_PID = /\d+\s/;
+const REG_PID = /\d+\s/;
 const REG_APPDISKSIZE = /^[\d.,]+/;
 const REG_FINDVERSION = /[0-9.]+/;
 
@@ -519,25 +519,25 @@ SuperAdmin.pid = function(port, callback) {
 		return;
 	}
 
-	var pidfilename = Path.join(CONF.directory_www, item.linker, 'superadmin.pid');
-	Fs.readFile(pidfilename, function(err, buffer) {
-		if (buffer) {
-			var pid = buffer.toString('ascii');
-			Exec('ps -p ' + pid, err => callback(err, err ? null : pid, item));
-		} else
-			callback('500', null, item);
-	});
-
-	/*
-	Exec('lsof -i :' + port + ' | grep \'LISTEN\'', function(err, response) {
-		var pid = response.match(REG_PID);
-		if (pid) {
-			item.pid = pid.toString().trim();
-			callback(null, item.pid, item);
-		} else
-			callback(err, null, item);
-	});*/
-
+	if (item.version === 'npmstart' || !item.version) {
+		Exec('lsof -i :' + port + ' | grep \'LISTEN\'', function(err, response) {
+			var pid = response.match(REG_PID);
+			if (pid) {
+				item.pid = pid.toString().trim();
+				callback(null, item.pid, item);
+			} else
+				callback(err, null, item);
+		});
+	} else {
+		var pidfilename = Path.join(CONF.directory_www, item.linker, 'superadmin.pid');
+		Fs.readFile(pidfilename, function(err, buffer) {
+			if (buffer) {
+				var pid = buffer.toString('ascii');
+				Exec('ps -p ' + pid, err => callback(err, err ? null : pid, item));
+			} else
+				callback('500', null, item);
+		});
+	}
 	return SuperAdmin;
 };
 
@@ -676,25 +676,9 @@ function makenpmstart(app, callback) {
 
 	});
 
-	// Check package_lock.json
-	ops.push(function(next) {
-		if (opt.package) {
-			var filename = Path.join(directory, 'package-lock.json');
-			Fs.lstat(filename, function(err, stats) {
-				if (stats)
-					opt.installed = true;
-				next();
-			});
-		} else
-			next();
-	});
-
 	// Check node_modules
 	ops.push(function(next) {
-		if (opt.installed)
-			next();
-		else
-			SuperAdmin.npminstall(app, next);
+		SuperAdmin.npminstall(app, next);
 	});
 
 	// done
