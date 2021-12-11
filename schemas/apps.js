@@ -255,7 +255,7 @@ NEWSCHEMA('Apps', function(schema) {
 
 		APPLICATIONS.wait(function(app, next) {
 
-			if (app.stopped) {
+			if (app.stopped || ($.query.version && app.version !== $.query.version)) {
 				next();
 				return;
 			}

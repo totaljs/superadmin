@@ -77,7 +77,7 @@
 							{{ fi }}
 							<div>
 								{{ foreach n in m.items }}
-									<div class="item search" data-bind="appsinfo.app{{ n.id }}__.offline:!value||!value.is__.iserror:value&&value.analyzator==='error'__delay:100__exec:?/makesearch" data-id="{{ n.id }}" data-search="{{ n.url }}" data-url="{{ n.url }} {{ n.name }} {{ if n.debug }}@debug{{ else }}@release{{ fi }} @{{ n.version }}{{ if n.highpriority }} @highpriority{{ fi }}{{ if n.servicemode }} @service{{ fi }}">
+									<div class="item search" data-bind="appsinfo.app{{ n.id }}__.offline:!value||!value.is__.iserror:value&&value.analyzator==='error'__delay:100__exec:?/makesearch" data-id="{{ n.id }}" data-search="{{ n.url }}" data-url="{{ n.url }} {{ n.name }} {{ if n.debug }}@debug{{ else }}@release{{ fi }} @{{ n.version }}{{ if n.highpriority }} @highpriority{{ fi }}{{ if n.servicemode }} @service{{ fi }}{{ if n.pid }} {{ n.pid }}{{ fi }}">
 										<div class="controls">
 											<button class="exec" data-exec="?/menu" name="menu" title="@(Settings)"><i class="fas fa-ellipsis-h"></i></button>
 											<button class="exec" data-exec="?/restart" name="restart" title="@(Restart)"><i class="fa fa-refresh"></i></button>
@@ -457,6 +457,32 @@
 			opt.offsetY = -5;
 
 			opt.items.push({ name: '@(Restart all apps)', icon: 'fas fa-retweet', id: 'restart' });
+
+			var count3 = 0;
+			var count4 = 0;
+			var countNPM = 0;
+
+			for (var i = 0; i < apps.apps.length; i++) {
+				var app = apps.apps[i];
+				if (!app.stopped) {
+					switch (app.version) {
+						case 'total3':
+							count3++;
+							break;
+						case 'total4':
+							count4++;
+							break;
+						case 'npmstart':
+							countNPM++;
+							break;
+					}
+				}
+			}
+
+			count3 && opt.items.push({ name: '@(Restart Total.js 3 apps) (' + count3 + ')', icon: 'fas fa-retweet', id: 'restart3' });
+			count4 && opt.items.push({ name: '@(Restart Total.js 4 apps) (' + count4 + ')', icon: 'fas fa-retweet', id: 'restart4' });
+			countNPM && opt.items.push({ name: '@(Restart NPM start apps) (' + countNPM + ')', icon: 'fas fa-retweet', id: 'restart5' });
+
 			opt.items.push('-');
 
 			if (user.sa)
@@ -481,6 +507,27 @@
 				if (item.id === 'restart') {
 					SETTER('approve/show', '@(Are you sure you want to restart all applications?)', '"far fa-play-circle" @(Restart)', function() {
 						DAPI('apps_restart_all @showloading', ASETTER('notifybar/response @hideloading', '@(Applications have been restarted successfully.)'));
+					});
+					return;
+				}
+
+				if (item.id === 'restart3') {
+					SETTER('approve/show', '@(Are you sure you want to restart all Total.js 3 applications?)', '"far fa-play-circle" @(Restart)', function() {
+						DAPI('apps_restart_all?version=total3 @showloading', ASETTER('notifybar/response @hideloading', '@(Applications have been restarted successfully.)'));
+					});
+					return;
+				}
+
+				if (item.id === 'restart4') {
+					SETTER('approve/show', '@(Are you sure you want to restart all Total.js 4 applications?)', '"far fa-play-circle" @(Restart)', function() {
+						DAPI('apps_restart_all?version=total4 @showloading', ASETTER('notifybar/response @hideloading', '@(Applications have been restarted successfully.)'));
+					});
+					return;
+				}
+
+				if (item.id === 'restart3') {
+					SETTER('approve/show', '@(Are you sure you want to restart all NPM start applications?)', '"far fa-play-circle" @(Restart)', function() {
+						DAPI('apps_restart_all?version=npmstart @showloading', ASETTER('notifybar/response @hideloading', '@(Applications have been restarted successfully.)'));
 					});
 					return;
 				}
