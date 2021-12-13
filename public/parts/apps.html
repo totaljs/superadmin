@@ -525,7 +525,7 @@
 					return;
 				}
 
-				if (item.id === 'restart3') {
+				if (item.id === 'restart5') {
 					SETTER('approve/show', '@(Are you sure you want to restart all NPM start applications?)', '"far fa-play-circle" @(Restart)', function() {
 						DAPI('apps_restart_all?version=npmstart @showloading', ASETTER('notifybar/response @hideloading', '@(Applications have been restarted successfully.)'));
 					});
