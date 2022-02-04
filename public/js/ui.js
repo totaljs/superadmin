@@ -1613,30 +1613,60 @@ COMPONENT('search', 'class:hidden;delay:50;attribute:data-search;splitwords:1;de
 			return;
 		}
 
-		var search = value.toSearch();
+		var raw = value.trim();
+		var search = raw.toSearch();
 		var count = 0;
 		var hidden = 0;
+		var custom = config.custom ? GET(self.makepath(config.custom)) : null;
 
-		if (config.splitwords)
+		if (config.splitwords) {
 			search = search.split(' ');
+			raw = raw.split(' ');
+		}
 
 		self.aclass(cls + '-used');
 
 		for (var i = 0; i < length; i++) {
 
 			var el = elements.eq(i);
-			var val = (el.attr(config.attribute) || '').toSearch();
 			var is = false;
 
+			if (custom) {
+
+				is = !custom(el, search);
+				el.tclass(config.class, is);
+
+				if (is)
+					hidden++;
+				else
+					count++;
+
+				continue;
+			}
+
+			var val = (el.attr(config.attribute) || '').trim();
+			var fuzzy = val.toSearch();
+
 			if (search instanceof Array) {
-				for (var j = 0; j < search.length; j++) {
-					if (val.indexOf(search[j]) === -1) {
+
+				for (var j = 0; j < raw.length; j++) {
+					if (val.indexOf(raw[j]) === -1) {
 						is = true;
 						break;
 					}
 				}
+
+				if (is) {
+					is = false;
+					for (var j = 0; j < search.length; j++) {
+						if (fuzzy.indexOf(search[j]) === -1) {
+							is = true;
+							break;
+						}
+					}
+				}
 			} else
-				is = val.indexOf(search) === -1;
+				is = fuzzy.indexOf(search) === -1 && val.indexOf(raw) === -1;
 
 			el.tclass(config.class, is);
 
@@ -6573,3 +6603,9 @@ COMPONENT('textboxlist','maxlength:100;required:false;error:You reach the maximu
 // Updated: 2020-12-03 11:08
 COMPONENT('menu',function(self,config,cls){self.singleton();self.readonly();self.nocompile&&self.nocompile();var cls2='.'+cls,is=false,issubmenu=false,isopen=false,events={},ul,children,prevsub,parentclass;self.make=function(){self.aclass(cls+' hidden '+cls+'-style-'+(config.style||1));self.append('<div class="{0}-items"><ul></ul></div><div class="{0}-submenu hidden"><ul></ul></div>'.format(cls));ul=self.find(cls2+'-items').find('ul');children=self.find(cls2+'-submenu');self.event('click','li',function(e){clearTimeout2(self.ID);var el=$(this);if(!el.hclass(cls+'-divider')&&!el.hclass(cls+'-disabled')){self.opt.scope&&M.scope(self.opt.scope);var index=el.attrd('index').split('-');if(index.length>1){self.opt.callback(self.opt.items[+index[0]].children[+index[1]]);self.hide()}else if(!issubmenu){self.opt.callback(self.opt.items[+index[0]]);self.hide()}}e.preventDefault();e.stopPropagation()});events.hide=function(){is&&self.hide()};self.event('scroll',events.hide);self.on('reflow + scroll + resize + resize2',events.hide);events.click=function(e){if(is&&!isopen&&(!self.target||(self.target!==e.target&&!self.target.contains(e.target))))setTimeout2(self.ID,self.hide,isMOBILE?700:300)};events.hidechildren=function(){if($(this.parentNode.parentNode).hclass(cls+'-items')){if(prevsub&&prevsub[0]!==this){prevsub.rclass(cls+'-selected');prevsub=null;children.aclass('hidden');issubmenu=false}}};events.children=function(){if(prevsub&&prevsub[0]!==this){prevsub.rclass(cls+'-selected');prevsub=null}issubmenu=true;isopen=true;setTimeout(function(){isopen=false},500);var el=prevsub=$(this);var index=+el.attrd('index');var item=self.opt.items[index];el.aclass(cls+'-selected');var html=self.makehtml(item.children,index);children.find('ul').html(html);children.rclass('hidden');var css={},offset=el.position();css.left=ul.width()-5;css.top=offset.top-5;var offsetX=offset.left;offset=self.element.offset();var w=children.width();var left=offset.left+css.left+w;if(left>WW+30)css.left=(offsetX-w)+5;children.css(css)}};self.bindevents=function(){events.is=true;$(document).on('touchstart mouseenter mousedown',cls2+'-children',events.children).on('touchstart mousedown',events.click);$(W).on('scroll',events.hide);self.element.on('mouseenter','li',events.hidechildren)};self.unbindevents=function(){events.is=false;$(document).off('touchstart mouseenter mousedown',cls2+'-children',events.children).off('touchstart mousedown',events.click);$(W).off('scroll',events.hide);self.element.off('mouseenter','li',events.hidechildren)};self.showxy=function(x,y,items,callback){var opt={};opt.x=x;opt.y=y;opt.items=items;opt.callback=callback;self.show(opt)};self.makehtml=function(items,index){var builder=[],tmp;for(var i=0;i<items.length;i++){var item=items[i];if(typeof(item)==='string'){if(item==='-')tmp='<hr />';else tmp='<span>{0}</span>'.format(item);builder.push('<li class="{0}-divider">{1}</li>'.format(cls,tmp));continue}var cn=item.classname||'',icon='';if(item.icon)icon='<i class="{0}"></i>'.format(item.icon.charAt(0)==='!'?item.icon.substring(1):item.icon.indexOf('fa-')===-1?('fa fa-'+item.icon):item.icon);else cn=(cn?(cn+' '):'')+cls+'-nofa';tmp='';if(index==null&&item.children&&item.children.length){cn+=(cn?' ':'')+cls+'-children';tmp+='<i class="fa fa-play pull-right"></i>'}if(item.selected)cn+=(cn?' ':'')+cls+'-selected';if(item.disabled)cn+=(cn?' ':'')+cls+'-disabled';tmp+='<div class="{0}-name">{1}{2}{3}</div>'.format(cls,icon,item.name,item.shortcut?'<b>{0}</b>'.format(item.shortcut):'');if(item.note)tmp+='<div class="ui-menu-note">{0}</div>'.format(item.note);builder.push('<li class="{0}" data-index="{2}">{1}</li>'.format(cn,tmp,(index!=null?(index+'-'):'')+i))}return builder.join('')};self.show=function(opt){if(typeof(opt)==='string'){opt={align:opt};opt.element=arguments[1];opt.items=arguments[2];opt.callback=arguments[3];opt.offsetX=arguments[4];opt.offsetY=arguments[5]}var tmp=opt.element?opt.element instanceof jQuery?opt.element[0]:opt.element.element?opt.element.dom:opt.element:null;if(is&&tmp&&self.target===tmp){self.hide();return}var tmp;self.target=tmp;self.opt=opt;opt.scope=M.scope();if(parentclass&&opt.classname!==parentclass){self.rclass(parentclass);parentclass=null}if(opt.large)self.aclass('ui-large');else self.rclass('ui-large');isopen=false;issubmenu=false;prevsub=null;var css={};children.aclass('hidden');children.find('ul').empty();clearTimeout2(self.ID);ul.html(self.makehtml(opt.items));if(!parentclass&&opt.classname){self.aclass(opt.classname);parentclass=opt.classname}if(is){css.left=0;css.top=0;self.element.css(css)}else{self.rclass('hidden');self.aclass(cls+'-visible',100);is=true;if(!events.is)self.bindevents()}var target=$(opt.element);var w=self.width();var offset=target.offset();if(opt.element){switch(opt.align){case'center':css.left=Math.ceil((offset.left-w/2)+(target.innerWidth()/2));break;case'right':css.left=(offset.left-w)+target.innerWidth();break;default:css.left=offset.left;break}css.top=opt.position==='bottom'?(offset.top-self.element.height()-10):(offset.top+target.innerHeight()+10)}else{css.left=opt.x;css.top=opt.y}if(opt.position==='bottom')css.top+=10;else css.top-=10;if(opt.offsetX)css.left+=opt.offsetX;if(opt.offsetY)css.top+=opt.offsetY;var mw=w,mh=self.height();if(css.left<0)css.left=10;else if((mw+css.left)>WW)css.left=(WW-mw)-10;if(css.top<0)css.top=10;else if((mh+css.top)>WH)css.top=(WH-mh)-10;self.element.css(css)};self.hide=function(){events.is&&self.unbindevents();is=false;self.opt&&self.opt.hide&&self.opt.hide();self.target=null;self.opt=null;self.aclass('hidden');self.rclass(cls+'-visible')}});
 // End: j-Menu
+
+// Component: j-Notify
+// Version: 1
+// Updated: 2021-10-22 20:32
+COMPONENT('notify','timeout:3000;position:top-right',function(self,config,cls){var cls2='.'+cls,istop=false,autoclosing;self.singleton();self.readonly();self.nocompile();self.template=Tangular.compile('<div class="{0} {0}-{{ type}} {0}-hidden" data-id="{{ id}}"><figure><div class="{0}-dot"></div><div class="{0}-icon"><i class="fa {{ icon}}"></i></div><div class="{0}-message">{{ message | raw}}</div></figure></div>'.format(cls));self.items={};self.make=function(){self.aclass(cls+'-container');self.event('click',cls2,function(){var el=$(this);self.close(el.attrd('id'));clearTimeout(autoclosing);autoclosing=null;self.autoclose()})};self.configure=function(key,value){if(key==='position'){var c=cls+'-container-';self.rclass2(c).aclass(c+value.replace(/_|\s/,'-'));istop=value.indexOf('top')!==-1}};self.close=function(id){var obj=self.items[id];if(obj){delete self.items[id];var item=self.find('div[data-id="{0}"]'.format(id));item.find('figure').empty();item.animate({height:0},300,function(){item.remove()})}};self.response=function(message,callback,response){var fn;if(typeof(message)==='function'){response=callback;fn=message;message=null}else if(typeof(callback)==='function')fn=callback;else{response=callback;fn=null}if(response instanceof Array){var builder=[];for(var i=0;i<response.length;i++){var err=response[i].error;err&&builder.push(err)}self.append(builder.join('<br />'),2);SETTER('!loading/hide')}else if(typeof(response)==='string'){self.append(response,2);SETTER('!loading/hide')}else{if(message){if(message.length<40&&message.charAt(0)==='?')SET(message,response);else self.append(message,1)}if(typeof(fn)==='string')SET(fn,response);else if(fn)fn(response)}};self.warning=function(message){self.append(message,2)};self.success=function(message){self.append(message,1)};self.info=function(message){self.append(message,3)};self.append=function(message,type){if(!type)type=1;switch(type){case'success':type=1;break;case'warning':type=2;break;case'info':type=3;break}var icon;if(message.charAt(0)==='"'){var index=message.indexOf('"',1);icon=self.faicon(message.substring(1,index).trim());message=message.substring(index+1).trim()}var obj={id:Math.floor(Math.random()*100000).toString(36),message:message,type:type,icon:icon||(type===1?'fa-check-circle':type===2?'fa-times-circle':'fa-info-circle')};self.items[obj.id]=obj;var el=$(self.template(obj));if(istop)self.element.append(el);else self.element.prepend(el);self.autoclose();setTimeout(function(){el.rclass(cls+'-hidden')},20)};self.autoclose=function(){if(autoclosing)return;autoclosing=setTimeout(function(){clearTimeout(autoclosing);autoclosing=null;var el=self.find(cls2);el.length>1&&self.autoclose();el.length&&self.close(el.eq(istop?0:(el.length-1)).attrd('id'))},config.timeout)}});
+// End: j-Notify

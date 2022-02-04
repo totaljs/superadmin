@@ -342,12 +342,13 @@
 				if (value.analyzator)
 					plus = '@errors';
 				plus += (plus ? ' ' : '') + '@running';
-
 				if (value.threads)
 					plus += ' @threads';
-
+				if (value.pidchild)
+					plus += ' ' + value.pidchild;
 			} else
 				plus = '@stopped';
+
 
 			el.attrd('search', el.attrd('url') + (plus ? (' ' + plus) : ''));
 		};
