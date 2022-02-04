@@ -74,9 +74,34 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 	current.pid = pid;
 	current.is = true;
 
+	if (app.debug || app.watcher) {
+		arr.push(function(next) {
+			Exec('pgrep -P ' + pid, function(err, response) {
+				if (err)
+					current.pidchild = 0;
+				else
+					current.pidchild = response.trim().parseInt2();
+				next();
+			});
+		});
+	}
+
+	// Get count of open files
+	arr.push(function(next) {
+		Exec('ls /proc/{0}/fd/ | wc -l'.format(current.pidchild || pid), function(err, response) {
+
+			if (!err) {
+				current.openfiles = response.trim().parseInt2();
+				app.stats.openfiles = Math.max(app.stats.openfiles || 0, current.openfiles);
+			}
+
+			next();
+		});
+	});
+
 	// Get basic information
 	arr.push(function(next) {
-		Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
+		Exec('ps -p {0} -o %cpu,rss,etime'.format(current.pidchild || pid), function(err, response) {
 
 			if (err) {
 				next();
@@ -97,37 +122,31 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 		});
 	});
 
-	// Get count of open files
-	arr.push(function(next) {
-		Exec('ls /proc/{0}/fd/ | wc -l'.format(pid), function(err, response) {
-
-			if (!err) {
-				current.openfiles = response.trim().parseInt2();
-				app.stats.openfiles = Math.max(app.stats.openfiles || 0, current.openfiles);
-			}
-
-			next();
-		});
-	});
 
 	// Get count of opened network connections
-	arr.push(function(next) {
-		Exec('netstat -an | grep :{0} | wc -l'.format(app.port), function(err, response) {
+	if (app.unixsocket) {
+		// Currently I don't know how to obtain a count of connections for unix-socket
+		current.connections = 0;
+	} else {
+		arr.push(function(next) {
+			Exec('netstat -an | grep :{0} | wc -l'.format(app.port), function(err, response) {
 
-			if (err) {
+				if (err) {
+					next();
+					return;
+				}
+
+				current.connections = response.trim().parseInt2() - 1;
+
+				if (current.connections < 0)
+					current.connections = 0;
+
+				app.stats.connections = Math.max(app.stats.connections || 0, current.connections);
 				next();
-				return;
-			}
 
-			current.connections = response.trim().parseInt2() - 1;
-
-			if (current.connections < 0)
-				current.connections = 0;
-
-			app.stats.connections = Math.max(app.stats.connections || 0, current.connections);
-			next();
+			});
 		});
-	});
+	}
 
 	// Get directory size
 	arr.push(function(next) {
@@ -533,6 +552,7 @@ SuperAdmin.pid = function(port, callback) {
 		Fs.readFile(pidfilename, function(err, buffer) {
 			if (buffer) {
 				var pid = buffer.toString('ascii');
+				item.pid = pid;
 				Exec('ps -p ' + pid, err => callback(err, err ? null : pid, item));
 			} else
 				callback('500', null, item);
