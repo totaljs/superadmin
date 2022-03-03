@@ -54,7 +54,7 @@ if [[ "$userConsent" == "y" || "$userConsent" == "Y" ]]; then
 	apt-get install curl
 	apt-get install python-software-properties
 	apt-get install software-properties-common
-	curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+	curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 	apt-get update
 	apt-get install -y nginx
 	apt-get install -y nodejs
