@@ -732,7 +732,11 @@ SuperAdmin.kill = function(port, callback) {
 	return SuperAdmin.pid(port, function(err, pid, app) {
 		if (pid) {
 			EMIT('superadmin_app_kill', app);
-			Exec('kill ' + pid, () => callback(null, SUCCESS(true)));
+			Exec('kill ' + pid, function() {
+				setTimeout(function() {
+					Exec('kill -9 ' + pid, () => callback(null, SUCCESS(true)));
+				}, 1000);
+			});
 		} else
 			callback(err);
 	});
