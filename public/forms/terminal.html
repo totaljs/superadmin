@@ -5,6 +5,12 @@
 		</div>
 	</div>
 	<div class="input">
-		<div data---="rawinput__common.spawns.{0}input__enter:common/sendterminal;placeholder:@(bash command)" data-id="{0}"></div>
+		<div data---="rawinput__common.spawns.{0}input__enter:common/sendterminal;placeholder:@(bash command);$init:rawinputtrim;monospace:1" data-id="{0}"></div>
 	</div>
 </div>
+
+<script>
+	function rawinputtrim(com) {
+		com.trim = false;
+	}
+</script>
