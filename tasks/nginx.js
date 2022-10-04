@@ -17,6 +17,18 @@ NEWTASK('nginx', function(push) {
 
 		if (app) {
 
+			if (app.subprocess) {
+
+				app = APPLICATIONS.findItem(n => n.url === app.url && !n.subprocess);
+
+				if (!app) {
+					$.invalid('@(Master process not found)');
+					return;
+				}
+
+				value = $.value = { id: app.id };
+			}
+
 			value.filename = Path.join(CONF.directory_nginx, app.linker + '.conf');
 
 			var model = value.model = {};
@@ -34,6 +46,30 @@ NEWTASK('nginx', function(push) {
 					var d = app.redirect[i];
 					if (!domains.findItem('domain', d))
 						domains.push({ domain: d, ssl_cer: CONF.directory_ssl + 'superadmin.csr', ssl_key: CONF.directory_ssl + 'superadmin.key' });
+				}
+			}
+
+			model.childs = [];
+
+			// sub processes
+			for (var sub of APPLICATIONS) {
+				if (sub.subprocess && sub.url === app.url) {
+
+					var mod = {};
+					mod.endpoint = sub.path;
+					mod.islogging = sub.accesslog;
+					mod.allowedip = sub.allow;
+					mod.blockedip = sub.disallow;
+					mod.uploadquote = sub.size;
+					mod.ddosquote = sub.ddosquote;
+					mod.proxytimeout = sub.proxytimeout;
+					mod.port = sub.port;
+					mod.threads = sub.threads;
+
+					if (CONF.unixsocket && sub.unixsocket)
+						mod.unixsocket = Path.join(CONF.directory_www, sub.linker, 'superadmin.socket');
+
+					model.childs.push(mod);
 				}
 			}
 

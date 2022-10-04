@@ -1,17 +1,19 @@
 <div data---="largeform___common.form__if:app;width:900;icon:fas fa-box;submit:?/submit;reload:?/reload;autofocus:1" class="hidden" data-scope="appform">
 	<div>
-		<div data-bind="appform.id___hide" class="hidden">
+		<div data-bind="?.id___hide" class="hidden">
 			<div class="alert"><i class="fa fa-warning"></i>@(<b>Uploading of source-code</b> is possible after the creation process.)</div>
 		</div>
 		<div class="padding">
-			<div data---="input__?.url__monospace:1;placeholder:https\://www.totaljs.com;required:true;type:url__'https://'">@(URL address)</div>
+			<div data---="input__?.url__monospace:1;placeholder:https\://www.totaljs.com;required:true;type:url__'https://'" data-bind="?.id__disable">@(URL address)</div>
 			<div class="help m">
 				@(The URL address must contain protocol <code>http</code> or <code>https</code>).<br />
 				<b>@(Make sure that DNS A records for this domain are targeted to this server</b>.)
 			</div>
-			<div data-bind="?.url__show:value && value.indexOf('https:') !== -1" class="hidden">
-				<div data---="input__?.allow80__type:checkbox" class="b">@(Disable redirect from HTTP to HTTPS)</div>
-				<br />
+			<div data-bind="?.subpath__hide">
+				<div data-bind="?.url__show:value && value.indexOf('https:') !== -1" class="hidden">
+					<div data---="input__?.allow80__type:checkbox" class="b">@(Disable redirect from HTTP to HTTPS)</div>
+					<br />
+				</div>
 			</div>
 			<div data---="input__?.name__placeholder:@(e.g. CMS)" class="m">@(Internal name)</div>
 			<div data---="input__?.category__dirsource:apps.categories;dircustom:true;dirempty:@(Without category);placeholder:@(Choose a category);dirplaceholder:@(Search or create new)" class="m">@(Category)</div>
@@ -23,28 +25,30 @@
 			<div data---="input__?.backup__type:checkbox" class="inline">@(Enable backing up)</div>
 		</div>
 		<hr class="nmb nmt" />
-		<div data-bind="?.url__show:value&&value.substring(0,8)==='https://'" class="hidden">
-			<div class="bg-smoke m">
-				<div class="padding">
-					<div><span class="badge badge-green b mr5"><i class="fa fa-lock"></i>@(Security)</span><b>@(SSL configuration)</b></div>
-					<div class="help m"><b>@(Good to know:)</b> @(SSL certificates are generated automatically via Let's Encrypt service. You must redirect DNS records to the IP address of this server.)</div>
-					<div data---="input__?.sslcustom__type:checkbox">@(Add own SSL certificates)</div>
-					<div data-bind="?.sslcustom__show" class="hidden">
-						<br />
-						<div class="row">
-							<div class="col-md-6 m">
-								<div data---="input__?.ssl_key__icon:key;placeholder:@(absolute path to .key file)">@(SSL key)</div>
-							</div>
-							<div class="col-md-6 m">
-								<div data---="input__?.ssl_cer__placeholder:@(absolute path to .pem file)">@(SSL certificate)</div>
+		<div data-bind="?.subpath__hide" class="hidden">
+			<div data-bind="?.url__show:value&&value.substring(0,8)==='https://'" class="hidden">
+				<div class="bg-smoke m">
+					<div class="padding">
+						<div><span class="badge badge-green b mr5"><i class="fa fa-lock"></i>@(Security)</span><b>@(SSL configuration)</b></div>
+						<div class="help m"><b>@(Good to know:)</b> @(SSL certificates are generated automatically via Let's Encrypt service. You must redirect DNS records to the IP address of this server.)</div>
+						<div data---="input__?.sslcustom__type:checkbox">@(Add own SSL certificates)</div>
+						<div data-bind="?.sslcustom__show" class="hidden">
+							<br />
+							<div class="row">
+								<div class="col-md-6 m">
+									<div data---="input__?.ssl_key__icon:key;placeholder:@(absolute path to .key file)">@(SSL key)</div>
+								</div>
+								<div class="col-md-6 m">
+									<div data---="input__?.ssl_cer__placeholder:@(absolute path to .pem file)">@(SSL certificate)</div>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<div data-bind="?.current.sslexpire__template__show" class="alert hidden">
-					<script type="text/html">
-						@(The certificate expires:) <b class="black">{{ value | format }}</b> / {{ value | expiredays(@('# days', '# day', '# days', '# days', 'expired')) }}
-					</script>
+					<div data-bind="?.current.sslexpire__template__show" class="alert hidden">
+						<script type="text/html">
+							@(The certificate expires:) <b class="black">{{ value | format }}</b> / {{ value | expiredays(@('# days', '# day', '# days', '# days', 'expired')) }}
+						</script>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -155,6 +159,17 @@
 				hide();
 			}));
 		};
+
+		WATCH('?.url', function(path, value) {
+
+			if (!value)
+				value = '';
+
+			value = value.replace(/http(s)?\:\/\//g, '');
+			var index = value.indexOf('/');
+			var url = value.substring(index + 1).trim();
+			SET('?.subpath', url.length > 2);
+		}, true);
 
 	});
 

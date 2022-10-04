@@ -34,8 +34,8 @@ NEWSCHEMA('Apps', function(schema) {
 	schema.define('version',        String);                   // Total.js Version
 	schema.define('highpriority',   Boolean);                  // App with high priority
 	schema.define('unixsocket',     Boolean);                  // Enables unixsocket
-	schema.define('editcode',       String);                   // A link to the Code Editor
 	schema.define('allow80',        Boolean);                  // Disables redirect from HTTP to HTTPS
+	schema.define('editcode',       String);                   // A link to the Code Editor
 
 	schema.required('name', model => model.servicemode);
 	schema.required('url', model => !model.servicemode);
@@ -61,9 +61,12 @@ NEWSCHEMA('Apps', function(schema) {
 
 	schema.setRead(function($) {
 		var item = APPLICATIONS.findItem('id', $.id);
-		if (item)
+		if (item) {
+			item = CLONE(item);
+			if (item.subprocess)
+				item.url += item.path;
 			$.callback(item);
-		else
+		} else
 			$.invalid('404');
 	});
 
@@ -285,7 +288,15 @@ NEWSCHEMA('Apps', function(schema) {
 	// Checks url
 	schema.addWorkflow('check', function($, model) {
 
-		model.url = model.url.superadmin_clean();
+		var url = model.url.superadmin_clean();
+
+		model.path = model.url.substring(url.length);
+
+		if (model.path === '/')
+			model.path = '';
+
+		model.url = url;
+		model.subprocess = !!model.path;
 
 		if (model.servicemode) {
 			$.success();
@@ -377,6 +388,7 @@ NEWSCHEMA('Apps', function(schema) {
 			PUBLISH('apps_update', FUNC.tms($, item));
 
 		} else {
+
 			item.id = model.id = UID();
 			item.dtcreated = NOW;
 			model.restart = true;
@@ -419,17 +431,18 @@ NEWSCHEMA('Apps', function(schema) {
 			MAIN.ws.send({ TYPE: 'refresh' });
 		};
 
-		if (item.servicemode) {
+		if (item.servicemode)
 			callback();
-		} else
+		else
 			TASK('nginx/init', $.successful(callback), $).value = item;
+
 	});
 
-	schema.setRemove(function($) {
+	function removeapp($, id, callback) {
 
-		var index = APPLICATIONS.findIndex('id', $.id);
+		var index = APPLICATIONS.findIndex('id', id);
 		if (index === -1) {
-			$.invalid('404');
+			callback('404');
 			return;
 		}
 
@@ -451,24 +464,44 @@ NEWSCHEMA('Apps', function(schema) {
 					APPLICATIONS.splice(index, 1);
 					SuperAdmin.save(null, true);
 
-					if (app.subprocess) {
-						// @TODO: fix me
-						// var master = APPLICATIONS.findItem(n => n.url === app.url && !n.subprocess);
-						// master && schema.workflow('nginx', master, NOOP);
+					var remove = [];
+
+					if (!app.subprocess) {
+						// remove all subprocesses
+						for (var sub of APPLICATIONS) {
+							if (sub.subprocess && sub.url === app.url)
+								remove.push(sub);
+						}
 					}
 
 					// Removes app directory
 					Exec('rm ' + directory, NOOP);
 
 					// Removes nginx config
-					if (!app.subprocess)
+					if (app.subprocess) {
+
+						var parent = APPLICATIONS.findItem(n => n.url === app.url && !n.subprocess);
+						if (parent)
+							TASK('nginx/init', ERROR('Remove.nginx'), $).value = parent;
+
+					} else
 						PATH.unlink([Path.join(CONF.directory_nginx, linker + '.conf')], NOOP);
 
-					$.success();
-					MAIN.ws.send({ TYPE: 'refresh' });
+					if (remove.length) {
+						remove.wait(function(item, next) {
+							removeapp($, item.id, next);
+						}, callback);
+					} else {
+						MAIN.ws.send({ TYPE: 'refresh' });
+						callback();
+					}
 				});
 			});
 		});
+	}
+
+	schema.setRemove(function($) {
+		removeapp($, $.id, $.done());
 	});
 
 	schema.addWorkflow('stop', function($) {

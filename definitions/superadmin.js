@@ -175,6 +175,11 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 	// Get SSL expiration
 	arr.push(function(next) {
 
+		if (app.subprocess) {
+			next();
+			return;
+		}
+
 		if (current.interval % 5 !== 0) {
 			if (!current.sslcheckforce) {
 				next();
