@@ -8,7 +8,7 @@ exports.install = function() {
 	ROUTE('+API    /apiv1/        -apps_read/id           *Apps            --> read');
 	ROUTE('+API    /apiv1/        -apps_restart/id        *Apps            --> restart');
 	ROUTE('+API    /apiv1/        -apps_restart_all       *Apps            --> restart_all');
-	ROUTE('+API    /apiv1/        +apps_save              *Apps            --> check port save (response)', [50000]);
+	ROUTE('+API    /apiv1/        +apps_save              *Apps            --> check port save (response)', [120000]);
 	ROUTE('+API    /apiv1/        -apps_remove/id         *Apps            --> remove');
 	ROUTE('+API    /apiv1/        -apps_stop/id           *Apps            --> stop');
 	ROUTE('+API    /apiv1/        -apps_stop_all          *Apps            --> stop_all');

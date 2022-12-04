@@ -167,7 +167,7 @@
 
 			value = value.replace(/http(s)?\:\/\//g, '');
 			var index = value.indexOf('/');
-			var url = value.substring(index + 1).trim();
+			var url = index === -1 ? '' : value.substring(index + 1).trim();
 			SET('?.subpath', url.length > 2);
 		}, true);
 
