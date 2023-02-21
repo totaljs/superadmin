@@ -783,7 +783,7 @@ SuperAdmin.ssl = function(url, generate, cb, renew, second) {
 			}
 
 			var fallback = function(callback, problem_second) {
-				Exec(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -w {2} --stateless'.format(CONF.directory_ssl, url, CONF.directory_acme, renew ? 'renew --force' : 'issue --force'), (err) => callback(err, problem_second));
+				Exec(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -w {2} --stateless --keylength 2048'.format(CONF.directory_ssl, url, CONF.directory_acme, renew ? 'renew --force' : 'issue --force'), (err) => callback(err, problem_second));
 			};
 
 			if (!second) {
@@ -791,7 +791,7 @@ SuperAdmin.ssl = function(url, generate, cb, renew, second) {
 				return;
 			}
 
-			Exec(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -d {4} -w {2} --stateless'.format(CONF.directory_ssl, url, CONF.directory_acme, renew ? 'renew --force' : 'issue --force', second), function(err) {
+			Exec(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -d {4} -w {2} --stateless --keylength 2048'.format(CONF.directory_ssl, url, CONF.directory_acme, renew ? 'renew --force' : 'issue --force', second), function(err) {
 				if (err) {
 					if (recreatesecond)
 						callback(null, true);
