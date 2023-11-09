@@ -7,6 +7,7 @@ cp -a ../public/ public
 cp -a ../private/ private
 cp -a ../jsonschemas/ jsonschemas
 cp -a ../schemas/ schemas
+cp -a ../plugins/ plugins
 cp -a ../resources/ resources
 cp -a ../tasks/ tasks
 cp -a ../views/ views
