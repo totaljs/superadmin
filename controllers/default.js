@@ -1,12 +1,35 @@
 exports.install = function() {
-	ROUTE('/*', 'index', ['authorize']);
-	ROUTE('/*', 'login', ['unauthorize']);
-	ROUTE('/logoff', redirect_logoff);
+	ROUTE('+GET /*', index);
+	ROUTE('-GET /*', 'login');
+	ROUTE('+GET /logoff', logout);
 };
 
-function redirect_logoff() {
+function index() {
+
 	var self = this;
-	SuperAdmin.logger('logoff', self);
-	self.cookie('__sa', '', '-1 day');
-	self.redirect('/');
+	var plugins = [];
+
+	for (var key in F.plugins) {
+		var item = F.plugins[key];
+		if (self.user.sa || !item.visible || item.visible(self.user)) {
+			var obj = {};
+			obj.id = item.id;
+			obj.routes = item.routes;
+			obj.position = item.position;
+			obj.name = TRANSLATOR(self.user.language || '', item.name);
+			obj.icon = item.icon;
+			obj.import = item.import;
+			plugins.push(obj);
+		}
+	}
+
+	plugins.quicksort('position');
+	self.view('index', plugins);
+}
+
+function logout() {
+	var $ = this;
+	SuperAdmin.logger('logoff', $);
+	$.cookie('__sa', '', '-1 day');
+	$.redirect('/');
 }

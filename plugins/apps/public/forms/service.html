@@ -1,0 +1,76 @@
+<ui-component name="box" path="common.form" config="if:CLASS;width:900;icon:ti ti-box;submit:?/submit;reload:?/reload;autofocus:1" class="hidden CLASS" plugin="CLASS">
+	<div>
+		<ui-bind path="appform.id" config="hide" class="hidden">
+			<div class="alert"><i class="ti ti-warning"></i>@(<b>Uploading of source-code</b> is possible after the creation process.)</div>
+		</ui-bind>
+		<div class="padding">
+			<ui-component name="input" path="?.name" config="required:1;placeholder:@(e.g. CMS)" class="m">@(Service name)</ui-component>
+			<ui-component name="input" path="?.category" config="dirsource:apps.categories;dircustom:true;dirempty:@(Without category);placeholder:@(Choose a category);dirplaceholder:@(Search or create new)" class="m">@(Category)</ui-component>
+			<ui-component name="input" path="?.debug" config="type:checkbox" default="true" class="inline b mr5 black">@(Enable debug mode)</ui-component>
+			<div class="inline middle mr15"><span class="badge badge-red">@(debug)</span></div>
+			<ui-bind path="?.debug" config="disabled .D">
+				<ui-component name="input" path="?.watcher" config="type:checkbox;disabled:true" default="false" class="inline mr15 D">@(Enable watcher)</ui-component>
+			</ui-bind>
+			<ui-component name="input" path="?.highpriority" config="type:checkbox" class="inline mr15 black">@(High priority)</ui-component>
+			<ui-component name="input" path="?.backup" config="type:checkbox" class="inline">@(Enable backing up)</ui-component>
+		</div>
+		<hr class="nmb nmt" />
+		<div class="padding npb">
+			<div class="row">
+				<div class="col-md-3 col-xs-6 m">
+					<ui-component name="input" path="?.memory" config="align:center;increment:true;maxlength:4;placeholder:@(auto);type:number" default="'auto'">@(Memory limit)</ui-component>
+				</div>
+				<div class="col-md-3 col-xs-6 m">
+					<ui-component name="input" path="?.priority" config="align:center;increment:true;maxlength:3;type:number" default="0">@(Process priority)</ui-component>
+				</div>
+			</div>
+
+			<hr />
+			<ui-component name="input" path="?.editcode" config="monospace:1;placeholder:https\://www.yourcodeinstance.com/?id=myprojectname;type:url;icon:ti ti-code" default="''">@(URL address for editing code)</ui-component>
+			<div class="help m">@(If you don't have Total.js Code instance on this server, you can use an external Total.js Code instance.)</div>
+
+		</div>
+	</div>
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit"><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
+			<button name="cancel">@(Cancel)</button>
+		</ui-component>
+	</nav>
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		var caller;
+
+		exports.reload = function(com) {
+			caller = exports.caller;
+			var model = exports.model;
+			com.reconfigure({ title: model.id ? '@(Edit service)' : '@(Create service)' });
+		};
+
+		exports.submit = function(hide) {
+			var model = exports.form;
+			model.servicemode = true;
+			exports.tapi('apps_save @showloading ERROR', model, function(response) {
+				if (!model.id && response.value) {
+					setTimeout(function() {
+						var app = caller.model.apps.findItem('id', response.value);
+						if (app) {
+							SET('formupload.app', app);
+							SET('common.form', 'formupload');
+						}
+						SETTER('loading/hide', 1000);
+					}, 2500);
+				} else
+					SETTER('loading/hide', 1000);
+
+				hide();
+			});
+		};
+
+	});
+
+</script>

@@ -1,0 +1,77 @@
+<style>
+	.CLASS .item { border: 1px solid #E0E0E0; border-radius: var(--radius); padding: 10px; }
+	.CLASS .item .url a { font-weight: bold; color: #000; }
+	.CLASS .item button { width: 24px; height: 24px; border: 1px solid #D0D0D0; border-radius: var(--radius); background-color: #FFF; margin: -5px 0 0 0; font-size: 11px; padding: 0; text-align: center; float: right; color: #555; }
+	.CLASS .item button:hover { background-color: #F0F0F0; color: #000; }
+	.CLASS .item .type { margin-bottom: 5px; }
+	.CLASS .item > a { font-size: 12px; color: #777; }
+	.CLASS .item-error { background-color: #FFEFEF; border-color: #FFCDCD; }
+</style>
+
+<ui-component name="box" path="common.form" config="if:CLASS;width:980;title:@(Logs analyzator);reload:?/reload;closeesc:1;icon:ti ti-bug;closeoutside:1" class="hidden CLASS" plugin="CLASS">
+	<div class="padding npb npt">
+		<ui-component name="empty" path="?.items" config="parent:auto;margin:10;icon:ti ti-check-circle green" class="hidden">
+			<script type="text/html">
+				@(Without errors, <b>time to relax</b>)
+			</script>
+			<div style="padding:5px 0">
+				<ui-bind path="?.items" config="template" class="row">
+					<script type="text/html">
+						{{ foreach m in value }}
+						<div class="col-sm-4 m">
+							<div class="item item-{{ m.type }}">
+								<div class="help nmb nmt">@(Domain:)</div>
+								<div class="url hellip"><a href="{{ m.url }}" target="_blank">{{ m.url }}</a></div>
+								<div class="type"><span class="badge badge-{{ if m.type === 'error' }}red{{ else if m.type === 'deprecationwarning' }}yellow{{ else }}orange{{ fi }}">{{ m.type.replace('deprecationwarning', 'deprecation warning') }}</span></div>
+								<button class="exec" data-exec="?/restart" data-id="{{ m.id }}" title="@(Restart)"><i class="ti ti-refresh"></i></button>
+								<a href="/logs/{{ m.id }}/" target="_blank"><i class="ti ti-search mr5"></i>@(Show logs)</a>
+							</div>
+						</div>
+						{{ end }}
+					</script>
+				</ui-bind>
+			</div>
+		</ui-component>
+	</div>
+	<nav>
+		<button name="cancel" style="width:100%">@(Close)</button>
+	</nav>
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		var caller;
+
+		exports.reload = function() {
+			caller = exports.caller;
+			CACHE('analyzator', '1', '4 days');
+			exports.tapi('apps_analyzator @showloading', '?.items @hideloading');
+		};
+
+		exports.restart = function(el) {
+
+			var id = ATTRD(el);
+			var model = exports.model;
+
+			caller.exec('restart @showloading', id);
+
+			var items = model.items;
+
+			exports.set('items', items.remove('id', id));
+
+			setTimeout2(exports.name, function() {
+
+				if (common.form === exports.name) {
+					exports.caller = caller;
+					exports.reload();
+				}
+
+			}, 3500);
+
+		};
+
+	});
+
+</script>

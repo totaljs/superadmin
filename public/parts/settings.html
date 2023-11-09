@@ -1,8 +1,10 @@
-<div data-scope="settings" class="settings">
+<ui-plugin path="settings" class="settings">
 	<header>
-		<label><i class="fa fa-cog"></i>@(Settings)</label>
-		<nav data---="validation__?">
-			<button name="submit" class="exec" data-exec="?/submit" disabled><i class="fa fa-play-circle green"></i>@(Apply)</button>
+		<label><i class="ti ti-cog"></i>@(Settings)</label>
+		<nav>
+			<ui-component name="validate" path="?">
+				<button name="submit" class="exec" data-exec="?/submit" disabled><i class="ti ti-play-circle green"></i>@(Apply)</button>
+			</ui-component>
 		</nav>
 	</header>
 	<div data---="viewbox__common.page__margin:45;parent:.ui-layout2-section;scrollbar:1;visibleY:1">
@@ -149,7 +151,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</ui-plugin>
 
 <script>
 	PLUGIN('settings', function(exports) {

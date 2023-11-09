@@ -1,14 +1,14 @@
-<div data-scope="users">
+<ui-plugin>
 	<header>
-		<label><i class="fas fa-users"></i>@(Users)</label>
-		<nav>
-			<button class="exec" data-exec="?/create"><i class="fas fa-plus-circle green"></i>@(Create)</button>
+		<label><i class="ti ti-users-alt"></i>@(Users)</label>
+		<nav class="toolbar pull-right">
+			<button class="exec" data-exec="?/create"><i class="ti ti-plus-circle green"></i>@(Create)</button>
 		</nav>
 	</header>
-	<div data---="viewbox__null__parent:.ui-layout2-section;visibleX:true;visibleY:true;scrollbar:true;margin:45">
+	<ui-component naame="viewbox" config="parent:.ui-layout2-section;visibleX:true;visibleY:true;scrollbar:true;margin:45">
 
 		<div class="padding">
-			<div class="listing" data-bind="?.items__template">
+			<ui-bind path="?.items" config="template" class="listing">
 				<script type="text/html">
 					{{ foreach m in value }}
 					<figure data-id="{{ m.id }}">
@@ -30,24 +30,25 @@
 									</div>
 								</div>
 								<div class="buttons small mt10">
-									<button class="exec" data-exec="?/update"><i class="fas fa-pencil"></i>@(Edit)</button>
-									<button class="exec" data-exec="?/remove"{{ if m.id === user.id }} disabled{{ fi }}><i class="fas fa-trash-o red"></i>@(Remove)</button>
+									<button class="exec" data-exec="?/update"><i class="ti ti-pencil"></i>@(Edit)</button>
+									<button class="exec" data-exec="?/remove"{{ if m.id === user.id }} disabled{{ fi }}><i class="ti ti-trash red"></i>@(Remove)</button>
 								</div>
 							</div>
 						</div>
 					</figure>
 					{{ end }}
 				</script>
-			</div>
+			</ui-bind>
 		</div>
 
-	</div>
-</div>
+	</ui-component>
+</ui-plugin>
 
-<div data---="importer__common.form__if:usersform;url:/forms/user.html"></div>
+<ui-component name="importer" path="common.form" config="if:usersform;url:/~ID~/forms/user.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:profileform;url:/~ID~/forms/profile.html"></ui-component>
 
 <script>
-	PLUGIN('users', function(exports) {
+	PLUGIN(function(exports) {
 
 		exports.reload = function() {
 			EXEC('common/hidemenu');
@@ -55,7 +56,7 @@
 		};
 
 		exports.refresh = function() {
-			DAPI('users_query @showloading', '?.items @hideloading');
+			exports.tapi('users_query @showloading ERROR', 'items @hideloading');
 		};
 
 		exports.create = function() {
@@ -71,16 +72,19 @@
 				return;
 			}
 
-			DAPI('users_read/{0} @showloading'.format(id), ASETTER('message/response', function(response) {
+			exports.tapi('users_read/{0} @showloading ERROR'.format(id), function(response) {
 				SET('usersform @reset @hideloading', response);
 				SET('common.form', 'usersform');
-			}));
+			});
 		};
 
 		exports.remove = function(el) {
 			var id = el.closest('figure').attrd('id');
-			SETTER('approve/show', '@(Are you sure you want to remove selected user?)', '"far fa-trash-alt" Remove', function() {
-				DAPI('users_remove/{0} @showloading'.format(id), ASETTER('message/response @hideloading', '@(User has been removed sucessfully)', exports.refresh));
+			SETTER('approve/show', '@(Are you sure you want to remove selected user?)', '"ti ti-trash" Remove', function() {
+				exports.tapi('users_remove/{0} @showloading ERROR'.format(id), function() {
+					SETTER('notify/success @hideloading', '@(User has been removed sucessfully.)');
+					exports.refresh();
+				});
 			});
 		};
 

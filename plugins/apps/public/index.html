@@ -1,0 +1,719 @@
+<style>
+	.CLASS .list { margin: 10px 20px 10px 15px; border: 1px solid #E0E0E0; border-radius: var(--radius); overflow: hidden; min-height: 29px; padding: 10px 0 0; }
+	.CLASS h2 { margin: 0 15px 10px 10px; padding: 0; color: #000; font-size: 16px; font-weight: bold; }
+	.CLASS h2 span { float: right; color: #A0A0A0; font-weight: normal; }
+	.CLASS h2 i { margin: 2px 8px 0 0; color: #000; font-size: 18px; float: left; }
+	.CLASS .item { height: 32px; border-top: 1px solid #E0E0E0; font-size: 13px; margin: 0; padding: 0 10px; }
+	.CLASS .item:hover { background-color: #F0F0F0; }
+	.CLASS .ui-search-used .item:first-child { border-top: 1px solid #E0E0E0; }
+	.CLASS hr { margin-bottom: 30px; }
+	.CLASS .item .url { margin-right: 560px; line-height: 30px; }
+	.CLASS .item .url a { color: #555; }
+	.CLASS .item .url em { font-size: 11px; color: #A0A0A0; float: right; width: 40px; text-align: right; }
+	.CLASS .item .ssl { float: left; margin: 8px 5px 0 0; }
+	.CLASS .item .controls { float: right; width: 80px; border-left: 1px solid #E0E0E0; height: 30px; }
+	.CLASS .item .stats { float: right; width: 354px; height: 28px; font-size: 11px; border-left: 1px solid #E0E0E0; }
+	.CLASS .item .stats .info { float: left; width: 90px; text-align: right; line-height: 30px; border-left: 1px solid #E0E0E0; padding: 0 5px 0 2px; }
+	.CLASS .item .stats .info:first-child { border-left: 0 !important; }
+	.CLASS .item .stats .info2 { width: 80px !important; }
+	.CLASS .item .stats .info i { margin-left: 5px; color: #777; }
+	.CLASS .item .debug { float: right; width: 80px; margin: 7px 8px 0 0; text-align: right; }
+	.CLASS .item .debug i { margin-right: 8px; }
+	.CLASS .item .port { font-size: 10px; font-family: $monospace; color: #A0A0A0; }
+	.CLASS .item .connections { min-width: 16px; height: 16px; padding: 0 2px; font-size: 9px; text-align: center; line-height: 15px; background-color: #FFF; border: 1px solid #D0D0D0; color: #000; position: relative; display: inline-block; border-radius: var(--radius); margin-left: 5px; }
+	.CLASS .offline { background-color: #F8F8F8; }
+	.CLASS .offline .url a { color: #B0B0B0; }
+	.CLASS .offline .url .badge { background-color: #D0D0D0; color: #777; }
+	.CLASS .iserror .url a { color: red; }
+	.CLASS .trending { float: left; margin: 8px 0 0 0; }
+	.CLASS .item .controls button, .CLASS .item .controls a { margin: 5px 0 0 5px; width: 21px; height: 21px; background-color: #FFF; border: 0; font-size: 11px; float: right; padding: 0; line-height: 22px; text-align: center; border-radius: var(--radius); color: #000; }
+	.CLASS .item .controls a { margin-left: 0 !important; }
+	.CLASS .item .controls button:hover, .CLASS .item .controls a:hover { background-color: var(--color); color: #FFF !important; }
+	.CLASS .offline-text { line-height: 27px; color: #D63B32; font-size: 11px; }
+	.CLASS .openfiles { float: right; font-size: 11px; color: #777; line-height: 30px; }
+	.CLASS .openfiles i { margin-left: 5px; }
+	.CLASS .statsbar { padding: 10px 5px 0; }
+	.CLASS .statsbar figure { width: 16.6%; position: relative; display: inline-block; padding: 10px; }
+	.CLASS .statsbar figure .icon { float: right; color: #888888; font-size: 20px; }
+	.CLASS .statsbar figure > div { padding: 10px 15px; border: 1px solid #E0E0E0; background-color: #FFF; border-radius: var(--radius); }
+	.CLASS .statsbar figure .name { font-size: 12px; color: #777777; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+	.CLASS .statsbar figure .value { font-size: 17px; font-weight: bold; color: #000000; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+	.CLASS .statsbar .warning > div { border-color: red; border-width: 1px; }
+	.CLASS .statsbar .warning .value, .CLASS .statsbar .warning .name { color: red; }
+	.CLASS .statsbar .warning .icon { color: #EA706B; animation: 1s scale infinite forwards; }
+	.CLASS header .toolbar { float: right; margin: 12px 15px 0 0; }
+</style>
+
+<ui-plugin class="invisible" config="class:invisible;aclass:1">
+
+	<header class="exec" data-exec="?/searchfocus">
+		<div class="menubutton exec" data-exec="?/menubutton"><i class="ti ti-menu"></i></div>
+		<ui-component name="searchinput" path="?.search" config="placeholder:@(Search apps or use keywords @errors or @offline);autofocus:2000;$id:appssearch"></ui-component>
+		<div class="toolbar hidden-xs">
+			<nav>
+				<button class="exec" data-exec="?/create"><i class="ti ti-plus-circle green"></i>@(Add)</button>
+				<button class="exec" data-exec="?/analyzator"><i class="ti ti-bug"></i>@(Analyzator)</button>
+				<button class="exec" data-exec="?/summary"><i class="ti ti-sort-desc"></i>@(Trending)</button>
+				<button class="exec" data-exec="?/options"><i class="ti ti-wrench"></i>@(Options)</button>
+			</nav>
+		</div>
+	</header>
+
+	<ui-component name="viewbox" path="common.page" config="margin:50;parent:.ui-layout2-section;scrollbar:1;visibleY:1;scrollbarshadow:1">
+		<div class="help" style="margin:10px 0 0 20px;line-height:18px"><i class="ti ti-bookmark"></i>@(Quick search:) <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@debug</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@release</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total3</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total4</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@total5</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@errors</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@stopped</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@running</span> <span class="link exec badge badge-blue badge-small" data-exec="?/searchtype">@threads</span> <span class="link exec badge badge-purple badge-small" data-exec="?/searchtype">@service</span> <span class="link exec badge badge-yellow badge-small" data-exec="?/searchtype">@highpriority</span></div>
+		<ui-bind path="?.apps.length" config="visible" class="invisible block">
+
+			<ui-bind path="?.stats.errors" config=".warning .bug">
+				<div class="statsbar">
+					<figure>
+						<div>
+							<div class="icon"><i class="ti ti-refresh ti-spin"></i></div>
+							<div class="value">
+								<ui-bind path="?.stats.online" config="text;empty" title="@(Running)" class="green"></ui-bind> <i class="ti ti-arrows-h"></i> <ui-bind path="?.stats.offline" config="text;empty" title="@(Stopped)" class="red"></ui-bind>
+							</div>
+							<div class="name">@(Apps)</div>
+						</div>
+					</figure>
+					<figure class="bug">
+						<div>
+							<div class="icon"><i class="ti ti-bug"></i></div>
+							<ui-bind path="?.stats.errors" config="text;empty" class="value">0</ui-bind>
+							<div class="name">@(Errors)</div>
+						</div>
+					</figure>
+					<figure>
+						<div>
+							<div class="icon"><i class="ti ti-microchip"></i></div>
+							<ui-bind path="?.stats.memory" config="text;exec:?/statsbar" data-id="memory" class="value">0</ui-bind>
+							<div class="name">@(Used memory)</div>
+						</div>
+					</figure>
+					<figure>
+						<div>
+							<div class="icon"><i class="ti ti-hdd"></i></div>
+							<ui-bind path="?.stats.hdd" config="exec:?/statsbar" data-id="hdd" class="value">0</ui-bind>
+							<div class="name">@(Used storage)</div>
+						</div>
+					</figure>
+					<figure>
+						<div>
+							<div class="icon"><i class="ti ti-clone"></i></div>
+							<ui-bind path="?.stats.files" config="exec:?/statsbar" data-id="files" class="value">0</ui-bind>
+							<div class="name">@(Open files)</div>
+						</div>
+					</figure>
+					<figure>
+						<div>
+							<div class="icon"><i class="ti ti-network"></i></div>
+							<ui-bind path="?.stats.connections" config="exec:?/statsbar" data-id="connections" class="value">0</ui-bind>
+							<div class="name">@(Open HTTP connections)</div>
+						</div>
+					</figure>
+				</div>
+			</ui-bind>
+
+			<ui-component name="search" path="?.search" config="selector:.search;datasource:?.items;delaydatasource:500" class="list">
+				<ui-bind path="?" config="template;track:items">
+					<script type="text/html">
+						{{ foreach m in value.items }}
+							{{ if $index }}
+							<hr class="search nmt" />
+							{{ else }}
+							<ui-bind path="?.search" config="text b;show">
+								<h2><i class="ti ti-search"></i><b>{{ value.search }}</b></h2>
+							</ui-bind>
+							{{ fi }}
+							{{ if m.name }}
+							<h2 class="search"><span>{{ m.items.length }}</span><i class="ti ti-table-alt"></i>{{ m.name }}</h2>
+							{{ else }}
+							<h2 class="search"><span>{{ m.items.length }}</span><i class="ti ti-rocket"></i>@(Uncategorized apps)</h2>
+							{{ fi }}
+							<div>
+								{{ foreach n in m.items }}
+								<ui-bind path="appsinfo.app{{ n.id }}" config=".offline:!value||!value.is__.iserror:value&&value.analyzator==='error'__delay:100__exec:?/makesearch" data-id="{{ n.id }}" data-search="{{ n.url }}" data-url="{{ n.url }} {{ n.name }}{{ if n.path }} {{ n.path }}{{ fi }} {{ if n.debug }}@debug{{ else }}@release{{ fi }} @{{ n.version }}{{ if n.highpriority }} @highpriority{{ fi }}{{ if n.servicemode }} @service{{ fi }}{{ if n.pid }} {{ n.pid }}{{ fi }}" class="item search block">
+									<div class="controls">
+										<button class="exec" data-exec="?/menu" name="menu" title="@(Settings)"><i class="ti ti-ellipsis-h"></i></button>
+										<button class="exec" data-exec="?/restart" name="restart" title="@(Restart)"><i class="ti ti-refresh"></i></button>
+										<a href="/logs/{{ n.id }}/" target="_blank" title="@(Show logs)" class="blue"><i class="ti ti-search"></i></a>
+									</div>
+									<ui-bind path="appsinfo.app{{ n.id }}" config="template:{#appstats}" class="stats block"></ui-bind>
+									{{ if n.debug }}<div class="debug"><i class="ti ti-flask"></i><span class="badge badge-purple">@(debug)</span></div>{{ fi }}
+									<div class="url"><em>{{ n.version }}</em><ui-bind path="appsinfo.app{{ n.id }}.openfiles" config="text span;show" class="openfiles block"><span></span><i class="ti ti-copy"></i></ui-bind>{{ if n.servicemode }}<span class="ssl badge badge-pink badge-small mr5">service</span>{{ fi }}{{ if n.https }}<span class="ssl badge badge-green badge-small mr5">SSL</span>{{ fi }}{{ if n.servicemode }}{{ n.name }}{{ else }}<a href="{{ n.url }}{{ n.path }}"{{ if n.name }} title="{{ n.domain }}"{{fi}} target="_blank">{{ if n.name }}{{ n.name }}{{ else }}{{ n.domain }}{{ n.path }}{{ fi }}</a>{{ if n.threads }}<i class="ti ti-cogs ml5" title="@(Threads are enabled)"></i>{{ fi }}{{ fi }}{{ if n.highpriority }} <span class="hidden-sm hidden-xs badge badge-small badge-yellow">@(high priority)</span>{{ fi }} {{ if !n.unixsocket && !n.servicemode }}<span class="port">{{ n.port }}</span>{{ fi }}<ui-bind path="appsinfo.app{{ n.id }}.connections" config="show;text" title="@(HTTP connections)" class="connections hidden b"></ui-bind></div>
+								</ui-bind>
+								{{ end }}
+							</div>
+						{{ end }}
+					</script>
+				</ui-bind>
+			</ui-component>
+			<br />
+		</ui-bind>
+	</ui-component>
+</ui-plugin>
+
+<script type="text/html" id="appstats">
+	{{ if value && value.is }}
+		<div class="info">{{ value.time | app_uptime }}<i class="ti ti-clock"></i></div>
+		<div class="info">{{ value.hdd | filesize | app_trending('hdd') }}<i class="ti ti-hdd"></i></div>
+		<div class="info">{{ value.memory | filesize | app_trending('memory') }}<i class="ti ti-microchip"></i></div>
+		<div class="info info2">{{ value.cpu | format(1) | app_trending('cpu') }}%<i class="ti ti-dashboard"></i></div>
+	{{ fi }}
+</script>
+
+<ui-component name="importer" path="common.form" config="if:applications-analyzator;reload:applications_analyzator_refresh;url:/templates/applications-form-analyzator.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:applications-logs;reload:applications_logs_refresh;url:/templates/applications-form-logs.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:applications-backup;url:/templates/applications-form-backup.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:applications-upload;reload:applications_upload_refresh;url:/templates/applications-form-upload.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:applications-subprocess;reload:applications_subprocess_refresh;url:/templates/applications-form-subprocess.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:applications-stdout;url:/templates/applications-stdout.html"></ui-component>
+
+<ui-component name="importer" path="common.form" config="if:filebrowser;url:/forms/filebrowser.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:intro;url:/forms/intro.html"></ui-component>
+
+<ui-component name="importer" path="common.form" config="if:formanalyzator;url:/~ID~/forms/analyzator.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:formsummary;url:/~ID~/forms/summary.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:formapp;url:/~ID~/forms/app.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:formservice;url:/~ID~/forms/service.html"></ui-component>
+<ui-component name="importer" path="common.form" config="if:formupload;url:/~ID~/forms/upload.html"></ui-component>
+<ui-component name="importer" path="common.form2" config="if:formnotifications;url:/~ID~/forms/notifications.html"></ui-component>
+
+<script>
+
+	Thelpers.app_trending = function(val, type) {
+
+		var key = this.path.substring(9);
+		var obj = W.appsinfo[key];
+		if (!obj)
+			return DEF.empty;
+
+		key += '_' + type;
+
+		var prev = W.CLASS.trending[key];
+		var curr = obj[type];
+
+		W.CLASS.trending[key] = curr;
+
+		if (type === 'connections')
+			val = '<span>' + val + '</span>';
+
+		if (prev == null)
+			return val;
+
+		var plus = '';
+
+		if (prev < curr)
+			plus = '<i class="ti ti-long-arrow-down green trending"></i>';
+		else if (prev > curr)
+			plus = '<i class="ti ti-long-arrow-up red trending"></i>';
+
+		return plus + val;
+	};
+
+	PLUGIN(function(exports) {
+
+		var ready = false;
+
+		exports.set({ trending: {}, ready: false });
+
+		exports.statsbar = function(value, path, el) {
+
+			var model = exports.model;
+
+			if (value == null) {
+				el.html(DEF.empty);
+				return;
+			}
+
+			var id = el.attrd('id');
+			var val = '';
+			var key = 'statsbar_' + id;
+			var plus = '';
+
+			var prev = model.trending[key];
+			if (prev != null) {
+				if (prev !== value)
+					plus = '<i class="mr5 ti ti-long-arrow-alt-' + (prev > value ? 'down green' : 'up red') + '"></i>';
+			}
+
+			model.trending[key] = value;
+
+			switch (id) {
+				case 'memory':
+				case 'hdd':
+					val = Thelpers.filesize(value);
+					break;
+				case 'files':
+				case 'connections':
+					val = value;
+					break;
+			}
+
+			el.html(plus + val + '');
+		};
+
+		exports.reload = function() {
+			EXEC('common/hidemenu');
+		};
+
+		exports.searchfocus = function(el, e) {
+			if (e.target.tagName === 'HEADER')
+				$(el).find('input').focus();
+		};
+
+		exports.refresh = function() {
+			exports.tapi('apps_query @hideloading ERROR', function(response) {
+
+				var groups = {};
+				var model = exports.model;
+
+				for (var item of response) {
+
+					item.domain = item.url.substring(item.url.indexOf('/') + 2);
+					item.https = item.url.substring(0, 8) === 'https://';
+
+					if (groups[item.category])
+						groups[item.category].items.push(item);
+					else
+						groups[item.category] = { name: item.category, items: [item] };
+				}
+
+				var keys = Object.keys(groups);
+				var output = [];
+
+				keys.quicksort();
+
+				for (var i = 0; i < keys.length; i++)
+					output.push(groups[keys[i]]);
+
+				exports.scope();
+
+				var categories = [];
+				for (var i = 0; i < keys.length; i++) {
+					if (keys[i])
+						categories.push({ id: keys[i], name: keys[i] });
+				}
+
+				model.ready = true;
+				ready = true;
+				exports.set('categories', categories);
+				exports.set('apps', response);
+				exports.set('items', output);
+
+				if (!response.length) {
+					if (!BLOCKED('intro', '1 day'))
+						SET('common.form', 'intro');
+				}
+
+				exports.refreshstats();
+
+			});
+		};
+
+		exports.restart = function(el) {
+			var model = exports.model;
+			var id = el instanceof jQuery ? el.closest('.item').attrd('id') : el;
+			var appdomain = model.apps.findValue('id', id, 'domain');
+			exports.tapi('apps_restart/{0} @showloading ERROR'.format(id), function() {
+				 SETTER('notifybar/success @hideloading', '@(Application "<b>{0}</b>" has been restarted successfully)'.format(appdomain));
+			});
+		};
+
+		exports.menu = function(el) {
+
+			var model = exports.model;
+			var id = ATTRD(el);
+			var app = model.apps.findItem('id', id);
+			var opt = {};
+
+			opt.element = el;
+			opt.items = [];
+			opt.align = 'right';
+			opt.offsetY = -5;
+
+			if (app.version === 'total4')
+				opt.items.push({ name: '@(Open app builder)', icon: 'ti ti-code-branch blue', id: 'builder', classname: 'b' });
+
+			if (!isMOBILE) {
+				opt.items.push({ name: '@(File browser)', icon: 'folder', id: 'filebrowser' });
+				if (app.version !== 'total4')
+					opt.items.push('-');
+			} else
+				opt.large = true;
+
+			if (app.version === 'total4')
+				opt.items.push('-');
+
+			opt.items.push({ name: '@(Settings)', icon: 'cog', id: 'edit', classname: 'b' });
+			opt.items.push({ name: '@(Restart)', icon: 'refresh', id: 'restart' });
+			opt.items.push({ name: '@(Stop)', icon: 'ti ti-stop-alt red', id: 'stop' });
+			opt.items.push('-');
+			opt.items.push({ name: '@(Upload source-code)', icon: 'ti ti-cloud-upload green', id: 'upload', classname: 'b' });
+			opt.items.push({ name: '@(Download)', icon: 'cloud-download', id: 'download' });
+			opt.items.push('-');
+			opt.items.push({ name: '@(Remove)', icon: 'ti ti-remove red', id: 'remove' });
+
+			EMIT('app_menu', opt);
+
+			opt.callback = function(item) {
+
+				item.callback && item.callback(app, item);
+
+				if (item.id === 'restart') {
+					exports.tapi('apps_restart/{0} @showloading ERROR'.format(id), function() {
+						SETTER('notifybar/success @hideloading', '@(The app "<b>{0}</b>" has been restarted successfully)'.format(app.url));
+					});
+					return;
+				}
+
+				if (item.id === 'stop') {
+					exports.tapi('apps_stop/{0} @showloading ERROR'.format(id), function() {
+						SETTER('notifybar/success @hideloading', '@(The app <b>"{0}"</b> has been stopped sucessfully.)'.format(app.url));
+					});
+					return;
+				}
+
+				if (item.id === 'builder') {
+					exports.tapi('build_read/{0} @showloading ERROR'.format(id), function(response) {
+						SETTER('builder/load @hideloading', response ? STRINGIFY(response, true) : '', function(response) {
+							exports.tapi('build_save/{0} @showloading ERROR'.format(id), response, function() {
+								SETTER('notifybar/success @hideloading', '@(The app <b>"{0}"</b> has been updated sucessfully.)'.format(app.url));
+							});
+						});
+					});
+					return;
+				}
+
+				if (item.id === 'edit') {
+					exports.tapi('apps_read/{0} @showloading ERROR'.format(id), function(response) {
+
+						if (response.memory === 0)
+							response.memory = undefined;
+
+						if (response.cluster <= 1)
+							response.cluster = '';
+
+						// response.sslexpire = apps.apps.findValue('id', response.id, 'sslexpire', null);
+						response.sslcustom = !!response.ssl_key;
+
+						if (response.servicemode) {
+							SET('formservice @reset', response);
+							SET('common.form @hideloading', 'formservice');
+						} else {
+							SET('formapp @reset', response);
+							SET('common.form @hideloading', 'formapp');
+						}
+
+					});
+
+					return;
+				}
+
+				if (item.id === 'remove') {
+					SETTER('approve/show', '@(Are you sure you want to remove <b>"{0}"</b>?)'.format(app.url.encode()), '"ti ti-remove" @(Remove)', function() {
+						exports.tapi('apps_remove/{0} @showloading ERROR'.format(id), function() {
+							SETTER('notifybar/success @hideloading', '@(The app <b>"{0}"</b> has been removed successfully)'.format(app.url.encode()));
+							exports.refresh();
+						});
+					});
+					return;
+				}
+
+				if (item.id === 'filebrowser') {
+					SET('filebrowser.id @showloading', id);
+					SET('common.form @hideloading', 'filebrowser');
+					return;
+				}
+
+				if (item.id === 'download') {
+					location.href = '/download/{0}/'.format(id);
+					return;
+				}
+
+				if (item.id === 'upload') {
+					SET('formupload.app', app);
+					SET('common.form', 'formupload');
+					return;
+				}
+
+			};
+
+			SETTER('menu/show', opt);
+		};
+
+		exports.makesearch = function(value, path, el) {
+
+			var plus = '';
+
+			if (value) {
+				if (value.analyzator)
+					plus = '@errors';
+				plus += (plus ? ' ' : '') + '@running';
+				if (value.threads)
+					plus += ' @threads';
+				if (value.pidchild)
+					plus += ' ' + value.pidchild;
+			} else
+				plus = '@stopped';
+
+
+			el.attrd('search', el.attrd('url') + (plus ? (' ' + plus) : ''));
+		};
+
+		exports.create = function(el) {
+			var opt = {};
+			opt.element = el;
+			opt.items = [];
+			opt.items.push({ id: 'app', name: '@(App)', icon: 'ti ti-rocket' });
+			opt.items.push({ id: 'service', name: '@(Service)', icon: 'ti ti-network' });
+			opt.callback = function(item) {
+
+				var path = 'form' + item.id;
+				var obj = {};
+
+				if (item.id === 'app')
+					obj.unixsocket = true;
+
+				SET(path + ' @default', obj);
+				SET('common.form', path);
+			};
+
+			SETTER('menu/show', opt);
+		};
+
+		exports.menubutton = function(el) {
+			var opt = {};
+			opt.element = el;
+			opt.align = 'right';
+			opt.offsetY = -10;
+			opt.items = [];
+			opt.items.push({ id: 'create', name: '@(Add)', icon: 'ti ti-plus-circle green' });
+			opt.items.push('-');
+			opt.items.push({ id: 'analyzator', name: '@(Analyzator)', icon: 'ti ti-bug' });
+			opt.items.push({ id: 'summary', name: '@(Trending)', icon: 'ti ti-chart-line' });
+			opt.callback = function(item) {
+				exports[item.id]();
+			};
+			SETTER('menu/show', opt);
+		};
+
+		exports.refreshstats = function() {
+			setTimeout2('apps_refreshstats', exports.refreshstats_force, 1500);
+		};
+
+		exports.searchtype = function(el) {
+			exports.set('search', el.html());
+		};
+
+		exports.refreshstats_force = function() {
+
+			if (!ready) {
+				setTimeout(exports.refreshstats_force, 100);
+				return;
+			}
+
+			var model = exports.model;
+			var keys = Object.keys(W.appsinfo || EMPTYOBJECT);
+			var stats = {};
+
+			stats.memory = 0;
+			stats.hdd = 0;
+			stats.files = 0;
+			stats.connections = 0;
+			stats.online = 0;
+			stats.errors = 0;
+
+			for (var i = 0; i < keys.length; i++) {
+				var key = keys[i];
+				if (key !== 'TYPE') {
+					var item = appsinfo[key];
+					if (item.is) {
+						stats.memory += (item.memory || 0);
+						stats.hdd += (item.hdd || 0);
+						stats.files += (item.openfiles || 0);
+						stats.connections += (item.connections || 0);
+						if (item.analyzator === 'error')
+							stats.errors++;
+						stats.online++;
+					}
+				}
+			}
+
+			stats.offline = model.apps.length - stats.online;
+			exports.set('stats', stats);
+
+			if (common.form === 'summary')
+				EXEC('formsummary/reload');
+
+		};
+
+		exports.analyzator = function() {
+			SET('common.form', 'formanalyzator');
+		};
+
+		exports.summary = function() {
+			SET('common.form', 'formsummary');
+		};
+
+		exports.options = function(el) {
+
+			var model = exports.model;
+			var opt = {};
+
+			opt.element = el;
+			opt.items = [];
+			opt.align = 'right';
+			opt.offsetY = -5;
+			opt.items.push({ name: '@(Notifications)', icon: 'ti ti-bell', id: 'notifications', class: 'b' });
+			opt.items.push('-');
+
+			opt.items.push({ name: '@(Restart all apps)', icon: 'ti ti-retweet', id: 'restart' });
+
+			var count3 = 0;
+			var count4 = 0;
+			var count5 = 0;
+			var countNPM = 0;
+
+			for (var app of model.apps) {
+				if (!app.stopped) {
+					switch (app.version) {
+						case 'total3':
+							count3++;
+							break;
+						case 'total4':
+							count4++;
+							break;
+						case 'total5':
+							count5++;
+							break;
+						case 'npmstart':
+							countNPM++;
+							break;
+					}
+				}
+			}
+
+			count3 && opt.items.push({ name: '@(Restart Total.js 3 apps) (' + count3 + ')', icon: 'ti ti-retweet', id: 'restart3' });
+			count4 && opt.items.push({ name: '@(Restart Total.js 4 apps) (' + count4 + ')', icon: 'ti ti-retweet', id: 'restart4' });
+			count5 && opt.items.push({ name: '@(Restart Total.js 5 apps) (' + count4 + ')', icon: 'ti ti-retweet', id: 'restart5' });
+			countNPM && opt.items.push({ name: '@(Restart NPM start apps) (' + countNPM + ')', icon: 'ti ti-retweet', id: 'restart100' });
+
+			opt.items.push('-');
+
+			if (user.sa)
+				opt.items.push({ name: '@(Make a backup)', icon: 'ti ti-save', id: 'backup' });
+
+			opt.items.push({ name: '@(Stop applications)', icon: 'ti ti-stop-alt red', id: 'stop' });
+			opt.items.push({ name: '@(Fix permissions)', icon: 'ti ti-wrench', id: 'fixpermissions' });
+			opt.items.push({ name: '@(Update Total.js from NPM)', icon: 'ti ti-totaljs', id: 'updatetotal' });
+
+			if (user.sa) {
+				opt.items.push('-');
+				opt.items.push({ name: '@(Open terminal)', icon: 'ti ti-terminal', classname: 'b', id: 'terminal' });
+			}
+
+			EMIT('apps_menu', opt);
+
+			opt.callback = function(item) {
+
+				item.callback && item.callback(model, item);
+
+				if (item.id === 'terminal') {
+					SETTER('websocket/send', { TYPE: 'terminal_open' });
+					return;
+				}
+
+				if (item.id === 'restart') {
+					SETTER('approve/show', '@(Are you sure you want to restart all apps?)', '"ti ti-play-circle" @(Restart)', function() {
+						exports.tapi('apps_restart_all @showloading ERROR', function() {
+							SETTER('notifybar/success @hideloading', '@(Apps have been restarted successfully.)');
+						});
+					});
+					return;
+				}
+
+				if (item.id === 'restart3') {
+					SETTER('approve/show', '@(Are you sure you want to restart all Total.js 3 apps?)', '"ti ti-play-circle" @(Restart)', function() {
+						exports.tapi('apps_restart_all?version=total3 @showloading ERROR', function() {
+							SETTER('notifybar/success @hideloading', '@(Apps have been restarted successfully.)');
+						});
+					});
+					return;
+				}
+
+				if (item.id === 'restart4') {
+					SETTER('approve/show', '@(Are you sure you want to restart all Total.js 4 apps?)', '"ti ti-play-circle" @(Restart)', function() {
+						exports.tapi('apps_restart_all?version=total4 @showloading ERROR', function() {
+							SETTER('notifybar/success @hideloading', '@(Apps have been restarted successfully.)');
+						});
+					});
+					return;
+				}
+
+				if (item.id === 'restart5') {
+					SETTER('approve/show', '@(Are you sure you want to restart all Total.js 4 apps?)', '"ti ti-play-circle" @(Restart)', function() {
+						exports.tapi('apps_restart_all?version=total5 @showloading ERROR', function() {
+							SETTER('notifybar/success @hideloading', '@(Apps have been restarted successfully.)');
+						});
+					});
+					return;
+				}
+
+				if (item.id === 'restart100') {
+					SETTER('approve/show', '@(Are you sure you want to restart all NPM start apps?)', '"ti ti-play-circle" @(Restart)', function() {
+						exports.tapi('apps_restart_all?version=npmstart @showloading ERROR', function() {
+							SETTER('notifybar/success @hideloading', '@(Apps have been restarted successfully.)');
+						});
+					});
+					return;
+				}
+
+				if (item.id === 'backup') {
+					SETTER('approve/show', '@(Are you sure you want to backup all apps?)', '"ti ti-save" @(Backup)', function() {
+						SETTER('loading/show', '@(Backing up ...)');
+						SETTER('loading/hide', 10000);
+						location.href = '/backup/';
+					});
+					return;
+				}
+
+				if (item.id === 'stop') {
+					SETTER('approve/show', '@(Are you sure you want to stop all applications?)', '"ti ti-save" @(Stop)', function() {
+						exports.tapi('apps_stop_all @showloading ERROR', ASETTER('loading/hide'));
+					});
+					return;
+				}
+
+				if (item.id === 'fixpermissions') {
+					SETTER('approve/show', '@(Are you sure you want to fix /www/ permissions?)', '"ti ti-angle-right" @(Continue)', function() {
+						exports.tapi('fixpermissions @showloading ERROR', function() {
+							SETTER('notifybar/success @hideloading', '@(Permissions have been fixed successfully)');
+						});
+					});
+					return;
+				}
+
+				if (item.id === 'updatetotal') {
+					SETTER('approve/show', '@(Are you sure you want to update Total.js from NPM?)', '"ti ti-angle-right" @(Continue)', function() {
+						exports.tapi('updatetotal @showloading ERROR', function() {
+							SETTER('notifybar/success @hideloading', '@(Total.js has been updated from NPM successfully)');
+						});
+					});
+					return;
+				}
+
+				if (item.id === 'notifications') {
+					SET('common.form2', 'formnotifications');
+					return;
+				}
+
+			};
+
+			SETTER('menu/show', opt);
+		};
+
+		WAIT('appsinfo', exports.refresh);
+	});
+
+	SETTER(true, 'shortcuts/register', 'CMD+F,CTRL+F', ASETTER('#appssearch/focus'), true);
+
+</script>

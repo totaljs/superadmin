@@ -1,0 +1,195 @@
+<ui-component name="box" path="common.form" config="if:CLASS;width:900;icon:ti ti-box;submit:?/submit;reload:?/reload;autofocus:1" class="hidden CLASS" plugin="CLASS">
+	<div>
+		<ui-bind path="?.id" config="hide" class="hidden">
+			<div class="alert"><i class="ti ti-warning"></i>@(<b>Uploading of source-code</b> is possible after the creation process.)</div>
+		</ui-bind>
+		<div class="padding">
+			<ui-bind path="?.id" config="disable .D">
+				<ui-component name="input" path="?.url" config="monospace:1;placeholder:https\://www.totaljs.com;required:true;type:url" default="'https://'" class="D">@(URL address)</ui-component>
+			</ui-bind>
+			<div class="help m">
+				@(The URL address must contain protocol <code>http</code> or <code>https</code>).<br />
+				<b>@(Make sure that DNS A records for this domain are targeted to this server</b>.)
+			</div>
+			<ui-bind path="?.subpath" config="hide block">
+				<ui-bind path="?.url" config="show:value && value.indexOf('https:') !== -1" class="hidden block">
+					<ui-component name="input" path="?.allow80" config="type:checkbox" class="b">@(Disable redirect from HTTP to HTTPS)</ui-component>
+					<br />
+				</ui-bind>
+			</ui-bind>
+			<ui-component name="input" path="?.name" config="placeholder:@(e.g. CMS)" class="m">@(Internal name)</ui-component>
+			<ui-component name="input" path="?.category" config="dirsource:apps.categories;dircustom:true;dirempty:@(Without category);placeholder:@(Choose a category);dirplaceholder:@(Search or create new)" class="m">@(Category)</ui-component>
+			<ui-component name="input" path="?.debug" config="type:checkbox" default="true" class="inline b mr5 black">@(Enable debug mode)</ui-component>
+			<ui-component class="inline middle mr15"><span class="badge badge-red">@(debug)</span></ui-component>
+			<ui-bind path="?.debug" config="disabled .D">
+				<ui-component name="input" path="?.watcher" config="type:checkbox;disabled:true" default="false" class="inline mr15 D">@(Enable watcher)</ui-component>
+			</ui-bind>
+			<ui-component name="input" path="?.highpriority" config="type:checkbox" class="inline mr15 black">@(High priority)</ui-component>
+			<ui-component name="input" path="?.accesslog" config="type:checkbox" class="inline mr15">@(Enable access logging)</ui-component>
+			<ui-component name="input" path="?.backup" config="type:checkbox" class="inline">@(Enable backing up)</ui-component>
+		</div>
+		<hr class="nmb nmt" />
+		<ui-bind path="?.subpath" config="hide" class="hidden block">
+			<ui-bind path="?.url" config="show:value&&value.substring(0,8)==='https://'" class="hidden block">
+				<div class="bg-smoke m">
+					<div class="padding">
+						<div><span class="badge badge-green b mr5"><i class="ti ti-lock"></i>@(Security)</span><b>@(SSL configuration)</b></div>
+						<div class="help m"><b>@(Good to know:)</b> @(SSL certificates are generated automatically via Let's Encrypt service. You must redirect DNS records to the IP address of this server.)</div>
+						<ui-component name="input" path="?.sslcustom" config="type:checkbox">@(Add own SSL certificates)</ui-component>
+						<ui-bind path="?.sslcustom" config="show" class="hidden">
+							<br />
+							<div class="row">
+								<div class="col-md-6 m">
+									<ui-component name="input" path="?.ssl_key" config="icon:key;placeholder:@(absolute path to .key file)">@(SSL key)</ui-component>
+								</div>
+								<div class="col-md-6 m">
+									<ui-component name="input" path="?.ssl_cer" config="placeholder:@(absolute path to .pem file)">@(SSL certificate)</ui-component>
+								</div>
+							</div>
+						</ui-bind>
+					</div>
+					<ui-bind path="?.current.sslexpire" config="template;show" class="alert hidden block">
+						<script type="text/html">
+							@(The certificate expires:) <b class="black">{{ value | format }}</b> / {{ value | expiredays(@('# days', '# day', '# days', '# days', 'expired')) }}
+						</script>
+					</ui-bind>
+				</div>
+			</ui-bind>
+		</ui-bind>
+		<div class="padding npb">
+
+			<ui-bind path="?.cluster" config="show:value==='auto'||(value&&(+value)>1)" class="alert m hidden block"><i class="ti ti-exclamation-circle"></i><b>@(IMPORTANT:)</b><br />@(You have enabled <b>Cluster mode</b> and the application must be optimized for the cluster mode. Applications in cluster mode are multi-threaded).</ui-bind>
+
+			<div class="row">
+				<div class="col-md-3 col-xs-6 m">
+					<ui-component name="input" path="?.cluster" config="maxlength:4;dirsource:%cluster;dirplaceholder:@(Choose or type count of threads);dircustom:1;dirminwidth:300" default="''">@(Cluster)</ui-component>
+				</div>
+				<div class="col-md-3 col-xs-6 m">
+					<ui-component name="input" path="?.ddos" config="align:center;increment:true;maxlength:4;type:number" default="50">@(DDOS protection)</ui-component>
+				</div>
+				<div class="col-md-3 col-xs-6 m">
+					<ui-component name="input" path="?.memory" config="align:center;increment:true;maxlength:4;placeholder:@(auto);type:number" default="'auto'">@(Memory limit)</ui-component>
+				</div>
+				<div class="col-md-3 col-xs-6 m">
+					<ui-component name="input" path="?.priority" config="align:center;increment:true;maxlength:3;type:number" default="0">@(Process priority)</ui-component>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3 col-xs-6 m">
+					<ui-component name="input" path="?.size" config="align:center;icon:cloud-upload;increment:true;maxlength:5;placeholder:e.g. 5;type:number" default="20">@(Max. upload size)</ui-component>
+					<div class="help">@(Must be defined in megabytes)</div>
+				</div>
+				<div class="col-md-3 col-xs-6 m">
+					<ui-component name="input" path="?.proxytimeout" config="align:center;icon:sign-out;increment:true;maxlength:5;placeholder:@(e.g. 600);type:number" default="600">@(Max. request timeout)</ui-component>
+					<div class="help">@(Must be defined in seconds)</div>
+				</div>
+				<div class="col-md-6 m">
+					<ui-component name="input" path="?.note" config="maxlength:200">@(Note)</ui-component>
+				</div>
+			</div>
+			<hr />
+			<h3>@(Type of application)</h3>
+			<ui-component name="choose" path="?.version" config="datasource:#version;selector:.item" default="'total5'">
+				<ui-bind path="#version" config="template">
+				<script type="text/html">
+					<div class="iconmenu">
+						{{ foreach m in value }}
+						<div data-id="{{ m.id }}" class="item">
+							<i class="{{ m.icon }}"></i>
+							<span>{{ m.name }}</span>
+						</div>
+						{{ end }}
+					</div>
+				</script>
+				</ui-bind>
+			</ui-component>
+			<div class="clearfix m">&nbsp;</div>
+			<ui-bind path="?.version" config="show:!value" class="hidden block">
+				<ui-component name="input" path="?.startscript" config="icon:hourglass-start;maxlength:50;placeholder:index.js">@(Custom start script)</ui-component>
+				<div class="help m">@(We don't recommend using a custom start script. The irst argument is <code>port number</code> and second <code>--mode</code> (release or debug))</div>
+			</ui-bind>
+			<ui-bind path="?.version" config="show:value==='total4'||value==='total5'" class="hidden block">
+				<ui-bind path="common.unixsocket" config="show" class="hidden block">
+					<hr />
+					<div class="help">@(SuperAdmin will use <b>Unix socket</b> instead of classic network routing. It's faster and more secure.)</div>
+					<ui-component name="input" path="?.unixsocket" config="type:checkbox" class="black mt5 b">@(Use Unix socket)</ui-component>
+				</ui-bind>
+				<hr />
+				<ui-component name="input" path="?.threads" config="dirsource:%threads;dircustom:1;dirplaceholder:@(Type a relative /endpoint/ or just enable threads)" default="''">@(Total.js threads)</ui-component>
+				<div class="help"><b>@(IMPORTANT)</b>: @(If you enable threads, then we recommend setting <b>Cluster</b> to <code>Auto-scaling</code> mode.)</div>
+			</ui-bind>
+		</div>
+		<hr />
+		<div class="padding">
+			<ui-component name="textboxlist" path="?.redirect" config="maxlength:50;placeholder:@(e.g. www.totaljs.com and press enter)" default="[]" class="m">@(Redirects)</ui-component>
+			<ui-component name="textboxlist" path="?.allow" config="maxlength:50;placeholder:@(e.g. 129.34.33.33 and press enter)" default="[]" class="m">@(Allowed IP addresses)</ui-component>
+			<ui-component name="textboxlist" path="?.disallow" config="maxlength:50;placeholder:@(e.g. 129.34.33.33 and press enter)" default="[]" class="m">@(Blocked IP addresses)</ui-component>
+
+			<hr />
+			<ui-component name="input" path="?.editcode" config="monospace:1;placeholder:https\://www.yourcodeinstance.com/?id=myprojectname;type:url;icon:ti ti-code" default="''">@(URL address for editing code)</ui-component>
+			<div class="help m">@(If you don't have Total.js Code instance on this server, you can use an external Total.js Code instance.)</div>
+
+		</div>
+	</div>
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit" disabled><i class="ti ti-check-circle"></i>@(SUBMIT)</button>
+			<button name="cancel">@(Cancel)</button>
+		</ui-component>
+	</nav>
+</ui-component>
+
+<script>
+
+	DEF.cl.version = 'total5|Total.js v5|ti ti-totaljs,total4|Total.js v4|ti ti-totaljs,total3|Total.js v3|ti ti-totaljs,npmstart|NPM start|ti ti-js,|Custom|ti ti-code'.parseSource();
+
+	SET('%threads', [{ id: '', name: '@(Threads are disabled)', template: '<b>@(Disable threads)</b>' }, { id: '-', name: '@(Threads are enabled)', template: '@(Enable threads)' }]);
+	SET('%cluster', [{ id: '', name: '@(Disabled)', template: '<b>@(No cluster)</b>' }, { id: 'auto', name: '@(Auto-scaling)' }]);
+
+	PLUGIN(function(exports) {
+
+		var caller;
+
+		exports.reload = function(com) {
+			caller = exports.caller;
+			var model = exports.model;
+			com.reconfigure({ title: model.id ? '@(Edit app)' : '@(Create app)' });
+		};
+
+		exports.submit = function(hide) {
+			var model = exports.form;
+			model.servicemode = false;
+			exports.tapi('apps_save @showloading ERROR', model, function(response) {
+				if (!model.id && response.value) {
+					setTimeout(function() {
+						var app = caller.model.apps.findItem('id', response.value);
+						if (app) {
+							SET('uploadform.app', app);
+							SET('common.form', 'upload');
+						}
+						SETTER('loading/hide', 1000);
+					}, 2500);
+				} else
+					SETTER('loading/hide', 1000);
+				caller.exec('refresh');
+				hide();
+			});
+		};
+
+		exports.watch('url', function(value) {
+			if (!value)
+				value = '';
+			value = value.replace(/http(s)?\:\/\//g, '');
+			var index = value.indexOf('/');
+			var url = index === -1 ? '' : value.substring(index + 1).trim();
+			exports.set('subpath', url.length > 2);
+		}, true);
+
+	});
+
+	Tangular.register('expiredays', function(value, zero, one, two, many, expired) {
+		var diff = value.getTime() - Date.now();
+		return diff >= 0 ? Math.ceil(diff / 86400000).pluralize(zero, one, two, many) : '<b class="red">{0}</b>'.format(expired);
+	});
+
+</script>

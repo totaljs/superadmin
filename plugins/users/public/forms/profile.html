@@ -1,0 +1,51 @@
+<ui-component name="form" path="common.form" config="if:~PATH~;width:600;submit:profileform/submit;reload:profileform/reload;autofocus:1;icon:ti ti-user;title:@(My profile)" class="hidden" plugin="~PATH~">
+
+	<div class="padding bg-smoke">
+		<ui-component name="input" path="?.name" config="placeholder:@(Peter Sirka);required:1;maxlength:30">@(User name)</ui-component>
+	</div>
+	<div class="padding npb">
+		<div class="row">
+			<div class="col-md-6 m">
+				<ui-component name="input" path="?.login" config="required:1" default="'@'">@(Login name)</ui-component>
+				<div class="help">@(We recommend using the email address)</div>
+			</div>
+			<div class="col-md-6 m">
+				<ui-component name="input" path="?.password" config="maxlength:30;camouflage:*" default="GUID(10)">@(Login password)</ui-component>
+				<div class="help"><span class="link exec" data-exec="?/password">@(Generate password)</span></div>
+			</div>
+		</div>
+	</div>
+
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit"><i class="ti ti-check-circle"></i>@(SAVE)</button>
+			<button name="cancel">@(Cancel)</button>
+		</ui-component>
+	</nav>
+
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		exports.reload = function() {
+			exports.tapi('account_read @showloading ERROR', '@reset @hideloading');
+		};
+
+		exports.password = function() {
+			exports.set('password', GUID(10));
+		};
+
+		exports.submit = function(hide) {
+			var model = exports.form;
+			exports.tapi('account_save @showloading ERROR', model, function() {
+				SETTER('notify/success @hideloading', '@(Your profile has been saved successfully.)');
+				if (common.page === 'users')
+					EXEC('users/refresh');
+				hide();
+			});
+		};
+	});
+
+</script>

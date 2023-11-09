@@ -76,7 +76,7 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 
 	if (app.debug || app.watcher) {
 		arr.push(function(next) {
-			Exec('pgrep -P ' + pid, function(err, response) {
+			SHELL('pgrep -P ' + pid, function(err, response) {
 				if (err)
 					current.pidchild = 0;
 				else
@@ -88,7 +88,7 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 
 	// Get count of open files
 	arr.push(function(next) {
-		Exec('ls /proc/{0}/fd/ | wc -l'.format(current.pidchild || pid), function(err, response) {
+		SHELL('ls /proc/{0}/fd/ | wc -l'.format(current.pidchild || pid), function(err, response) {
 
 			if (!err) {
 				current.openfiles = response.trim().parseInt2();
@@ -101,7 +101,7 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 
 	// Get basic information
 	arr.push(function(next) {
-		Exec('ps -p {0} -o %cpu,rss,etime'.format(current.pidchild || pid), function(err, response) {
+		SHELL('ps -p {0} -o %cpu,rss,etime'.format(current.pidchild || pid), function(err, response) {
 
 			if (err) {
 				next();
@@ -129,7 +129,7 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 		current.connections = 0;
 	} else {
 		arr.push(function(next) {
-			Exec('netstat -an | grep :{0} | wc -l'.format(app.port), function(err, response) {
+			SHELL('netstat -an | grep :{0} | wc -l'.format(app.port), function(err, response) {
 
 				if (err) {
 					next();
@@ -156,7 +156,7 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 			return;
 		}
 
-		Exec('du -hsb {0}'.format(Path.join(CONF.directory_www, app.linker)), function(err, response) {
+		SHELL('du -hsb {0}'.format(Path.join(CONF.directory_www, app.linker)), function(err, response) {
 
 			if (err) {
 				next();
@@ -195,7 +195,7 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 		var name = app.url.superadmin_url();
 		current.sslcheckforce = false;
 
-		Exec('cat {0} | openssl x509 -noout -enddate'.format(app.ssl_cer ? app.ssl_cer : Path.join(CONF.directory_ssl, name, name + '.cer')), function(err, response) {
+		SHELL('cat {0} | openssl x509 -noout -enddate'.format(app.ssl_cer ? app.ssl_cer : Path.join(CONF.directory_ssl, name, name + '.cer')), function(err, response) {
 
 			if (err) {
 				next();
@@ -229,11 +229,6 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 	});
 
 	arr.push(function(next) {
-		SuperAdmin.notify(app, 1);
-		next();
-	});
-
-	arr.push(function(next) {
 
 		var filename = Path.join(CONF.directory_www, app.linker, 'restart');
 		Fs.lstat(filename, function(err) {
@@ -245,7 +240,7 @@ SuperAdmin.appinfo = function(pid, callback, app) {
 
 			// Restart
 			Fs.unlink(filename, NOOP);
-			EXEC('-Apps --> restart', null, next).id = app.id;
+			CALL('Apps --> restart').params({ id: app.id }).callback(next);
 		});
 
 	});
@@ -282,7 +277,7 @@ SuperAdmin.sysinfo = function(callback) {
 			return;
 		}
 
-		Exec('free -b -t', function(err, response) {
+		SHELL('free -b -t', function(err, response) {
 
 			if (err) {
 				next();
@@ -304,7 +299,7 @@ SuperAdmin.sysinfo = function(callback) {
 			return;
 		}
 
-		Exec('df -hTB1 {0}'.format(CONF.directory_www), function(err, response) {
+		SHELL('df -hTB1 {0}'.format(CONF.directory_www), function(err, response) {
 
 			if (err) {
 				next();
@@ -322,7 +317,7 @@ SuperAdmin.sysinfo = function(callback) {
 	});
 
 	arr.push(function(next) {
-		Exec('ps aux | wc -l', function(err, response) {
+		SHELL('ps aux | wc -l', function(err, response) {
 			SuperAdmin.server.processes = +response.trim();
 			next();
 		});
@@ -335,10 +330,11 @@ SuperAdmin.sysinfo = function(callback) {
 			return;
 		}
 
-		Exec('uptime -s', function(err, response) {
+		SHELL('uptime -s', function(err, response) {
 			SuperAdmin.server.uptime = response.replace(' ', 'T').parseDate().diff('seconds') * -1;
 			next();
 		});
+
 	});
 
 	arr.push(function(next) {
@@ -348,184 +344,19 @@ SuperAdmin.sysinfo = function(callback) {
 			return;
 		}
 
-		Exec('curl ifconfig.me', function(err, response) {
+		SHELL('curl ifconfig.me', function(err, response) {
 			SuperAdmin.server.ip = response && response.indexOf('<') === -1 ? response : '';
 			next();
 		});
 
 	});
 
-	/*
-
-	arr.push(function(next) {
-		Exec('ifconfig eth0', function(err, response) {
-			var match = response.match(/RX bytes:\d+|TX bytes:\d+/g);
-			if (match) {
-				SuperAdmin.server.networkdownload = match[0].parseInt2();
-				SuperAdmin.server.networkupload = match[1].parseInt2();
-			}
-			next();
-		});
-	});
-
-	arr.push(function(next) {
-
-		if (SuperAdmin.server.index % 3 !== 0) {
-			next();
-			return;
-		}
-
-		Exec('ps aux | grep "nginx" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
-			if (err) {
-				next();
-				return;
-			}
-
-			var pid = response.trim().split('\n').join(',');
-			if (!pid) {
-				next();
-				return;
-			}
-
-			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
-				var line = response.split('\n')[1];
-				line = line.trim().replace(REG_EMPTY, ' ').split(' ');
-				SuperAdmin.server.nginx = {};
-				SuperAdmin.server.nginx.cpu = line[0].parseFloat();
-				SuperAdmin.server.nginx.memory = line[1].parseInt() * 1024; // kB to bytes
-				next();
-			});
-		});
-	});
-
-	arr.push(function(next) {
-		if (SuperAdmin.server.index % 3 !== 0)
-			return next();
-		Exec('ps aux | grep "mongod" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
-			if (err)
-				return next();
-			var pid = response.trim().split('\n').join(',');
-			if (!pid)
-				return next();
-			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
-				var line = response.split('\n')[1];
-				line = line.trim().replace(REG_EMPTY, ' ').split(' ');
-				SuperAdmin.server.mongodb = {};
-				SuperAdmin.server.mongodb.cpu = line[0].parseFloat();
-				SuperAdmin.server.mongodb.memory = line[1].parseInt() * 1024; // kB to bytes
-				SuperAdmin.server.mongodb.time = line[2];
-				next();
-			});
-		});
-	});
-
-	arr.push(function(next) {
-		if (SuperAdmin.server.index % 3 !== 0)
-			return next();
-		Exec('ps aux | grep "postgres" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
-			if (err)
-				return next();
-			var pid = response.trim().split('\n').join(',');
-			if (!pid)
-				return next();
-			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid.split('\n').join(',')), function(err, response) {
-				SuperAdmin.server.postgresql = {};
-				SuperAdmin.server.postgresql.cpu = 0;
-				SuperAdmin.server.postgresql.memory = 0;
-				response.split('\n').forEach(function(line, index) {
-					line = line.trim();
-					if (!index || !line)
-						return;
-					line = line.replace(REG_EMPTY, ' ').split(' ');
-					SuperAdmin.server.postgresql.cpu += line[0].parseFloat();
-					SuperAdmin.server.postgresql.memory += line[1].parseInt() * 1024; // kB to bytes
-				});
-				SuperAdmin.server.postgresql.cpu = SuperAdmin.server.postgresql.cpu;
-				SuperAdmin.server.postgresql.memory = SuperAdmin.server.postgresql.memory.floor(2);
-				next();
-			});
-		});
-	});
-
-	arr.push(function(next) {
-		if (SuperAdmin.server.index % 3 !== 0)
-			return next();
-		Exec('ps aux | grep "mysql" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
-			if (err)
-				return next();
-			var pid = response.trim().split('\n').join(',');
-			if (!pid)
-				return next();
-			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
-				var line = response.split('\n')[1];
-				line = line.trim().replace(REG_EMPTY, ' ').split(' ');
-				SuperAdmin.server.mysql = {};
-				SuperAdmin.server.mysql.cpu = line[0] + ' %';
-				SuperAdmin.server.mysql.memory = line[1].parseInt() * 1024; // kb to bytes
-				SuperAdmin.server.mysql.time = line[2];
-				next();
-			});
-		});
-	});
-
-	arr.push(function(next) {
-		if (SuperAdmin.server.index % 3 !== 0)
-			return next();
-		Exec('ps aux | grep "couchdb" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
-			if (err)
-				return next();
-			var pid = response.trim().split('\n').join(',');
-			if (!pid)
-				return next();
-			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
-				SuperAdmin.server.couchdb = {};
-				SuperAdmin.server.couchdb.cpu = 0;
-				SuperAdmin.server.couchdb.memory = 0;
-				response.split('\n').forEach(function(line, index) {
-					line = line.trim();
-					if (!index || !line)
-						return;
-					line = line.replace(REG_EMPTY, ' ').split(' ');
-					SuperAdmin.server.couchdb.cpu += line[0].parseFloat();
-					SuperAdmin.server.couchdb.memory += line[1].parseInt() * 1024; // kB to bytes
-				});
-				SuperAdmin.server.couchdb.cpu = SuperAdmin.server.couchdb.cpu.format(1) + ' %';
-				next();
-			});
-		});
-	});
-
-	arr.push(function(next) {
-		if (SuperAdmin.server.index % 3 !== 0)
-			return next();
-		Exec('ps aux | grep "redis" | grep -v "grep" | awk {\'print $2\'}', function(err, response) {
-			if (err)
-				return next();
-			var pid = response.trim().split('\n').join(',');
-			if (!pid)
-				return next();
-			Exec('ps -p {0} -o %cpu,rss,etime'.format(pid), function(err, response) {
-				var line = response.split('\n')[1];
-				line = line.trim().replace(REG_EMPTY, ' ').split(' ');
-				SuperAdmin.server.redis = {};
-				SuperAdmin.server.redis.cpu = line[0] + ' %';
-				SuperAdmin.server.redis.memory = line[1].parseInt() * 1024; // kB to bytes
-				SuperAdmin.server.redis.time = line[2];
-				next();
-			});
-		});
-	});*/
-
 	arr.async(function() {
+
 		SuperAdmin.server.superadmin = process.memoryUsage().heapUsed;
 		EMIT('superadmin_sysinfo', SuperAdmin.server);
 		callback && callback(null, SuperAdmin.server);
 		MAIN.ws && MAIN.ws.send(SuperAdmin.server);
-		SuperAdmin.notify_system();
-
-		var publish = CLONE(SuperAdmin.server);
-		publish.dttms = NOW;
-		PUBLISH('system_monitor', publish);
 	});
 
 };
@@ -544,7 +375,7 @@ SuperAdmin.pid = function(port, callback) {
 	}
 
 	if (item.version === 'npmstart' || !item.version) {
-		Exec('lsof -i :' + port + ' | grep \'LISTEN\'', function(err, response) {
+		SHELL('lsof -i :' + port + ' | grep \'LISTEN\'', function(err, response) {
 			var pid = response.match(REG_PID);
 			if (pid) {
 				item.pid = pid.toString().trim();
@@ -558,7 +389,7 @@ SuperAdmin.pid = function(port, callback) {
 			if (buffer) {
 				var pid = buffer.toString('ascii');
 				item.pid = pid;
-				Exec('ps -p ' + pid, err => callback(err, err ? null : pid, item));
+				SHELL('ps -p ' + pid, err => callback(err, err ? null : pid, item));
 			} else
 				callback('500', null, item);
 		});
@@ -599,7 +430,7 @@ SuperAdmin.run = function(port, callback) {
 	var linker = app.linker;
 	var log = Path.join(CONF.directory_www, linker, 'logs', 'debug.log');
 
-	!app.debug && Exec('bash {0} {1} {2}'.format(PATH.private('backuplogs.sh'), log, Path.join(CONF.directory_console, linker + NOW.format('yyyyMMdd-HHmm') + '.log')), NOOP);
+	!app.debug && SHELL('bash {0} {1} {2}'.format(PATH.private('backuplogs.sh'), log, Path.join(CONF.directory_console, linker + NOW.format('yyyyMMdd-HHmm') + '.log')), NOOP);
 
 	// Reset output of analyzator
 	app.analyzatoroutput = null;
@@ -607,7 +438,7 @@ SuperAdmin.run = function(port, callback) {
 	var fn = function(callback) {
 		SuperAdmin.makescripts(app, function() {
 			// Creates a log directory
-			Exec('bash {0} {1}'.format(PATH.private('mkdir.sh'), Path.join(CONF.directory_www, linker, 'logs')), callback);
+			SHELL('bash {0} {1}'.format(PATH.private('mkdir.sh'), Path.join(CONF.directory_www, linker, 'logs')), callback);
 		});
 	};
 
@@ -721,7 +552,7 @@ SuperAdmin.npminstall = function(app, callback) {
 	var directory = Path.join(CONF.directory_www, app.linker);
 	F.path.exists(Path.join(directory, 'package.json'), function(e) {
 		if (e)
-			Exec('bash {0} {1}'.format(PATH.private('npminstall.sh'), directory), (err) => callback(err));
+			SHELL('bash {0} {1}'.format(PATH.private('npminstall.sh'), directory), (err) => callback(err));
 		else
 			callback();
 	});
@@ -737,9 +568,9 @@ SuperAdmin.kill = function(port, callback) {
 	return SuperAdmin.pid(port, function(err, pid, app) {
 		if (pid) {
 			EMIT('superadmin_app_kill', app);
-			Exec('kill ' + pid, function() {
+			SHELL('kill ' + pid, function() {
 				setTimeout(function() {
-					Exec('kill -9 ' + pid, () => callback(null, SUCCESS(true)));
+					SHELL('kill -9 ' + pid, () => callback(null, SUCCESS(true)));
 				}, 1000);
 			});
 		} else
@@ -783,7 +614,7 @@ SuperAdmin.ssl = function(url, generate, cb, renew, second) {
 			}
 
 			var fallback = function(callback, problem_second) {
-				Exec(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -w {2} --stateless --keylength 2048'.format(CONF.directory_ssl, url, CONF.directory_acme, renew ? 'renew --force' : 'issue --force'), (err) => callback(err, problem_second));
+				SHELL(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -w {2} --stateless'.format(CONF.directory_ssl, url, CONF.directory_acme, renew ? 'renew --force' : 'issue --force'), (err) => callback(err, problem_second));
 			};
 
 			if (!second) {
@@ -791,7 +622,7 @@ SuperAdmin.ssl = function(url, generate, cb, renew, second) {
 				return;
 			}
 
-			Exec(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -d {4} -w {2} --stateless --keylength 2048'.format(CONF.directory_ssl, url, CONF.directory_acme, renew ? 'renew --force' : 'issue --force', second), function(err) {
+			SHELL(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -d {4} -w {2} --stateless'.format(CONF.directory_ssl, url, CONF.directory_acme, renew ? 'renew --force' : 'issue --force', second), function(err) {
 				if (err) {
 					if (recreatesecond)
 						callback(null, true);
@@ -835,7 +666,7 @@ SuperAdmin.versions = function(callback) {
 	var arr = [];
 
 	arr.push(function(next) {
-		Exec(SuperAdmin.options.nginxpath + ' -v', function(err, stdout, stderr) {
+		SHELL(SuperAdmin.options.nginxpath + ' -v', function(err, stdout, stderr) {
 			var version = stderr.match(REG_FINDVERSION);
 
 			if (!version) {
@@ -859,7 +690,7 @@ SuperAdmin.versions = function(callback) {
 	});
 
 	arr.push(function(next) {
-		Exec('lsb_release -a', function(err, stdout) {
+		SHELL('lsb_release -a', function(err, stdout) {
 
 			if (err) {
 				next();
@@ -878,7 +709,7 @@ SuperAdmin.versions = function(callback) {
 	});
 
 	arr.push(function(next) {
-		Exec('node --version', function(err, stdout) {
+		SHELL('node --version', function(err, stdout) {
 
 			if (err) {
 				next();
@@ -894,7 +725,7 @@ SuperAdmin.versions = function(callback) {
 	});
 
 	arr.push(function(next) {
-		Exec('gm -version', function(err, stdout) {
+		SHELL('gm -version', function(err, stdout) {
 
 			if (err) {
 				next();
@@ -911,7 +742,7 @@ SuperAdmin.versions = function(callback) {
 
 	/*
 	arr.push(function(next) {
-		Exec('psql --version', function(err, stdout) {
+		SHELL('psql --version', function(err, stdout) {
 
 			if (err) {
 				next();
@@ -926,7 +757,7 @@ SuperAdmin.versions = function(callback) {
 	});
 
 	arr.push(function(next) {
-		Exec('mongod --version', function(err, stdout) {
+		SHELL('mongod --version', function(err, stdout) {
 			if (err)
 				return next();
 			var version = stdout.match(REG_FINDVERSION);
@@ -937,7 +768,7 @@ SuperAdmin.versions = function(callback) {
 	});
 
 	arr.push(function(next) {
-		Exec('mysql -v', function(err, stdout) {
+		SHELL('mysql -v', function(err, stdout) {
 
 			if (err) {
 				next();
@@ -952,7 +783,7 @@ SuperAdmin.versions = function(callback) {
 	});
 
 	arr.push(function(next) {
-		Exec('couchdb -V', function(err, stdout) {
+		SHELL('couchdb -V', function(err, stdout) {
 
 			if (err) {
 				next();
@@ -968,7 +799,7 @@ SuperAdmin.versions = function(callback) {
 	});
 
 	arr.push(function(next) {
-		Exec('redis-server --version', function(err, stdout) {
+		SHELL('redis-server --version', function(err, stdout) {
 
 			if (err) {
 				next();
@@ -993,7 +824,7 @@ SuperAdmin.versions = function(callback) {
 
 SuperAdmin.backup = function(callback) {
 	var filename = NOW.format('yyyyMMdd') + '-backup.tar.gz';
-	Exec('bash {0} {1} {2}'.format(PATH.private('backup.sh'), CONF.directory_dump, filename), function(err) {
+	SHELL('bash {0} {1} {2}'.format(PATH.private('backup.sh'), CONF.directory_dump, filename), function(err) {
 		callback(err, Path.join(CONF.directory_dump, filename));
 	});
 };
@@ -1006,7 +837,7 @@ SuperAdmin.backupapp = function(app, callback) {
 	}
 
 	var filename = Path.join(CONF.directory_dump, NOW.format('yyyyMMddHHmmss') + '_' + app.linker + '-backup.tar.gz');
-	Exec('bash {0} {1} {2}'.format(PATH.private('backup.sh'), CONF.directory_www + app.linker + '/', filename), function(err) {
+	SHELL('bash {0} {1} {2}'.format(PATH.private('backup.sh'), CONF.directory_www + app.linker + '/', filename), function(err) {
 		SuperAdmin.ftp(filename, function() {
 			SuperAdmin.logger('backuped: ' + filename, null, app);
 			EMIT('superadmin_app_backup', app, filename);
@@ -1023,7 +854,7 @@ SuperAdmin.ftp = function(filename, callback) {
 	var password = auth[1];
 	var target = U.getName(filename);
 
-	Exec('bash {0} {1} {2} {3} {4} {5}'.format(PATH.private('ftp.sh'), ftp.hostname, username, password, filename, target), function(err) {
+	SHELL('bash {0} {1} {2} {3} {4} {5}'.format(PATH.private('ftp.sh'), ftp.hostname, username, password, filename, target), function(err) {
 		Fs.unlink(filename, NOOP);
 		callback && callback(err);
 	});
@@ -1034,11 +865,11 @@ SuperAdmin.ftp = function(filename, callback) {
  * @param {Function(err)} callback
  */
 SuperAdmin.reload = function(callback) {
-	Exec(SuperAdmin.options.nginxpath + ' -t', function(err) {
+	SHELL(SuperAdmin.options.nginxpath + ' -t', function(err) {
 		if (err)
 			callback(err.toString());
 		else
-			Exec(SuperAdmin.options.nginxpath + ' -s reload', (err, response) => callback(err && response));
+			SHELL(SuperAdmin.options.nginxpath + ' -s reload', (err, response) => callback(err && response));
 	});
 	return SuperAdmin;
 };
@@ -1070,7 +901,6 @@ SuperAdmin.save = function(callback, stats) {
 			obj.ssl = app.ssl;
 			obj.dtmonitor = NOW;
 			obj.dttms = NOW;
-			PUBLISH('apps_monitor', obj);
 
 			delete app.current.TYPE;
 			delete app.current.id;
@@ -1140,7 +970,7 @@ SuperAdmin.resolvenginx = function(callback) {
 	var check = function(path) {
 		if (!path)
 			throw new Error('NGINX not found');
-		Exec(path + ' -v', function(err, response, version) {
+		SHELL(path + ' -v', function(err, response, version) {
 			if (version) {
 				SuperAdmin.options.nginxpath = path;
 				callback();
@@ -1149,7 +979,7 @@ SuperAdmin.resolvenginx = function(callback) {
 		});
 	};
 
-	Exec('which nginx', function(err, response) {
+	SHELL('which nginx', function(err, response) {
 
 		if (response) {
 			response = response.trim();
@@ -1166,7 +996,7 @@ SuperAdmin.resolveacme = function(callback) {
 	var check = function(path) {
 		if (!path)
 			throw new Error('ACME.SH not found');
-		Exec(path + ' -v', function(err, response) {
+		SHELL(path + ' -v', function(err, response) {
 			if (response) {
 				SuperAdmin.options.acmepath = path;
 				callback();
@@ -1230,8 +1060,8 @@ SuperAdmin.makescripts = function(app, callback) {
 	var directory = Path.join(CONF.directory_www, linker);
 
 	if (app.version === 'npmstart') {
-		Exec('mkdir -p ' + directory, function() {
-			Exec('chmod 777 {0}'.format(directory), function() {
+		SHELL('mkdir -p ' + directory, function() {
+			SHELL('chmod 777 {0}'.format(directory), function() {
 				var filename = Path.join(directory, 'index.js');
 				Fs.lstat(filename, function(err) {
 					if (err) {
@@ -1278,8 +1108,8 @@ SuperAdmin.makescripts = function(app, callback) {
 	data.unixsocket = CONF.unixsocket && app.unixsocket ? Path.join(CONF.directory_www, app.linker, 'superadmin.socket') : null;
 
 	// data.cluster = data.threads ? app.cluster <= 1 || app.cluster === 'auto' ? '\'auto\'' : app.cluster : 0;
-	Exec('mkdir -p ' + directory, function() {
-		Exec('chmod 777 {0}'.format(directory), function() {
+	SHELL('mkdir -p ' + directory, function() {
+		SHELL('chmod 777 {0}'.format(directory), function() {
 			SuperAdmin.copy(PATH.private('index.js'), Path.join(directory, 'index.js'), function(err) {
 				callback(err);
 			}, (response) => Tangular.render(response.toString('utf8'), { value: data }).replace(/\n{3,}/g, '\n\n'));
@@ -1311,7 +1141,7 @@ SuperAdmin.acmethumbprint = function(callback) {
 			}
 		}
 
-		Exec(SuperAdmin.options.acmepath + ' --register-account', function(err, response) {
+		SHELL(SuperAdmin.options.acmepath + ' --register-account', function(err, response) {
 			var index = response.indexOf('ACCOUNT_THUMBPRINT=');
 			SuperAdmin.options.acmethumbprint = response.substring(index + 20, response.indexOf('\'', index + 21));
 			Fs.writeFile(filename, SuperAdmin.options.acmethumbprint, NOOP);
@@ -1441,138 +1271,6 @@ SuperAdmin.logger = function(message, controller, id) {
 
 	message && LOGGER('logger', controller && controller.user ? ('[' + controller.user.name + ']') : '[nobody]', message, controller ? controller.ip : 'root');
 	return SuperAdmin;
-};
-
-SuperAdmin.notify = function(app, type, callback) {
-
-	// type = 0    - application has been offline, restarting...
-	// type = 1    - application info read from system (app.current)
-	// type = 2    - application monitoring (app.currentmonitor)
-	// type = 3    - analyzator
-
-	if (!MAIN.rules || !MAIN.rules.length) {
-		callback && callback();
-		return;
-	}
-
-	MAIN.rules.wait(function(item, next) {
-
-		var key = 'delay' + (item.each ? app.id + item.id : item.id);
-
-		if ((item.appid && item.appid !== app.id) || item.appsnotified[key] > NOW || (!item.debug && app.debug) || (item.highpriority && !app.highpriority)) {
-			next();
-			return;
-		}
-
-		if (!app.current)
-			app.current = {};
-
-		if (!app.stats)
-			app.stats = {};
-
-		if (item.validate(app)) {
-
-			item.appsnotified[key] = NOW.add(item.delay);
-
-			var data = [];
-			data.push('CPU: ' + app.current.cpu + '%');
-			data.push('RAM: ' + app.current.memory.filesize());
-			data.push('HDD: ' + app.current.memory.filesize());
-			data.push('HTTP: ' + app.current.connections);
-			data.push('FILES: ' + app.current.openfiles);
-			data.push('ANALYZATOR: ' + (app.analyzatoroutput || 'none'));
-
-			var type = 'warning';
-			var message = item.message.format(app.url) + ' (' + data.join(', ') + ')';
-
-			LOGGER('alarms', item.name, message);
-			EMIT('superadmin_app_alarm', app, item, message);
-
-			if (app.stats)
-				app.stats.alarms++;
-			else
-				app.stats.alarms = 1;
-
-			SuperAdmin.send_notify(type, message);
-			NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW, appsnotified: item.appsnotified }).id(item.id);
-
-			item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
-			item.email && SuperAdmin.send_email(item.email, message, item.name);
-
-			PUBLISH('notify_apps', { type: type, body: message, message: item.message, dtnotified: NOW, dttms: NOW });
-		}
-
-		next();
-
-	}, callback);
-};
-
-SuperAdmin.notify_system = function() {
-
-	if (!MAIN.sysrules || !MAIN.sysrules.length)
-		return;
-
-	var skip = {};
-
-	MAIN.sysrules.wait(function(item, next) {
-
-		var key = 'delay' + item.id;
-
-		if (skip[key] || item[key] > NOW) {
-			next();
-			return;
-		}
-
-		if (item.validate(SuperAdmin.server)) {
-
-			skip[key] = true;
-			item[key] = NOW.add(item.delay);
-
-			var data = [];
-
-			data.push('CPU: ' + SuperAdmin.server.cpu + '%');
-			data.push('RAM: ' + SuperAdmin.server.memused.filesize());
-			data.push('HDD: ' + SuperAdmin.server.hddused.filesize());
-
-			var type = 'warning';
-			var message = item.message + ' (' + data.join(', ') + ')';
-
-			LOGGER('alarms', item.name, message);
-			EMIT('superadmin_system_alarm', SuperAdmin.server, item, message);
-
-			SuperAdmin.send_notify(type, message);
-			NOSQL('alarms').modify({ '+notified': 1, dtnotified: NOW }).id(item.id);
-			item.phone && SuperAdmin.send_sms(item.phone, message.removeTags());
-			item.email && SuperAdmin.send_email(item.email, message, item.name);
-
-			PUBLISH('notify_system', { type: type, body: message, message: item.message, dtnotified: NOW, dttms: NOW });
-
-		}
-
-		next();
-
-	});
-};
-
-SuperAdmin.send_sms = function(numbers, message) {
-
-	if (!CONF.totalapi || !CONF.sms_from)
-		return false;
-
-	numbers.wait(function(item, next) {
-		TotalAPI('sms', { from: CONF.sms_from, to: item, body: message }, next);
-	});
-
-	return true;
-};
-
-SuperAdmin.send_email = function(addresses, message, name) {
-	if (!addresses || !addresses.length)
-		return;
-
-	var message = LOGMAIL(addresses[0], name, message);
-	for (var i = 1; i < addresses.length; i++)
-		message.to(addresses[i]);
 };
 
 SuperAdmin.send_notify = function(type, body) {

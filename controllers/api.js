@@ -4,43 +4,34 @@ const Exec = require('child_process').exec;
 
 exports.install = function() {
 
-	ROUTE('+API    /apiv1/        -apps_query             *Apps            --> query');
-	ROUTE('+API    /apiv1/        -apps_read/id           *Apps            --> read');
-	ROUTE('+API    /apiv1/        -apps_restart/id        *Apps            --> restart');
-	ROUTE('+API    /apiv1/        -apps_restart_all       *Apps            --> restart_all');
-	ROUTE('+API    /apiv1/        +apps_save              *Apps            --> check port save (response)', [120000]);
-	ROUTE('+API    /apiv1/        -apps_remove/id         *Apps            --> remove');
-	ROUTE('+API    /apiv1/        -apps_stop/id           *Apps            --> stop');
-	ROUTE('+API    /apiv1/        -apps_stop_all          *Apps            --> stop_all');
-	ROUTE('+API    /apiv1/        -apps_analyzator        *Apps            --> analyzator');
-	ROUTE('+API    /apiv1/        -templates              *Templates       --> query');
-	ROUTE('+API    /apiv1/        +templates_apply/id     *Templates       --> check stop backup remove unpack (response) restart', [50000]);
-	ROUTE('+API    /apiv1/        -fixpermissions         *Operations      --> fixpermissions', [50000]);
-	ROUTE('+API    /apiv1/        -settings_read          *Settings        --> read');
-	ROUTE('+API    /apiv1/        +settings_save          *Settings        --> save');
-	ROUTE('+API    /apiv1/        -updatetotal            *Operations      --> updatetotal');
-	ROUTE('+API    /apiv1/        -filebrowser/id         *FileBrowser     --> query');
-	ROUTE('+API    /apiv1/        -filebrowser_read/id    *FileBrowser     --> read');
-	ROUTE('+API    /apiv1/        +filebrowser_save/id    *FileBrowser     --> save');
-	ROUTE('+API    /apiv1/        -users_query            *Users           --> query');
-	ROUTE('+API    /apiv1/        -users_read/id          *Users           --> read');
-	ROUTE('+API    /apiv1/        -users_remove/id        *Users           --> remove');
-	ROUTE('+API    /apiv1/        +users_insert           *Users           --> insert');
-	ROUTE('+API    /apiv1/        +users_update/id        *Users           --> update');
-	ROUTE('+API    /apiv1/        -account_read           *Account         --> read');
-	ROUTE('+API    /apiv1/        +account_save           *Account         --> save');
-	ROUTE('+API    /apiv1/        -alarms_query           *Alarms          --> query');
-	ROUTE('+API    /apiv1/        +alarms_save            *Alarms          --> save');
-	ROUTE('+API    /apiv1/        -alarms_remove/id       *Alarms          --> remove');
-	ROUTE('+API    /apiv1/        -notifications_query    *Notifications   --> query');
-	ROUTE('+API    /apiv1/        -notifications_clear    *Notifications   --> remove');
-	ROUTE('-API    /apiv1/        +login                  *Account/Login   --> exec');
-	ROUTE('+API    /apiv1/        -logout                 *Account         --> logout');
+	ROUTE('+API    /api/        -templates              *Templates       --> query');
+	ROUTE('+API    /api/        +templates_apply/id     *Templates       --> check stop backup remove unpack (response) restart', [50000]);
+	ROUTE('+API    /api/        -fixpermissions         *Operations      --> fixpermissions', [50000]);
+	ROUTE('+API    /api/        -settings_read          *Settings        --> read');
+	ROUTE('+API    /api/        +settings_save          *Settings        --> save');
+	ROUTE('+API    /api/        -updatetotal            *Operations      --> updatetotal');
+	ROUTE('+API    /api/        -filebrowser/id         *FileBrowser     --> query');
+	ROUTE('+API    /api/        -filebrowser_read/id    *FileBrowser     --> read');
+	ROUTE('+API    /api/        +filebrowser_save/id    *FileBrowser     --> save');
+	// ROUTE('+API    /api/        -users_query            *Users           --> query');
+	// ROUTE('+API    /api/        -users_read/id          *Users           --> read');
+	// ROUTE('+API    /api/        -users_remove/id        *Users           --> remove');
+	// ROUTE('+API    /api/        +users_insert           *Users           --> insert');
+	// ROUTE('+API    /api/        +users_update/id        *Users           --> update');
+	ROUTE('+API    /api/        -account_read           *Account         --> read');
+	ROUTE('+API    /api/        +account_save           *Account         --> save');
+	ROUTE('+API    /api/        -alarms_query           *Alarms          --> query');
+	ROUTE('+API    /api/        +alarms_save            *Alarms          --> save');
+	ROUTE('+API    /api/        -alarms_remove/id       *Alarms          --> remove');
+	ROUTE('+API    /api/        -notifications_query    *Notifications   --> query');
+	ROUTE('+API    /api/        -notifications_clear    *Notifications   --> remove');
+	ROUTE('-API    /api/        +login                  *Account/Login   --> exec');
+	ROUTE('+API    /api/        -logout                 *Account         --> logout');
 	ROUTE('+GET    /backup/                               *Operations      --> backup', [1200000]);
 	ROUTE('GET     /logs/{id}/                            *Apps            --> logs');
 
-	ROUTE('+API    /apiv1/        -build_read/id          *Apps/Build      --> read');
-	ROUTE('+API    /apiv1/        +build_save/id          *Apps/Build      --> save', 1024 * 10);
+	ROUTE('+API    /api/        -build_read/id          *Apps/Build      --> read');
+	ROUTE('+API    /api/        +build_save/id          *Apps/Build      --> save', 1024 * 10);
 
 	// Custom defined actions
 	ROUTE('+GET    /download/{id}/',    download, [120000]);

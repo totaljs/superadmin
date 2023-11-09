@@ -36,7 +36,7 @@ NEWTASK('ssl', function(push) {
 	});
 
 	push('renew', function($, value) {
-		Exec(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -w {2} --stateless --keylength 2048'.format(CONF.directory_ssl, value, CONF.directory_acme, 'renew --force'), function(err) {
+		Exec(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -w {2} --stateless'.format(CONF.directory_ssl, value, CONF.directory_acme, 'renew --force'), function(err) {
 
 			SuperAdmin.send_notify(err ? 'warning' : 'success', err ? TRANSLATOR('', '@(A problem with renewing of SSL certificate for domain <b>{0}</b>. Error: {1})').format(value, err.message) : TRANSLATOR('', '@(SSL certificate has been renewed successfully for <b>{0}</b>)').format(value));
 
@@ -48,7 +48,7 @@ NEWTASK('ssl', function(push) {
 	});
 
 	push('create', function($, value) {
-		Exec(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -w {2} --stateless --keylength 2048'.format(CONF.directory_ssl, value, CONF.directory_acme, 'issue --force'), function(err) {
+		Exec(SuperAdmin.options.acmepath + ' --certhome {0} --{3} -d {1} -w {2} --stateless'.format(CONF.directory_ssl, value, CONF.directory_acme, 'issue --force'), function(err) {
 			if (err)
 				$.invalid('error-ssl-create', value + ': ' + err);
 			else

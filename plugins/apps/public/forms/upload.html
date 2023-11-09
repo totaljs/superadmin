@@ -1,0 +1,94 @@
+<ui-component name="form" path="common.form" config="if:CLASS;width:700;title:@(Upload source-code);reload:?/reload;submit:?/submit;icon:ti ti-cloud-upload" class="invisible hidden CLASS" plugin="CLASS">
+
+	<div class="padding">
+
+		<ui-bind path="?.app.version" config="show:value==='total4'" class="m hidden block">
+			<ul class="togglebuttons">
+				<li class="exec" data-exec="?/builder">
+					<i class="ti ti-laptop-code"></i>@(Open <b>Total.js Builder</b>)
+				</li>
+			</ul>
+		</ui-bind>
+
+		<ui-component name="input" path="?.template" config="dirsource:%templates;dirvalue:url;required:1;dirplaceholder:@(Search);placeholder:@(Choose a source)" default="''">@(Source-code)</ui-component>
+		<ui-bind path="?.template" config="show:value=='upload'" class="alert mt10 hidden block"><b>@(IMPORTANT):</b> @(ZIP (max. 10 MB) file will be extracted as it is in the root of application directory.)</ui-bind>
+		<br />
+		<div>
+			<ui-component name="input" path="?.npm" config="type:checkbox" class="inline mr5">@(Performs NPM install)</ui-component>
+			<div class="inline middle"><span class="badge badge-blue">package.json</span></div>
+		</div>
+		<ui-component name="input" path="?.backup" config="type:checkbox">@(Creates a backup)</ui-component>
+		<ui-component name="input" path="?.remove" config="type:checkbox" default="true" class="b red">@(Removes all files in the root of application)</ui-component>
+	</div>
+
+	<nav>
+		<ui-component name="validate" path="?">
+			<button name="submit" disabled><i class="ti ti-play-alt"></i>@(SUBMIT)</button>
+			<button name="cancel">@(Cancel)</button>
+		</ui-component>
+	</nav>
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		exports.reload = function(com) {
+			var model = exports.model;
+			var app = model.app;
+			com.reconfigure({ title: app.url });
+			exports.set('template @reset', '');
+			exports.tapi('templates ERROR <5 minutes>', function(response) {
+				response = response.slice(0);
+				response.unshift({ name: '@(Restore a backup)', url: 'restore' });
+				response.unshift({ name: '@(Upload ZIP file)', url: 'upload' });
+				SET('%templates', response);
+			});
+		};
+
+		exports.refresh = function() {
+		};
+
+		exports.builder = function() {
+			NULL('common.form');
+			var model = exports.model;
+			exports.tapi('build_read/{0} @showloading ERROR'.format(model.app.id), function(response) {
+				SETTER('builder/load @hideloading', response ? STRINGIFY(response, true) : '', function(response) {
+					exports.tapi('build_save/{0} @showloading ERROR'.format(model.app.id), response, function() {
+						SETTER('notifybar/success @hideloading', '@(Application <b>"{0}"</b> has been updated sucessfully.)'.format(model.app.url))
+					});
+				});
+			});
+		};
+
+		exports.submit = function(hide) {
+			SETTER('approve/show', '@(Are you sure you want to continue?)', '"ti ti-play-alt" @(Continue)', function() {
+				exports.submit_force(hide);
+			});
+		};
+
+		exports.submit_force = function(hide) {
+			var model = exports.model;
+			if (model.template === 'upload') {
+				var opt = {};
+				opt.url = '/api/upload/?id=' + model.app.id;
+				opt.accept = 'application/zip';
+				opt.callback = function(response, err) {
+					exports.tapi('templates_apply/{0} @showloading ERROR'.format(model.app.id), { template: model.template, remove: model.remove, backup: model.backup, npm: model.npm }, function() {
+						SETTER('notifybar/success @hideloading', '@(Source-code has been applied successfully)');
+						hide();
+					});
+				};
+				opt.progress = function(percentage) {
+					SET('common.progress', percentage);
+				};
+				SETTER('fileuploader/upload', opt);
+			} else
+				exports.tapi('templates_apply/{0} @showloading ERROR'.format(model.app.id), { template: model.template, remove: model.remove, backup: model.backup, npm: model.npm }, function() {
+					SETTER('notifybar/success @hideloading', '@(Source-code has been applied successfully)');
+					hide();
+				});
+		};
+	});
+
+</script>

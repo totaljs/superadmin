@@ -3,6 +3,35 @@
 // https://www.totaljs.com
 // ===================================================
 
+{{ if value.total === 'total5' }}
+require('total5');
+
+const options = {};
+{{ if value.cluster }}
+options.cluster = {{ value.cluster }};
+{{ fi }}
+
+{{ if !value.debug && value.watcher }}
+options.watcher = true;
+{{ fi }}
+
+{{ if value.servicemode }}
+options.servicemode = true;
+{{ fi }}
+
+{{ if value.editcode }}
+options.edit = '{{ value.editcode }}';
+{{ fi }}
+
+{{ if value.unixsocket }}
+options.unixsocket = '{{ value.unixsocket }}';
+options.unixsocket777 = true;
+{{ fi }}
+
+options.release = process.argv.includes('--release') || process.argv.includes('release');
+
+F.run(options);
+{{ else }}
 const total = '{{ value.total }}' || 'total4';
 const options = {};
 
@@ -41,3 +70,5 @@ if (total === 'total.js') {
 		require(total + '/debug')(options);
 } else
 	require(total + '/' + type)(options);
+
+{{ fi }}

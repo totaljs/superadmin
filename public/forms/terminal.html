@@ -1,13 +1,13 @@
-<div class="terminalwin invisible" data---="ready__null__rclass:invisible;focus:input">
-	<div data---="viewbox__common.spawns.{0}__parent:auto;scrollto:bottom;scrollbar:1;margin:40">
+<ui-component name="ready" config="rclass:invisible;focus:input" class="terminalwin invisible">
+	<ui-component name="viewbox" path="common.spawns.{0}" config="parent:auto;scrollto:bottom;scrollbar:1;margin:40">
 		<div class="padding">
-			<pre data-bind="common.spawns.{0}__html:value?value.join(''):''"></pre>
+			<pre><ui-bind path="common.spawns.{0}" config="html:value?value.join(''):''"></ui-bind></pre>
 		</div>
-	</div>
+	</ui-component>
 	<div class="input">
-		<div data---="rawinput__common.spawns.{0}input__enter:common/sendterminal;placeholder:@(bash command);$init:rawinputtrim;monospace:1" data-id="{0}"></div>
+		<ui-component name="rawinput" path="common.spawns.{0}input" config="enter:common/sendterminal;placeholder:@(bash command);$init:rawinputtrim;monospace:1" data-id="{0}"></ui-component>
 	</div>
-</div>
+</ui-component>
 
 <script>
 	function rawinputtrim(com) {

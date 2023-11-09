@@ -44,18 +44,8 @@ Number.prototype.filesize = function(decimals, type) {
 			break;
 		default:
 
-			type = 'bytes';
-			value = t;
-
-			if (value > 1023) {
-				value = value / 1024;
-				type = 'KB';
-			}
-
-			if (value > 1023) {
-				value = value / 1024;
-				type = 'MB';
-			}
+			type = 'MB';
+			value = t / 1024 / 1024;
 
 			if (value > 1023) {
 				value = value / 1024;
@@ -83,36 +73,6 @@ function filesizehelper(number, count) {
 	return number;
 }
 
-Thelpers.app_trending = function(val, type) {
-
-	var key = this.path.substring(9);
-	var obj = W.appsinfo[key];
-	if (!obj)
-		return DEF.empty;
-
-	key += '_' + type;
-
-	var prev = W.apps.trending[key];
-	var curr = obj[type];
-
-	W.apps.trending[key] = curr;
-
-	if (type === 'connections')
-		val = '<span>' + val + '</span>';
-
-	if (prev == null)
-		return val;
-
-	var plus = '';
-
-	if (prev < curr)
-		plus = '<i class="fas fa-long-arrow-down green trending"></i>';
-	else if (prev > curr)
-		plus = '<i class="fas fa-long-arrow-up red trending"></i>';
-
-	return plus + val;
-};
-
 Thelpers.uptime = function(value) {
 	// value === seconds
 	var minutes = (value / 60);
@@ -134,7 +94,7 @@ Thelpers.indexer = function(index) {
 };
 
 Thelpers.checkbox = function(val) {
-	return '<i class="far ' + (val ? 'fa-check-square green' : 'fa-square') + '"></i>';
+	return '<i class="ti ' + (val ? 'ti-check-square green' : 'ti-square') + '"></i>';
 };
 
 Thelpers.progress = function(val) {

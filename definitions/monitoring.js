@@ -1,9 +1,9 @@
 function service_info() {
-	$WORKFLOW('Apps', 'info', () => setTimeout(service_info, 60000));
+	CALL('Apps --> info').callback(() => setTimeout(service_info, 60000));
 }
 
 function service_analyzator() {
-	$WORKFLOW('Apps', 'analyzator', () => setTimeout(service_analyzator, 120000));
+	CALL('Apps --> analyzator').callback(() => setTimeout(service_analyzator, 120000));
 }
 
 ON('settings', function() {
@@ -14,7 +14,8 @@ ON('settings', function() {
 // Saves current apps state
 ON('service', function(counter) {
 
-	counter % 2 === 0 && SuperAdmin.save();
+	if (counter % 2 === 0)
+		SuperAdmin.save();
 
 	if (!CONF.allowbackup || !CONF.intervalbackup)
 		return;
@@ -37,7 +38,8 @@ ON('superadmin_app_restart', function(app) {
 	if (!app)
 		return;
 
-	!app.stats && (app.stats = {});
+	if (!app.stats)
+		app.stats = {};
 
 	if (app.stats.restarts)
 		app.stats.restarts++;

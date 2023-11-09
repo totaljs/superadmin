@@ -13,8 +13,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
 	<meta name="robots" content="all,follow" />
 	<link rel="apple-touch-icon" href="/icon.png" />
-	<link rel="stylesheet" href="@{'%cdn'}/spa.min@18.css" />
-	<script src="@{'%cdn'}/spa.min@18.js"></script>
+	<link rel="stylesheet" href="@{'%cdn'}/spa.min@19.css" />
+	<script src="@{'%cdn'}/spa.min@19.js"></script>
 	<style type="text/css">
 		/*auto*/
 
@@ -54,20 +54,19 @@
 		}
 
 	</style>
-	@{import('ui.css', 'ui.js')}
 </head>
 <body>
 
-	<div data---="LAZY message__null__style:2;button:@(Close)"></div>
+	<ui-component name="LAZY message" config="style:2;button:@(Close)"></ui-component>
 
 	<div class="centered">
 		<div class="panel">
-			<h1><i class="fa fa-lock"></i>@{'%name'}</h1>
+			<h1><i class="ti ti-lock mr5"></i>@{'%name'}</h1>
 			<div class="padding">
 
 				@{if PREF.credentials}
 					<div class="alert m">
-						<div class="m"><i class="fa fa-lock"></i>@(Your default credentials are below. You can change them after you sign in.)</div>
+						<div class="m"><i class="ti ti-lock"></i>@(Your default credentials are below. You can change them after you sign in.)</div>
 						<div class="keyvalue">
 							<div class="key">@(Name)</div>
 							<div class="value b">@{PREF.credentials.login}</div>
@@ -79,11 +78,11 @@
 					</div>
 				@{fi}
 				<form method="POST" action="/" id="login">
-					<div class="m" data---="input__form.login__icon2:user;required:1;autofocus:1;autofill:1">@(Login name)</div>
-					<div class="m" data---="input__form.password__icon2:lock;required:1;type:password;autofill:1">@(Password)</div>
-					<div data---="validation__form" style="margin-top:20px">
-						<button name="submit" disabled="disabled"><i class="fa fa-lock"></i>@(Login)</button>
-					</div>
+					<ui-component class="m" name="input" path="form.login" config="icon2:user;required:1;autofocus:1;autofill:1">@(Login name)</ui-component>
+					<ui-component class="m" name="input" path="form.password" config="icon2:lock;required:1;type:password;autofill:1">@(Password)</ui-component>
+					<ui-component name="validate" path="form" style="margin-top:20px">
+						<button name="submit" disabled="disabled"><i class="ti ti-lock mr5"></i>@(Login)</button>
+					</ui-component>
 				</form>
 				<footer>
 					<div>All rights reserved &copy; 2016-@{NOW.getFullYear()}</div>
@@ -109,7 +108,7 @@
 		$(document).on('click', 'button', function() {
 			if (!CAN('form.*') || BLOCKED('adminlogin', 2000))
 				return;
-			API('/apiv1/ login', GET('form @reset'), ASETTER('message/response', function(response) {
+			API('/api/ login', GET('form @reset'), ASETTER('message/response', function(response) {
 				SET('form.response', response);
 				response.success && location.reload(true);
 			}));

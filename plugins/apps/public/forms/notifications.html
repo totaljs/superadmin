@@ -1,0 +1,42 @@
+<style>
+	.CLASS .notification { font-size: 12px; padding: 10px 15px; border-bottom: 1px solid #E0E0E0; }
+</style>
+
+<ui-component name="box" path="common.form2" config="if:CLASS;width:350;title:@(Notifications);icon:ti ti-bell;align:right;background:false;transparent:true;reload:?/reload" class="hidden CLASS" plugin="CLASS">
+	<nav>
+		<ui-bind path="?.items" config="show:value && value.length !==0">
+			<button class="exec" data-exec="?/clear"><i class="ti ti-trash red"></i>@(Clear)</button>
+		</ui-bind>
+	</nav>
+	<ui-component name="empty" path="?.items" config="parent:.ui-scrollbar-area;wait:false" class="hidden">@(You don't have any notifications)</ui-component>
+	<ui-bind path="?.items" config="template">
+		<script type="text/html">
+			{{ foreach m in value }}
+				<div class="notification">
+					<span{{ if m.type === 'warning' }} class="red"{{ fi }}><i class="ti ti-calendar mr5"></i><strong>{{ m.dtcreated | format('[ts]') }}</strong></span> - {{ m.body | raw }}
+				</div>
+			{{ end }}
+		</script>
+	</ui-bind>
+</ui-component>
+
+<script>
+
+PLUGIN(function(exports) {
+
+	exports.reload = function() {
+		exports.refresh();
+	};
+
+	exports.refresh = function() {
+		exports.tapi('notifications_query @showloading ERROR', '?.items @hideloading');
+	};
+
+	exports.clear = function() {
+		exports.tapi('notifications_clear', NOOP);
+		exports.refresh();
+	};
+
+});
+
+</script>

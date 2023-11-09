@@ -9,120 +9,125 @@
 	<meta name="format-detection" content="telephone=no" />
 	<meta name="robots" content="all,follow" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
-	<link href="//cdn.componentator.com/spa.min@18.css" rel="stylesheet" />
+	<link href="//cdn.componentator.com/spa.min@19.css" rel="stylesheet" />
 	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700&subset=latin,latin-ext" />
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/codemirror.min.css" />
-	<script src="//cdn.componentator.com/spa.min@18.js"></script>
+	<script src="//cdn.componentator.com/spa.min@19.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/codemirror.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/mode/nginx/nginx.min.js"></script>
-	@{import('head', 'ui.css + default.css', 'ui.js + helpers.js + syntax.js', 'favicon.ico')}
+	<script src="@{REPO.ui}"></script>
+	@{import('head', 'ui.css + default.css', 'helpers.js + syntax.js', 'favicon.ico')}
 </head>
-<body data---="exec">
+<body>
 
-	<div data---="loading" class="ui-loading"></div>
-	<div data---="websocket__null__url:/;encoder:false"></div>
-	<div data---="console__common.showlogs__datasource:common.logs"></div>
-	<div data---="mainprogress__common.progress"></div>
-	<div data---="shortcuts"></div>
-	<div data---="windows__common.windows"></div>
-	<div data---="notify__null__position:bottom right"></div>
+	<ui-component name="exec"></ui-component>
+	<ui-component name="errorhandler"></ui-component>
+	<ui-component name="locale"></ui-component>
+	<ui-component name="loading" class="ui-loading"></ui-component>
 
-	<div data---="LAZY directory__null__placeholder:@(Search)"></div>
-	<div data---="LAZY fileuploader"></div>
-	<div data---="LAZY floatinginput"></div>
-	<div data---="LAZY message__null__style:2;button:@(Close)"></div>
-	<div data---="LAZY approve"></div>
-	<div data---="LAZY menu__null__style:2"></div>
-	<div data---="LAZY builder"></div>
+	<ui-component name="websocket" config="url:/;encoder:false"></ui-component>
+	<ui-component name="console" path="common.showlogs" config="datasource:common.logs"></ui-component>
+	<ui-component name="mainprogress" path="common.progress"></ui-component>
+	<ui-component name="shortcuts"></ui-component>
+	<ui-component name="windows" path="common.windows"></ui-component>
+	<ui-component name="notify" config="position:bottom right"></ui-component>
 
-	<div data---="notificationspanel__common.shownotifications__exec:common/notifications_load;autoremove:0;clear:common/notifications_clear">
-		<script type="text/html">
-			<div class="notification">
-				<span{{ if type === 'warning' }} class="red"{{ fi }}><i class="far fa-calendar mr5"></i><strong>{{ dtcreated | format('[ts]') }}</strong></span> - {{ body | raw }}
-			</div>
-		</script>
-	</div>
+	<ui-component name="LAZY directory" config="placeholder:@(Search)"></ui-component>
+	<ui-component name="LAZY fileuploader"></ui-component>
+	<ui-component name="LAZY floatinginput"></ui-component>
+	<ui-component name="LAZY message" config="style:2;button:@(Close)"></ui-component>
+	<ui-component name="LAZY approve"></ui-component>
+	<ui-component name="LAZY menu" config="style:2"></ui-component>
+	<ui-component name="LAZY builder"></ui-component>
 
 	<div class="ui-dark">
-		<div data---="LAZY notifybar"></div>
+		<ui-component name="LAZY notifybar"></ui-component>
 	</div>
 
-	<div class="mainmenu exec" data-exec="common/showmenu"><i class="fa fa-align-justify"></i></div>
+	<div class="mainmenu exec" data-exec="common/showmenu"><i class="ti ti-align-justify"></i></div>
 
-	<div data---="layout2__null__parent:window;marginxs:34" class="invisible">
+	<ui-component name="layout2" config="parent:window;marginxs:34" class="invisible">
 		<div data-type="left" data-size="230,230,200,0" data-scrollbar="selector:main;margin:0">
 			<main>
-				<div class="stats" data-scope="sysinfo">
+				<ui-plugin path="sysinfo" class="stats">
 					<div class="padding npb">
-						<div data---="gauge__?.cpu__colors:30 #8CC152 25,40 #EDBC5A 35,30 #DB3737 45"></div>
-						<div class="center mt10" data-bind="?.processes__text:Thelpers.pluralize(value, @('# processes', '# process', '# processes', '# processes'))__empty"></div>
-						<div class="center" data-bind="?.version_server__text__empty"></div>
+						<ui-component name="gauge" path="?.cpu" config="colors:30 #8CC152 25,40 #EDBC5A 35,30 #DB3737 45"></ui-component>
+						<ui-bind path="?.processes" config="text:Thelpers.pluralize(value, @('# processes,# process,# processes,# processes'));empty" class="center mt10 block"></ui-bind>
+						<ui-bind path="?.version_server" config="text;empty" class="center block"></ui-bind>
 					</div>
-					<div data---="livestats__?.live__max:100;colors:cpu=#E73323,memory=#68B25B,storage=#2E67C5" class="mt10"></div>
+					<ui-component name="livestats" path="?.live" config="max:100;colors:cpu=#E73323,memory=#68B25B,storage=#2E67C5" class="mt10"></ui-component>
 					<div class="padding">
 						<div class="keyvalue-group">
-							<div data-bind="?.live.memory__html__helper:progress"></div>
-							<i class="fa fa-microchip" style="color:#68B25B"></i>@(Memory)
+							<ui-bind path="?.live.memory" config="html;helper:progress"></ui-bind>
+							<i class="ti ti-microchip" style="color:#68B25B"></i>@(Memory)
 						</div>
 						<div class="keyvalue">
-							<div class="value" data-bind="?.memused__text__helper:filesize"></div>
+							<ui-bind path="?.memused" config="text;helper:filesize" class="value"></ui-bind>
 							<div class="key">@(Used)</div>
 						</div>
 						<div class="keyvalue">
-							<div class="value" data-bind="?.memtotal__text__helper:filesize"></div>
+							<ui-bind path="?.memtotal" config="text;helper:filesize" class="value"></ui-bind>
 							<div class="key">@(Total)</div>
 						</div>
 						<hr />
 						<div class="keyvalue-group">
-							<div data-bind="?.live.storage__html__helper:progress"></div>
-							<i class="far fa-hdd" style="color:#2E67C5"></i>@(Storage)
+							<ui-bind path="?.live.storage" config="html;helper:progress"></ui-bind>
+							<i class="ti ti-hdd" style="color:#2E67C5"></i>@(Storage)
 						</div>
 						<div class="keyvalue">
-							<div class="value" data-bind="?.hddused__text__helper:filesize"></div>
+							<ui-bind path="?.hddused" config="text;helper:filesize" class="value"></ui-bind>
 							<div class="key">@(Used)</div>
 						</div>
 						<div class="keyvalue m">
-							<div class="value" data-bind="?.hddtotal__text__helper:filesize"></div>
+							<ui-bind path="?.hddtotal" config="text;helper:filesize" class="value"></ui-bind>
 							<div class="key">@(Total)</div>
 						</div>
 						<hr />
-						<div>@(IP address): <b data-bind="?.ip__text__empty">---</b></div>
+						<div>@(IP address): <ui-bind path="?.ip" config="text;empty" class="b">---</ui-bind></div>
 						<div class="gray">
-							<div>@(Uptime): <span data-bind="?.uptime__text__!helper:uptime__empty"></span></div>
+							<div>@(Uptime): <ui-bind path="?.uptime" config="text;!helper:uptime;empty"></ui-bind></div>
 						</div>
 					</div>
-				</div>
-
-				<br />
-				<ul class="nav" data---="selected__common.page__selector:li">
-					<li class="exec" data-exec="common/page" data-if="apps"><span data-bind="apps.apps.length__text__show"></span><i class="fa fa-navicon"></i>@(Applications)</li>
-					<!-- <li class="exec" data-exec="common/page" data-if="stats"><i class="fa fa-area-chart"></i>@(Statistics)</li>
-					<li class="exec" data-exec="common/page" data-if="alarms"><i class="fa fa-bell"></i>@(Alarms)</li>
-					<li class="exec" data-exec="common/page" data-if="settings"><i class="fa fa-wrench"></i>@(Settings)</li> -->
-					<li class="exec" data-exec="common/notifications">@{if PREF.notifications}<span>@{PREF.notifications}</span>@{fi}<i class="far fa-bell"></i>@(Notifications)</li>
-					<li class="exec" data-exec="common/more"><i class="fas fa-plus"></i>@(More)</li>
-				</ul>
-				<!--
-				<hr />
-				<ul class="nav">
-					<li class="exec b" data-exec="common/profile" data-if="profile"><i class="far fa-user-circle"></i>@{user.name}</li>
-					<li class="exec" data-exec="common/logout"><i class="fa fa-power-off red"></i>@(Logout)</li>
-				</ul>-->
+				</ui-plugin>
+				<ui-component name="aselected" path="NAV.url" class="nav">
+					<ui-bind path="common.plugins" config="template">
+						<script type="text/html">
+							<nav>
+							{{ foreach m in value }}
+								<a href="{{ m.url }}" class="jR" title="{{ m.name }}"><i class="{{ m.icon }}"></i>{{ m.name }}</a>
+							{{ end }}
+								<div class="exec" data-exec="common/logout" title="@(Logout)"><i class="ti ti-power-off red"></i>@(Logout)</div>
+							</nav>
+						</script>
+					</ui-bind>
+				</ui-component>
 				<br />
 			</main>
 		</div>
 		<div data-type="main">
-			<div data---="part__common.page__if:apps;init:applications_init;url:/parts/apps.html;reload:apps/reload"></div>
-			<div data---="part__common.page__if:settings;reload:settings/reload;url:/parts/settings.html"></div>
-			<div data---="part__common.page__if:alarms;reload:alarms/reload;url:/parts/alarms.html"></div>
-			<div data---="part__common.page__if:users;reload:users/reload;url:/parts/users.html"></div>
-			<!--<div data---="part__common.page__if:stats;url:/templates/stats.html"></div>-->
+			<ui-bind path="common.plugins" config="template" class="block">
+				<script type="text/html">
+					{{ foreach m in value }}
+					<ui-component name="page" path="common.page" config="if:plugin{{ m.id }};url:@{#}/_{{ m.id }}/index.html;reload:?/reload;id:_{{ m.id }}" class="hidden invisible"></ui-component>
+					{{ if m.routes }}
+						{{ foreach route in m.routes }}
+						<ui-component name="page" path="common.page" config="if:plugin{{ m.id }}{{ route.html }};url:@{#}/_{{ m.id }}/{{ route.html }}.html;reload:?/reload;id:_{{ m.id }}" class="hidden invisible"></ui-component>
+						{{ end }}
+					{{ fi }}
+					{{ end }}
+				</script>
+			</ui-bind>
+			<!--
+			<ui-component name="page" path="common.page" config="if:apps;init:applications_init;url:/parts/apps.html;reload:apps/reload"></ui-component>
+			<ui-component name="page" path="common.page" config="if:settings;reload:settings/reload;url:/parts/settings.html"></ui-component>
+			<ui-component name="page" path="common.page" config="if:alarms;reload:alarms/reload;url:/parts/alarms.html"></ui-component>
+			<ui-component name="page" path="common.page" config="if:users;reload:users/reload;url:/parts/users.html"></ui-component>
+			-->
 		</div>
-	</div>
-
-	<div data---="importer__common.form__if:profileform;url:/forms/profile.html"></div>
+	</ui-component>
 
 	@{json(user, 'userdata')}
+	@{json(model, 'pluginsdata')}
 
 	<script>
 
@@ -130,19 +135,21 @@
 		var user = PARSE('#userdata');
 
 		DEF.dateformat = '@(yyyy-MM-dd)';
-		DEF.api = '/apiv1/';
+		DEF.api = '/api/';
 
 		ENV('date', '@(yyyy-MM-dd)');
 		ENV('ts', '@(yyyy-MM-dd HH:mm)');
 
 		// Current page
-		common.page = 'apps';
+		common.name = '@{CONF.name}';
+		common.page = 'pluginapps';
+		common.plugins = PARSE('#pluginsdata');
 
 		// Current form
 		common.form = '';
 
 		common.logs = {};
-		common.logs.apps = { icon: 'fas fa-list', name: '@(Applications)', items: [] };
+		common.logs.apps = { icon: 'ti ti-list', name: '@(Applications)', items: [] };
 
 		NAV.clientside('.jR');
 
@@ -170,6 +177,15 @@
 
 		PLUGIN('common', function(exports) {
 
+			var model = exports.model;
+
+			model.plugins.forEach(function(plugin) {
+				plugin.url = '@{#}/' + (plugin.id === 'apps' ? '' : (plugin.id + '/'));
+				ROUTE(plugin.url, () => exports.set('page', 'plugin' + plugin.id), 'init');
+				plugin.routes && plugin.routes.forEach(item => ROUTE('@{#}/' + item.url, () => exports.set('page', 'plugin' + plugin.id + item.html), 'init'));
+				plugin.import && $(document.body).append('<ui-import config="url:{0};id:_{1}"></ui-import>'.format('@{#}/_' + plugin.id + '/' + plugin.import, plugin.id));
+			});
+
 			exports.refresh = function() {
 			};
 
@@ -184,19 +200,19 @@
 				opt.items = [];
 
 				if (user.sa) {
-					opt.items.push({ id: 'alarms', name: '@(Alarms)', icon: 'fas fa-bell' });
-					opt.items.push({ id: 'users', name: '@(Users)', icon: 'fas fa-user-friends' });
-					opt.items.push({ id: 'settings', name: '@(Settings)', icon: 'fas fa-cog' });
+					opt.items.push({ id: 'alarms', name: '@(Alarms)', icon: 'ti ti-bell' });
+					opt.items.push({ id: 'users', name: '@(Users)', icon: 'ti ti-users' });
+					opt.items.push({ id: 'settings', name: '@(Settings)', icon: 'ti ti-cog' });
 				}
 
-				opt.items.push({ id: 'console', name: '@(Toggle console)', icon: 'far fa-file-alt' });
+				opt.items.push({ id: 'console', name: '@(Toggle console)', icon: 'ti ti-file-alt' });
 
 				if (user.sa)
-					opt.items.push({ id: 'terminal', name: '@(Open terminal)', icon: 'fas fa-terminal' });
+					opt.items.push({ id: 'terminal', name: '@(Open terminal)', icon: 'ti ti-terminal' });
 
 				opt.items.push('-');
-				opt.items.push({ id: 'profile', name: '@(My profile)', icon: 'far fa-user-circle' });
-				opt.items.push({ id: 'logout', name: '@(Logout)', icon: 'fas fa-power-off red' });
+				opt.items.push({ id: 'profile', name: '@(My profile)', icon: 'ti ti-user-circle' });
+				opt.items.push({ id: 'logout', name: '@(Logout)', icon: 'ti ti-power-off red' });
 				opt.callback = function(item) {
 					switch (item.id) {
 						case 'terminal':
@@ -224,17 +240,11 @@
 				SETTER('menu/show', opt);
 			};
 
-			exports.notifications_load = function(next) {
-				DAPI('notifications_query', next);
-			};
-
-			exports.notifications = function(el) {
-				el.find('span').remove();
-				TOGGLE('common.shownotifications');
-			};
-
-			exports.notifications_clear = function() {
-				DAPI('notifications_clear', NOOP);
+			exports.logout = function() {
+				console.log('tu som');
+				exports.tapi('logout @showloading', function() {
+					location.reload();
+				});
 			};
 
 			exports.hidemenu = function() {
@@ -340,13 +350,12 @@
 					break;
 
 				case 'terminal_open':
-
 					AJAX('GET /forms/terminal.html', function(response) {
 						var obj = {};
 						obj.id = msg.id;
 						obj.cachekey = 'spawn';
 						obj.offset = { x: 600, y: 400, width: 650, height: 300, minwidth: 200, minheight: 200 };
-						obj.title = '<i class="fa fa-pulse fa-spinner red"></i> @(Terminal)';
+						obj.title = '<i class="ti ti-pulse ti-spinner red"></i> @(Terminal)';
 						obj.html = response.format(msg.id);
 						obj.actions = { minimize: true, maximize: true, move: true, resize: true, close: true, autosave: true };
 						obj.destroy = function() {

@@ -1,0 +1,2 @@
+// UI components
+COMPONENTATOR('ui', 'exec,errorhandler,gauge,windows,choose,loading,websocket,console,mainprogress,livestats,ready,viewbox,search,aselected,box,textboxlist,radiobuttonexpert,empty,searchinput,input,validate,form,shortcuts,layout2,selected,locale,notify,importer,page,menu,intranetcss,directory', true);
