@@ -13,11 +13,6 @@ exports.install = function() {
 	ROUTE('+API    /api/        -filebrowser/id         *FileBrowser     --> query');
 	ROUTE('+API    /api/        -filebrowser_read/id    *FileBrowser     --> read');
 	ROUTE('+API    /api/        +filebrowser_save/id    *FileBrowser     --> save');
-	// ROUTE('+API    /api/        -users_query            *Users           --> query');
-	// ROUTE('+API    /api/        -users_read/id          *Users           --> read');
-	// ROUTE('+API    /api/        -users_remove/id        *Users           --> remove');
-	// ROUTE('+API    /api/        +users_insert           *Users           --> insert');
-	// ROUTE('+API    /api/        +users_update/id        *Users           --> update');
 	ROUTE('+API    /api/        -account_read           *Account         --> read');
 	ROUTE('+API    /api/        +account_save           *Account         --> save');
 	ROUTE('+API    /api/        -alarms_query           *Alarms          --> query');
@@ -27,8 +22,8 @@ exports.install = function() {
 	ROUTE('+API    /api/        -notifications_clear    *Notifications   --> remove');
 	ROUTE('-API    /api/        +login                  *Account/Login   --> exec');
 	ROUTE('+API    /api/        -logout                 *Account         --> logout');
-	ROUTE('+GET    /backup/                               *Operations      --> backup', [1200000]);
-	ROUTE('GET     /logs/{id}/                            *Apps            --> logs');
+	ROUTE('+GET    /backup/                             *Operations      --> backup', [1200000]);
+	ROUTE('GET     /logs/{id}/                          *Apps            --> logs');
 
 	ROUTE('+API    /api/        -build_read/id          *Apps/Build      --> read');
 	ROUTE('+API    /api/        +build_save/id          *Apps/Build      --> save', 1024 * 10);
