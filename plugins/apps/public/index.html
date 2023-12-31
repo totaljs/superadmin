@@ -551,6 +551,7 @@
 		};
 
 		exports.summary = function() {
+			exports.scope();
 			SET('common.form', 'formsummary');
 		};
 
@@ -592,9 +593,9 @@
 				}
 			}
 
-			count3 && opt.items.push({ name: '@(Restart Total.js 3 apps) (' + count3 + ')', icon: 'ti ti-retweet', id: 'restart3' });
+			count5 && opt.items.push({ name: '@(Restart Total.js 5 apps) (' + count5 + ')', icon: 'ti ti-retweet', id: 'restart5' });
 			count4 && opt.items.push({ name: '@(Restart Total.js 4 apps) (' + count4 + ')', icon: 'ti ti-retweet', id: 'restart4' });
-			count5 && opt.items.push({ name: '@(Restart Total.js 5 apps) (' + count4 + ')', icon: 'ti ti-retweet', id: 'restart5' });
+			count3 && opt.items.push({ name: '@(Restart Total.js 3 apps) (' + count3 + ')', icon: 'ti ti-retweet', id: 'restart3' });
 			countNPM && opt.items.push({ name: '@(Restart NPM start apps) (' + countNPM + ')', icon: 'ti ti-retweet', id: 'restart100' });
 
 			opt.items.push('-');
