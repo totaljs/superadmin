@@ -3,7 +3,6 @@ global.APPLICATIONS = [];
 const Url = require('url');
 const Fs = require('fs');
 const Path = require('path');
-const Exec = require('child_process').exec;
 const Spawn = require('child_process').spawn;
 const SuperAdmin = global.SuperAdmin = {};
 
