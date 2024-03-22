@@ -11,3 +11,5 @@ directory_console             : /www/logs/
 directory_dump                : /www/
 
 allow_tms                     : false
+
+// ssl_format                    : {0}_ecc

@@ -58,9 +58,10 @@ NEWTASK('ssl', function(push) {
 
 	push('done', function($, value) {
 		var obj = {};
+		var format = CONF.ssl_format || '{0}';
 		obj.domain = value;
-		obj.ssl_cer = CONF.directory_ssl + value + '/fullchain.cer';
-		obj.ssl_key = CONF.directory_ssl + value + '/' + value + '.key';
+		obj.ssl_cer = CONF.directory_ssl + format.format(value) + '/fullchain.cer';
+		obj.ssl_key = CONF.directory_ssl + format.format(value) + '/' + value + '.key';
 		$.success(obj);
 	});
 
