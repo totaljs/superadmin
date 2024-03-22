@@ -14,7 +14,7 @@ cp -a ../views/ views
 
 # cd ..
 total4 --bundle superadmin.bundle
-mv superadmin.bundle ../superadmin.bundle
+mv superadmin.bundle ../--bundles--/app.bundle
 
 cd ..
 rm -rf .bundle
